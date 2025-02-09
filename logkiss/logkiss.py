@@ -3,13 +3,14 @@
 
 import os
 import sys
-import json
 import logging
-from logging import LogRecord, StreamHandler, Formatter, Filter
 from pathlib import Path
 from typing import Optional, Union, TextIO, Dict, Any
 from dataclasses import dataclass
 from yaml import safe_load
+from logging import FileHandler, LogRecord, StreamHandler, Formatter, Filter
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from datetime import datetime
 
 # エクスポートする関数やクラスを定義
 __all__ = [
@@ -18,6 +19,9 @@ __all__ = [
     'KissLogger',
     'use_console_handler',
     'PathShortenerFilter',
+    'KissFileHandler',
+    'KissRotatingFileHandler',
+    'KissTimedRotatingFileHandler',
 ]
 
 # デバッグモードの設定
@@ -121,7 +125,7 @@ class ColorManager:
         default_config = {
             'levels': {
                 'DEBUG': {'fg': 'blue'},
-                'INFO': {'fg': 'green'},
+                'INFO': {'fg': 'white'},
                 'WARNING': {'fg': 'yellow'},
                 'ERROR': {'fg': 'red'},
                 'CRITICAL': {'fg': 'red', 'style': 'bold'},
@@ -131,7 +135,7 @@ class ColorManager:
                 'filename': {'fg': 'cyan'},
                 'message': {
                     'DEBUG': {'fg': 'blue'},
-                    'INFO': {'fg': 'green'},
+                    'INFO': {'fg': 'white'},
                     'WARNING': {'fg': 'yellow'},
                     'ERROR': {'fg': 'red'},
                     'CRITICAL': {'fg': 'red', 'style': 'bold'},
@@ -237,7 +241,8 @@ class ColoredFormatter(Formatter):
 
     def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None,
                  style: str = '%', validate: bool = True,
-                 color_config: Optional[Union[str, Path]] = None):
+                 color_config: Optional[Union[str, Path]] = None,
+                 use_color: bool = True):
         """
         Args:
             fmt: フォーマット文字列
@@ -245,19 +250,24 @@ class ColoredFormatter(Formatter):
             style: フォーマットスタイル（'%', '{', '$'のいずれか）
             validate: フォーマット文字列を検証するかどうか
             color_config: 色設定ファイルのパス
+            use_color: 色付けを行うかどうか
         """
         if fmt is None:
             fmt = '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
         super().__init__(fmt, datefmt, style, validate)
         self.color_manager = ColorManager(color_config)
+        self.use_color = use_color
 
     def format(self, record: LogRecord) -> str:
         """ログレコードをフォーマット"""
         # 色を設定
-        record.levelname = self.color_manager.colorize_level(record.levelname)
-        record.filename = self.color_manager.colorize_filename(record.filename)
-        record.asctime = self.color_manager.colorize_timestamp(self.formatTime(record, self.datefmt))
-        record.message = self.color_manager.colorize_message(record.getMessage(), record.levelno)
+        if self.use_color:
+            record.levelname = self.color_manager.colorize_level(record.levelname)
+            record.filename = self.color_manager.colorize_filename(record.filename)
+            record.asctime = self.color_manager.colorize_timestamp(self.formatTime(record, self.datefmt))
+            record.message = self.color_manager.colorize_message(record.getMessage(), record.levelno)
+        else:
+            record.message = record.getMessage()
 
         # フォーマット
         return Formatter.format(self, record)
@@ -265,12 +275,11 @@ class ColoredFormatter(Formatter):
 class KissConsoleHandler(StreamHandler):
     """カラー対応のコンソールハンドラー"""
     
-    def __init__(self, stream: Optional[TextIO] = None, force_color: bool = True,
+    def __init__(self, stream: Optional[TextIO] = None,
                  color_config: Optional[Union[str, Path]] = None):
         """
         Args:
-            stream: 出力先のストリーム。デフォルトはsys.stderr
-            force_color: 強制的に色付き出力を有効にするかどうか
+            stream: 出力先のストリーム
             color_config: 色設定ファイルのパス
         """
         # デフォルトはsys.stderr
@@ -278,10 +287,11 @@ class KissConsoleHandler(StreamHandler):
             stream = sys.stderr
         
         super().__init__(stream)
-        self.force_color = force_color
-        self.color_config = color_config
-        self.formatter = ColoredFormatter(color_config=color_config)
+        # 標準エラー出力の場合は色付けを行う
+        use_color = stream is None or stream is sys.stderr or stream is sys.stdout
+        self.formatter = ColoredFormatter(color_config=color_config, use_color=use_color)
         self.setFormatter(self.formatter)
+        self.setLevel(logging.DEBUG)  # デフォルトでDEBUGレベル
         
         # パス短縮フィルターを追加
         self.addFilter(PathShortenerFilter())
@@ -304,39 +314,132 @@ class KissConsoleHandler(StreamHandler):
         except Exception:
             self.handleError(record)
 
-class KissLogger(logging.Logger):
-    """カラー対応のロガー"""
-    
-    def __init__(self, name: str):
+class KissFileHandler(FileHandler):
+    """カラー対応のファイルハンドラー"""
+
+    def __init__(self, filename: str,
+                 mode: str = 'a', encoding: Optional[str] = None,
+                 delay: bool = False,
+                 color_config: Optional[Union[str, Path]] = None):
         """
         Args:
-            name: ロガー名
+            filename: ログファイルのパス
+            mode: ファイルのオープンモード
+            encoding: ファイルのエンコーディング
+            delay: ファイルのオープンを遅延するかどうか
+            color_config: 色設定ファイルのパス
+        """
+        super().__init__(filename, mode, encoding, delay)
+        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
+        self.setFormatter(self.formatter)
+
+class KissRotatingFileHandler(RotatingFileHandler):
+    """カラー対応のローテーションファイルハンドラー"""
+
+    def __init__(self, filename: str,
+                 mode: str = 'a', maxBytes: int = 0,
+                 backupCount: int = 0, encoding: Optional[str] = None,
+                 delay: bool = False,
+                 color_config: Optional[Union[str, Path]] = None):
+        """
+        Args:
+            filename: ログファイルのパス
+            mode: ファイルのオープンモード
+            maxBytes: ログファイルの最大サイズ
+            backupCount: バックアップファイルの数
+            encoding: ファイルのエンコーディング
+            delay: ファイルのオープンを遅延するかどうか
+            color_config: 色設定ファイルのパス
+        """
+        super().__init__(filename, mode, maxBytes, backupCount, encoding, delay)
+        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
+        self.setFormatter(self.formatter)
+
+class KissTimedRotatingFileHandler(TimedRotatingFileHandler):
+    """カラー対応の時間ベースのローテーションファイルハンドラー"""
+
+    def __init__(self, filename: str,
+                 when: str = 'h', interval: int = 1,
+                 backupCount: int = 0, encoding: Optional[str] = None,
+                 delay: bool = False, utc: bool = False,
+                 atTime: Optional[datetime.time] = None,
+                 color_config: Optional[Union[str, Path]] = None):
+        """
+        Args:
+            filename: ログファイルのパス
+            when: ローテーションのタイミング
+            interval: ローテーションの間隔
+            backupCount: バックアップファイルの数
+            encoding: ファイルのエンコーディング
+            delay: ファイルのオープンを遅延するかどうか
+            utc: UTC時間を使用するかどうか
+            atTime: ローテーションの時刻
+            color_config: 色設定ファイルのパス
+        """
+        super().__init__(filename, when, interval, backupCount, encoding, delay, utc, atTime)
+        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
+        self.setFormatter(self.formatter)
+
+class KissLogger(logging.Logger):
+    """カスタムロガークラス"""
+
+    def __init__(self, name: str):
+        """Initialize the logger with the specified name.
+
+        Args:
+            name: The name of the logger.
         """
         super().__init__(name)
+        self.setLevel(logging.WARNING)  # デフォルトでWARNINGレベル
+
+    def setLevel(self, level: int) -> None:
+        """Set the logging level of this logger.
+
+        Args:
+            level: The logging level to set.
+        """
+        super().setLevel(level)  # 親クラスのsetLevelを呼び出す
+        # ハンドラーのレベルも更新
+        for handler in self.handlers:
+            handler.setLevel(level)
     
     def makeRecord(self, name: str, level: int, fn: str, lno: int, msg: str,
-                  args: tuple, exc_info: Optional[bool],
-                  func: Optional[str] = None,
-                  extra: Optional[Dict[str, Any]] = None,
-                  sinfo: Optional[str] = None) -> LogRecord:
-        """ログレコードを作成"""
-        # extraから渡されたファイル名と行番号を使用
-        if extra is not None and '_filename' in extra and '_lineno' in extra:
-            fn = extra['_filename']
-            lno = extra['_lineno']
-            # extraから削除
-            extra = None
-        
-        # ファイル名を相対パスに変換
-        if fn and os.path.isabs(fn):
-            try:
-                fn = os.path.relpath(fn)
-            except ValueError:
-                # 相対パスに変換できない場合は、ファイル名のみを使用
-                fn = os.path.basename(fn)
-        
-        # 親クラスのメソッドを呼び出し
-        return super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
+                   args: tuple, exc_info: Optional[bool],
+                   func: Optional[str] = None,
+                   extra: Optional[Dict[str, Any]] = None,
+                   sinfo: Optional[str] = None) -> LogRecord:
+        """Create a LogRecord with the given arguments.
+
+        Args:
+            name: The name of the logger.
+            level: The logging level.
+            fn: The filename where the logging call was made.
+            lno: The line number where the logging call was made.
+            msg: The message to log.
+            args: The arguments to apply to the message.
+            exc_info: Exception information to be added to the record.
+            func: The function name where the logging call was made.
+            extra: Extra attributes to add to the record.
+            sinfo: Stack information.
+
+        Returns:
+            A LogRecord with the given arguments.
+        """
+        # extraから呼び出し元の情報を取得
+        if extra is not None:
+            if '_filename' in extra:
+                fn = extra['_filename']
+            if '_lineno' in extra:
+                lno = extra['_lineno']
+
+        # パスを短縮するかどうか
+        if os.environ.get('LOGKISS_PATH_SHORTEN', '1').lower() in ('1', 'true', 'yes'):
+            # ファイル名のみを使用
+            fn = os.path.basename(fn)
+
+        # LogRecordを作成
+        record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
+        return record
 
 # 通常のConsoleHandlerを使用する場合のヘルパー関数
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:

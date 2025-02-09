@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -6,18 +6,26 @@ import sys
 from pathlib import Path
 import logkiss as logging
 
-# ロガーの設定
-console_logger = logging.getLogger('console_only')
-both_logger = logging.getLogger('both')
+# ログファイルのパス
+log_file = os.path.join(os.path.dirname(__file__), 'both.log')
 
-# ファイルハンドラを作成
-log_file = Path('both.log')
-file_handler = logging.FileHandler(str(log_file))
-file_handler.setFormatter(logging.Formatter(
-    fmt='%(asctime)s,%(msecs)03d %(levelname)-5s | %(name)s | %(filename)s:%(lineno)3d | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-))
-both_logger.addHandler(file_handler)
+# コンソールのみのロガーを作成
+console_logger = logging.getLogger('console')
+for handler in console_logger.handlers[:]:
+    console_logger.removeHandler(handler)
+console_logger.setLevel(logging.DEBUG)
+console_handler = logging.KissConsoleHandler()
+console_logger.addHandler(console_handler)
+console_logger.propagate = False
+
+# コンソールとファイルの両方に出力するロガーを作成
+both_logger = logging.getLogger('both')
+for handler in both_logger.handlers[:]:
+    both_logger.removeHandler(handler)
+both_logger.setLevel(logging.DEBUG)
+both_logger.addHandler(logging.KissConsoleHandler())
+both_logger.addHandler(logging.KissFileHandler(log_file))
+both_logger.propagate = False
 
 def main():
     """メイン関数"""
@@ -35,10 +43,10 @@ def main():
     both_logger.error("エラーメッセージ (両方)")
     both_logger.critical("重大なエラーメッセージ (両方)")
     
-    print(f"\nログファイルが作成されました: {log_file.absolute()}")
+    print(f"\nログファイルが作成されました: {log_file}")
     print("ファイルの内容:")
     print("-" * 80)
-    with open(log_file) as f:
+    with open(log_file, 'r') as f:
         print(f.read().rstrip())
     print("-" * 80)
 

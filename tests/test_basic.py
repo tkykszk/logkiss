@@ -14,7 +14,7 @@ def test_logger_creation():
 def test_log_levels():
     """ログレベルのテスト"""
     logger = logkiss.getLogger("test_levels")
-    assert logger.level == logging.INFO  # デフォルトレベル
+    assert logger.level == logging.WARNING  # デフォルトレベル
     
     # 各ログレベルが正しく設定されているか確認
     assert logkiss.DEBUG == logging.DEBUG

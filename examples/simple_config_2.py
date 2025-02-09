@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import logkiss as logging
+logging.basicConfig(level=logging.INFO)
 
 # ルートロガーを取得
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)  
+logger.setLevel(logging.ERROR)  
 
-print("5行でたら正解")
+print("2行でたら正解")
 # ログを出力
 logger.debug("デバッグメッセージ")
 logger.info("情報メッセージ")
