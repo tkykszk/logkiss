@@ -5,10 +5,11 @@ import os
 import sys
 import logging
 import logging.handlers
+from logging import *
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 
-from .logkiss import KissConsoleHandler, ColoredFormatter, KissLogger
+from .logkiss import KissLogger, KissConsoleHandler, ColoredFormatter
 
 # 標準のloggingモジュールの__all__と同じ内容をエクスポート
 __all__ = ['BASIC_FORMAT', 'CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'INFO',
@@ -26,7 +27,84 @@ __all__ = ['BASIC_FORMAT', 'CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'INFO',
            'use_console_handler']
 
 # デバッグモードの設定
-DEBUG = os.environ.get('LOGKISS_DEBUG', '').lower() in ('1', 'true', 'yes')
+DEBUG = os.environ.get('LOGKISS_DEBUG', '0').lower() in ('1', 'true', 'yes')
+
+# lastResortハンドラーをKissConsoleHandlerに設定
+lastResort = KissConsoleHandler(sys.stderr)
+lastResort.setLevel(logging.WARNING)
+lastResort.setFormatter(ColoredFormatter())
+logging.lastResort = lastResort
+
+# ルートロガーを取得
+root = KissLogger('root')
+root.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+root.addHandler(lastResort)
+
+# loggingモジュールの関数をオーバーライド
+def debug(msg: str, *args, **kwargs):
+    """DEBUGレベルのログを出力"""
+    logger = KissLogger(__name__)
+    # ファイル名と行番号を取得
+    fn = sys._getframe().f_back.f_code.co_filename
+    lno = sys._getframe().f_back.f_lineno
+    # ログを出力
+    logger.debug(msg, *args, extra={'_filename': fn, '_lineno': lno})
+
+def info(msg: str, *args, **kwargs):
+    """INFOレベルのログを出力"""
+    logger = KissLogger(__name__)
+    # ファイル名と行番号を取得
+    fn = sys._getframe().f_back.f_code.co_filename
+    lno = sys._getframe().f_back.f_lineno
+    # ログを出力
+    logger.info(msg, *args, extra={'_filename': fn, '_lineno': lno})
+
+def warning(msg: str, *args, **kwargs):
+    """WARNINGレベルのログを出力"""
+    logger = KissLogger(__name__)
+    # ファイル名と行番号を取得
+    fn = sys._getframe().f_back.f_code.co_filename
+    lno = sys._getframe().f_back.f_lineno
+    # ログを出力
+    logger.warning(msg, *args, extra={'_filename': fn, '_lineno': lno})
+
+def error(msg: str, *args, **kwargs):
+    """ERRORレベルのログを出力"""
+    logger = KissLogger(__name__)
+    # ファイル名と行番号を取得
+    fn = sys._getframe().f_back.f_code.co_filename
+    lno = sys._getframe().f_back.f_lineno
+    # ログを出力
+    logger.error(msg, *args, extra={'_filename': fn, '_lineno': lno})
+
+def critical(msg: str, *args, **kwargs):
+    """CRITICALレベルのログを出力"""
+    logger = KissLogger(__name__)
+    # ファイル名と行番号を取得
+    fn = sys._getframe().f_back.f_code.co_filename
+    lno = sys._getframe().f_back.f_lineno
+    # ログを出力
+    logger.critical(msg, *args, extra={'_filename': fn, '_lineno': lno})
+
+warn = warning
+
+def exception(msg, *args, exc_info=True, **kwargs):
+    """例外情報付きのエラーメッセージを出力"""
+    root = getLogger()
+    if 'extra' not in kwargs:
+        kwargs['extra'] = {}
+    kwargs['extra']['filename'] = sys._getframe().f_back.f_code.co_filename
+    kwargs['extra']['lineno'] = sys._getframe().f_back.f_lineno
+    root.exception(msg, *args, exc_info=exc_info, **kwargs)
+
+def log(level, msg, *args, **kwargs):
+    """指定したレベルのメッセージを出力"""
+    root = getLogger()
+    if 'extra' not in kwargs:
+        kwargs['extra'] = {}
+    kwargs['extra']['filename'] = sys._getframe().f_back.f_code.co_filename
+    kwargs['extra']['lineno'] = sys._getframe().f_back.f_lineno
+    root.log(level, msg, *args, **kwargs)
 
 # 標準のloggingモジュールの機能を継承
 BASIC_FORMAT = logging.BASIC_FORMAT
@@ -40,15 +118,6 @@ DEBUG = logging.DEBUG
 NOTSET = logging.NOTSET
 
 # loggingモジュールの関数を継承
-debug = logging.debug
-info = logging.info
-warning = logging.warning
-warn = logging.warn
-error = logging.error
-critical = logging.critical
-fatal = logging.fatal
-exception = logging.exception
-log = logging.log
 disable = logging.disable
 shutdown = logging.shutdown
 addLevelName = logging.addLevelName
@@ -56,8 +125,61 @@ getLevelName = logging.getLevelName
 makeLogRecord = logging.makeLogRecord
 getLogRecordFactory = logging.getLogRecordFactory
 setLogRecordFactory = logging.setLogRecordFactory
-basicConfig = logging.basicConfig
-captureWarnings = logging.captureWarnings
+
+def basicConfig(**kwargs):
+    """標準のbasicConfigをオーバーライドしてKissConsoleHandlerを使用"""
+    root = logging.getLogger()
+
+    # すでにハンドラーが設定されている場合は何もしない
+    if root.handlers:
+        return
+
+    # レベルの設定
+    level = kwargs.get('level', logging.INFO)
+    root.setLevel(level)
+
+    # 既存のハンドラーを削除
+    for handler in root.handlers[:]:
+        root.removeHandler(handler)
+
+    # KissConsoleHandlerを追加
+    handler = KissConsoleHandler()
+    handler.setLevel(level)
+    root.addHandler(handler)
+
+def getLogger(name: str = None) -> logging.Logger:
+    """Get a logger with the specified name.
+
+    Args:
+        name (str, optional): Name of the logger. Defaults to None.
+
+    Returns:
+        logging.Logger: Logger instance
+    """
+    logger = logging.getLogger(name)
+    
+    # ハンドラーが設定されていない場合のみ追加
+    has_kiss_handler = any(isinstance(h, KissConsoleHandler) for h in logger.handlers)
+    if not has_kiss_handler and not logger.handlers:  # 他のハンドラーもない場合のみ
+        level = logging.DEBUG if DEBUG else logging.INFO
+        logger.setLevel(level)
+        handler = KissConsoleHandler()
+        handler.setLevel(level)
+        logger.addHandler(handler)
+        
+        # 名前付きロガーの場合は伝播を無効化
+        if name is not None:
+            logger.propagate = False
+    
+    return logger
+
+def getLoggerClass() -> type:
+    """現在のロガークラスを取得"""
+    return logging.getLoggerClass()
+
+def setLoggerClass(cls: type) -> None:
+    """ロガークラスを設定"""
+    logging.setLoggerClass(cls)
 
 # 標準のloggingモジュールのクラスを継承
 BufferingFormatter = logging.BufferingFormatter
@@ -76,20 +198,15 @@ RotatingFileHandler = logging.handlers.RotatingFileHandler
 TimedRotatingFileHandler = logging.handlers.TimedRotatingFileHandler
 
 # その他の変数を継承
-lastResort = logging.lastResort
 raiseExceptions = logging.raiseExceptions
 
 # カスタムロガークラスを登録
 logging.setLoggerClass(KissLogger)
 
-# ルートロガーを取得
-root_logger = logging.getLogger()
-
-# 通常のConsoleHandlerを使用する場合のヘルパー関数
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
     """通常のConsoleHandlerを使用するように設定"""
     if logger is None:
-        logger = root_logger
+        logger = logging.getLogger()
     
     # KissConsoleHandlerを削除
     for handler in logger.handlers[:]:
@@ -103,46 +220,6 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
         datefmt='%Y-%m-%d %H:%M:%S'
     ))
     logger.addHandler(handler)
-
-# getLoggerをカスタマイズ
-def getLogger(name: str = None) -> logging.Logger:
-    """Get a logger with the specified name.
-
-    Args:
-        name (str, optional): Name of the logger. Defaults to None.
-
-    Returns:
-        logging.Logger: Logger instance
-    """
-    logger = logging.getLogger(name)
-    if not logger.handlers:  # ハンドラーが設定されていない場合のみ追加
-        logger.setLevel(logging.INFO)  # デフォルトレベルをINFOに設定
-        handler = KissConsoleHandler()
-        handler.setFormatter(ColoredFormatter())
-        logger.addHandler(handler)
-    return logger
-
-# getLoggerClassをカスタマイズ
-def getLoggerClass() -> type:
-    """現在のロガークラスを取得"""
-    return logging.getLoggerClass()
-
-# setLoggerClassをカスタマイズ
-def setLoggerClass(cls: type) -> None:
-    """ロガークラスを設定"""
-    logging.setLoggerClass(cls)
-
-# ルートロガーを初期化（最初の1回のみ）
-if not root_logger.handlers:
-    handler = KissConsoleHandler()
-    handler.setFormatter(ColoredFormatter())
-    root_logger.addHandler(handler)
-
-    # デバッグモードの場合はログレベルをDEBUGに設定
-    if DEBUG:
-        root_logger.setLevel(logging.DEBUG)
-    else:
-        root_logger.setLevel(logging.INFO)
 
 # バージョン情報
 __version__ = '0.1.0'

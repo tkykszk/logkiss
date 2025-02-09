@@ -27,8 +27,6 @@ import logkiss as logging
 # logkissロガーの取得（デフォルト設定を使用）
 kiss_logger = logging.getLogger("logkiss")
 kiss_logger.setLevel(logging.DEBUG)
-# 親ロガーへの伝播を無効化
-kiss_logger.propagate = False
 
 # ハンドラーの状態を確認
 print("\nロガーの状態:")
@@ -59,23 +57,10 @@ kiss_logger = logging.getLogger("logkiss")
 kiss_logger.addFilter(FilenameFilter("custom.py"))
 kiss_logger.info("カスタムファイル名でのログ出力")
 
-print("\n4. パス短縮機能の使用例:")
-# 長いパスでログを出力
-original_path = "/very/long/path/to/your/module/script.py"
-import sys
-sys.modules[__name__].__file__ = original_path  # テスト用にファイルパスを変更
+# ファイル名フィルターを削除
+kiss_logger.removeFilter(kiss_logger.filters[0])
 
-print("パス短縮なし:")
-os.environ["LOGKISS_PATH_SHORTEN"] = "0"
-path_logger = logging.getLogger("path_example")
-path_logger.info("通常のパス表示")
-
-print("\nパス短縮（2コンポーネント）:")
-os.environ["LOGKISS_PATH_SHORTEN"] = "2"
-path_logger = logging.getLogger("path_example2")
-path_logger.info("短縮されたパス表示")
-
-print("\nパス短縮（3コンポーネント）:")
-os.environ["LOGKISS_PATH_SHORTEN"] = "3"
-path_logger = logging.getLogger("path_example3")
-path_logger.info("もう少し長めの短縮パス表示")
+# 通常のConsoleHandlerを使用
+print("\n4. 通常のConsoleHandlerを使用:")
+logging.use_console_handler(kiss_logger)
+kiss_logger.info("通常のConsoleHandlerでログ出力")
