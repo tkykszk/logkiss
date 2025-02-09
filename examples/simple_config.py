@@ -3,14 +3,14 @@
 
 import logkiss as logging
 
-# ルートロガーを取得
+# Get the root logger
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)  
+logger.setLevel(logging.INFO)  
 
-print("5行でたら正解")
-# ログを出力
-logger.debug("デバッグメッセージ")
-logger.info("情報メッセージ")
-logger.warning("警告メッセージ")
-logger.error("エラーメッセージ")
-logger.critical("重大なエラーメッセージ")
+print("Success if 4 lines are output")
+# Output logs
+logger.debug("Debug message")  
+logger.info("Info message")    
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")

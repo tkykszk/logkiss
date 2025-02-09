@@ -7,31 +7,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logkiss as logging
 
-# ロガーの設定
+# Configure logger
 logger = logging.getLogger(__name__)
 
-# matplotlibのログを抑制
+# Suppress matplotlib logs
 plt.set_loglevel('warning')
 
-logger.error("matplotlibのログを抑制")
+logger.error("Suppressing matplotlib logs")
 
 def generate_sample_data():
-    """サンプルデータを生成"""
-    logger.info("サンプルデータを生成中...")
+    """Generate sample data"""
+    logger.info("Generating sample data...")
     x = np.linspace(0, 10, 100)
     y = np.sin(x)
-    logger.debug(f"データポイント数: {len(x)}")
+    logger.debug(f"Number of data points: {len(x)}")
     return x, y
 
 def create_plot():
-    """プロットを作成"""
-    logger.info("プロットを作成中...")
+    """Create plot"""
+    logger.info("Creating plot...")
     
     try:
-        # データ生成
+        # Generate data
         x, y = generate_sample_data()
         
-        # プロット作成
+        # Create plot
         plt.figure(figsize=(10, 6))
         plt.plot(x, y, label='sin(x)')
         plt.title('Sample Plot')
@@ -40,27 +40,27 @@ def create_plot():
         plt.grid(True)
         plt.legend()
         
-        # 保存
+        # Save plot
         output_file = 'sample_plot.png'
         plt.savefig(output_file)
-        logger.info(f"プロットを保存しました: {output_file}")
+        logger.info(f"Plot saved to: {output_file}")
         
-        # クリーンアップ
+        # Clean up
         plt.close()
         
     except Exception as e:
-        logger.error(f"プロット作成中にエラーが発生しました: {e}")
+        logger.error(f"Error occurred while creating plot: {e}")
         raise
 
 def main():
-    """メイン関数"""
-    logger.info("matplotlibサンプルを開始")
+    """Main function"""
+    logger.info("Starting matplotlib example")
     
     try:
         create_plot()
-        logger.info("正常に終了しました")
+        logger.info("Example completed successfully")
     except Exception as e:
-        logger.critical(f"予期せぬエラーが発生しました: {e}")
+        logger.critical(f"Unexpected error occurred: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':

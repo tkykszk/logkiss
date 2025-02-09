@@ -6,10 +6,10 @@ import sys
 from pathlib import Path
 import logkiss as logging
 
-# ログファイルのパス
+# Log file path
 log_file = os.path.join(os.path.dirname(__file__), 'both.log')
 
-# コンソールのみのロガーを作成
+# Create a console-only logger
 console_logger = logging.getLogger('console')
 for handler in console_logger.handlers[:]:
     console_logger.removeHandler(handler)
@@ -18,7 +18,7 @@ console_handler = logging.KissConsoleHandler()
 console_logger.addHandler(console_handler)
 console_logger.propagate = False
 
-# コンソールとファイルの両方に出力するロガーを作成
+# Create a logger that outputs to both console and file
 both_logger = logging.getLogger('both')
 for handler in both_logger.handlers[:]:
     both_logger.removeHandler(handler)
@@ -28,23 +28,23 @@ both_logger.addHandler(logging.KissFileHandler(log_file))
 both_logger.propagate = False
 
 def main():
-    """メイン関数"""
-    print("\n1. コンソールのみのロガー:")
-    console_logger.debug("デバッグメッセージ (コンソールのみ)")
-    console_logger.info("情報メッセージ (コンソールのみ)")
-    console_logger.warning("警告メッセージ (コンソールのみ)")
-    console_logger.error("エラーメッセージ (コンソールのみ)")
-    console_logger.critical("重大なエラーメッセージ (コンソールのみ)")
+    """Main function"""
+    print("\n1. Console-only logger:")
+    console_logger.debug("Debug message (console only)")
+    console_logger.info("Info message (console only)")
+    console_logger.warning("Warning message (console only)")
+    console_logger.error("Error message (console only)")
+    console_logger.critical("Critical error message (console only)")
     
-    print("\n2. コンソールとファイルの両方に出力するロガー:")
-    both_logger.debug("デバッグメッセージ (両方)")
-    both_logger.info("情報メッセージ (両方)")
-    both_logger.warning("警告メッセージ (両方)")
-    both_logger.error("エラーメッセージ (両方)")
-    both_logger.critical("重大なエラーメッセージ (両方)")
+    print("\n2. Logger that outputs to both console and file:")
+    both_logger.debug("Debug message (both)")
+    both_logger.info("Info message (both)")
+    both_logger.warning("Warning message (both)")
+    both_logger.error("Error message (both)")
+    both_logger.critical("Critical error message (both)")
     
-    print(f"\nログファイルが作成されました: {log_file}")
-    print("ファイルの内容:")
+    print(f"\nLog file created: {log_file}")
+    print("File contents:")
     print("-" * 80)
     with open(log_file, 'r') as f:
         print(f.read().rstrip())

@@ -4,13 +4,13 @@
 import logkiss as logging
 #import logging
 
-# 無設定の場合は、logging.level は logging.WARNINGが採用されるようにしてください
+# If no settings are specified, the logging level should be set to logging.WARNING by default
 
 
-print("3行でたら正解")
-# ログを出力
-logging.debug("デバッグメッセージ")  ##表示されないのが正解
-logging.info("情報メッセージ")    ## 表示されないのが正解
-logging.warning("警告メッセージ") ## 表示されるのが正解
-logging.error("エラーメッセージ")
-logging.critical("重大なエラーメッセージ")
+print("Success if 3 lines are output")
+# Output logs
+logging.debug("Debug message")  ## Should not be displayed
+logging.info("Info message")    ## Should not be displayed
+logging.warning("Warning message") ## Should be displayed
+logging.error("Error message")
+logging.critical("Critical message")
