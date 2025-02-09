@@ -8,16 +8,16 @@ import logging.handlers
 from pathlib import Path
 from typing import Optional, Union, Dict, Any
 
-# デバッグモードの設定
+# Set debug mode
 DEBUG_MODE = os.environ.get('LOGKISS_DEBUG', '0').lower() in ('1', 'true', 'yes')
 
-# logkissモジュールのクラスをインポート
+# Import logkiss module classes
 from .logkiss import (
     KissLogger, KissConsoleHandler, ColoredFormatter,
     KissFileHandler, KissRotatingFileHandler, KissTimedRotatingFileHandler,
 )
 
-# 標準のloggingモジュールの関数をインポート
+# Import standard logging module functions
 from logging import (
     BASIC_FORMAT, CRITICAL, DEBUG, ERROR, FATAL, INFO,
     NOTSET, WARN, WARNING, addLevelName,
@@ -27,7 +27,7 @@ from logging import (
     getLogRecordFactory, setLogRecordFactory,
 )
 
-# __all__を定義
+# Define __all__
 __all__ = [
     'BASIC_FORMAT', 'CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'INFO',
     'NOTSET', 'WARN', 'WARNING', 'addLevelName', 'basicConfig',
@@ -36,24 +36,24 @@ __all__ = [
     'makeLogRecord', 'setLoggerClass', 'warn', 'warning',
 ]
 
-# カスタムロガークラスを登録
+# Register custom logger class
 logging.setLoggerClass(KissLogger)
 
-# ルートロガーを初期化
+# Initialize root logger
 root_logger = KissLogger('root')
 for handler in root_logger.handlers[:]:
     root_logger.removeHandler(handler)
 handler = KissConsoleHandler()
 root_logger.addHandler(handler)
-root_logger.setLevel(WARNING)  # デフォルトでWARNINGレベル
+root_logger.setLevel(WARNING)  # Default to WARNING level
 
-# lastResortハンドラーをKissConsoleHandlerに設定
+# Set lastResort handler to KissConsoleHandler
 lastResort = KissConsoleHandler(sys.stderr)
 lastResort.setLevel(logging.WARNING)
 lastResort.setFormatter(ColoredFormatter())
 logging.lastResort = lastResort
 
-# getLogger関数を保存
+# Save getLogger function
 _getLogger = logging.getLogger
 
 def getLogger(name: str = None) -> logging.Logger:
@@ -67,54 +67,54 @@ def getLogger(name: str = None) -> logging.Logger:
     """
     logger = _getLogger(name)
     if name is None:
-        # ルートロガーの場合は既存のハンドラーを使用
+        # Use existing handlers for root logger
         return root_logger
     if not logger.handlers:
         handler = KissConsoleHandler()
-        handler.setLevel(INFO)  # ロガーのレベルをINFOに設定
+        handler.setLevel(INFO)  # Set logger level to INFO
         logger.addHandler(handler)
     else:
-        # ハンドラーのレベルを更新
+        # Update handler levels
         for handler in logger.handlers:
             handler.setLevel(INFO)
     return logger
 
-# ルートロガーを再設定
+# Reset root logger
 logging.getLogger = getLogger
 logging.root = root_logger
 
 def basicConfig(**kwargs):
     """
-    標準のlogging.basicConfigと同様の機能を提供しますが、KissConsoleHandlerを使用します。
+    Provides the same functionality as standard logging.basicConfig, but uses KissConsoleHandler.
 
     Args:
-        **kwargs: 標準のlogging.basicConfigと同じ引数を受け付けます。
+        **kwargs: Accepts the same arguments as standard logging.basicConfig.
     """
-    # デフォルトでforce=True
+    # Default to force=True
     if kwargs.get('force', True):
         for handler in root_logger.handlers[:]:
             root_logger.removeHandler(handler)
 
-    # デフォルトでINFOレベル
+    # Default to INFO level
     level = kwargs.get('level', INFO)
 
-    # ロガーのレベルを設定
+    # Set logger level
     root_logger.setLevel(level)
 
-    # ハンドラーを作成
+    # Create handler
     handler = KissConsoleHandler()
-    handler.setLevel(level)  # ハンドラーのレベルを設定
+    handler.setLevel(level)  # Set handler level
     root_logger.addHandler(handler)
 
-    # ロガーのハンドラーのレベルを設定
+    # Set logger handler levels
     for handler in root_logger.handlers:
         handler.setLevel(level)
 
-    # ルートロガーを再設定
+    # Reset root logger
     logging.root = root_logger
 
 def debug(msg: str, *args, **kwargs):
-    """DEBUGレベルのログを出力"""
+    """Output DEBUG level log"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -122,7 +122,7 @@ def debug(msg: str, *args, **kwargs):
     root_logger.debug(msg, *args, **kwargs)
 
 def info(msg: str, *args, **kwargs):
-    """INFOレベルのログを出力"""
+    """Output INFO level log"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -130,7 +130,7 @@ def info(msg: str, *args, **kwargs):
     root_logger.info(msg, *args, **kwargs)
 
 def warning(msg: str, *args, **kwargs):
-    """WARNINGレベルのログを出力"""
+    """Output WARNING level log"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -138,7 +138,7 @@ def warning(msg: str, *args, **kwargs):
     root_logger.warning(msg, *args, **kwargs)
 
 def error(msg: str, *args, **kwargs):
-    """ERRORレベルのログを出力"""
+    """Output ERROR level log"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -146,7 +146,7 @@ def error(msg: str, *args, **kwargs):
     root_logger.error(msg, *args, **kwargs)
 
 def critical(msg: str, *args, **kwargs):
-    """CRITICALレベルのログを出力"""
+    """Output CRITICAL level log"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -156,7 +156,7 @@ def critical(msg: str, *args, **kwargs):
 warn = warning
 
 def exception(msg, *args, exc_info=True, **kwargs):
-    """例外情報付きのエラーメッセージを出力"""
+    """Output error message with exception information"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
@@ -164,14 +164,14 @@ def exception(msg, *args, exc_info=True, **kwargs):
     root_logger.exception(msg, *args, exc_info=exc_info, **kwargs)
 
 def log(level, msg, *args, **kwargs):
-    """指定したレベルのメッセージを出力"""
+    """Output message at specified level"""
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
     kwargs['extra']['_filename'] = 'simplest.py'
     kwargs['extra']['_lineno'] = 17
     root_logger.log(level, msg, *args, **kwargs)
 
-# 標準のloggingモジュールの機能を継承
+# Inherit standard logging module functions
 BASIC_FORMAT = logging.BASIC_FORMAT
 CRITICAL = logging.CRITICAL
 FATAL = logging.FATAL
@@ -182,7 +182,7 @@ INFO = logging.INFO
 DEBUG = logging.DEBUG
 NOTSET = logging.NOTSET
 
-# loggingモジュールの関数を継承
+# Inherit logging module functions
 disable = logging.disable
 shutdown = logging.shutdown
 addLevelName = logging.addLevelName
@@ -190,14 +190,14 @@ getLevelName = logging.getLevelName
 makeLogRecord = logging.makeLogRecord
 
 def getLoggerClass() -> type:
-    """現在のロガークラスを取得"""
+    """Get current logger class"""
     return logging.getLoggerClass()
 
 def setLoggerClass(cls: type) -> None:
-    """ロガークラスを設定"""
+    """Set logger class"""
     logging.setLoggerClass(cls)
 
-# 標準のloggingモジュールのクラスを継承
+# Inherit standard logging module classes
 BufferingFormatter = logging.BufferingFormatter
 Filter = logging.Filter
 Formatter = logging.Formatter
@@ -213,20 +213,20 @@ NullHandler = logging.NullHandler
 RotatingFileHandler = logging.handlers.RotatingFileHandler
 TimedRotatingFileHandler = logging.handlers.TimedRotatingFileHandler
 
-# その他の変数を継承
+# Inherit other variables
 raiseExceptions = logging.raiseExceptions
 
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
-    """通常のConsoleHandlerを使用するように設定"""
+    """Use standard ConsoleHandler"""
     if logger is None:
         logger = logging.getLogger()
     
-    # KissConsoleHandlerを削除
+    # Remove KissConsoleHandler
     for handler in logger.handlers[:]:
         if isinstance(handler, KissConsoleHandler):
             logger.removeHandler(handler)
     
-    # 通常のConsoleHandlerを追加
+    # Add standard ConsoleHandler
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(
         fmt='%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s',
@@ -234,5 +234,5 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
     ))
     logger.addHandler(handler)
 
-# バージョン情報
-__version__ = '0.1.0'
+# Version information
+__version__ = '2.1.0'

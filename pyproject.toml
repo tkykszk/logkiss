@@ -1,15 +1,14 @@
 [project]
 name = "logkiss"
-version = "0.1.0"
-description = "シンプルでカラフルなPythonのロギングライブラリ"
+version = "2.1.0"
+description = "A Simple and Colorful Python Logging Library"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Taka Suzuki", email = "tkykszk@gmail.com"}
 ]
 dependencies = [
     "pyyaml>=6.0",
-    "matplotlib>=3.7.0",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "MIT"}
 keywords = ["logging", "color", "console", "terminal"]
