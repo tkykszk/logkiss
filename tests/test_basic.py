@@ -6,17 +6,17 @@ import logging
 import logkiss
 
 def test_logger_creation():
-    """ロガーの作成テスト"""
+    """Test logger creation"""
     logger = logkiss.getLogger("test")
     assert logger is not None
     assert isinstance(logger, logging.Logger)
 
 def test_log_levels():
-    """ログレベルのテスト"""
+    """Test log levels"""
     logger = logkiss.getLogger("test_levels")
-    assert logger.level == logging.WARNING  # デフォルトレベル
+    assert logger.level == logging.WARNING  # Default level
     
-    # 各ログレベルが正しく設定されているか確認
+    # Verify each log level is set correctly
     assert logkiss.DEBUG == logging.DEBUG
     assert logkiss.INFO == logging.INFO
     assert logkiss.WARNING == logging.WARNING
@@ -24,29 +24,29 @@ def test_log_levels():
     assert logkiss.CRITICAL == logging.CRITICAL
 
 def test_handler_creation():
-    """ハンドラーの作成テスト"""
+    """Test handler creation"""
     logger = logkiss.getLogger("test_handler")
     
-    # デフォルトのハンドラーがKissConsoleHandlerであることを確認
+    # Default handler should be KissConsoleHandler
     handlers = [h for h in logger.handlers if isinstance(h, logkiss.KissConsoleHandler)]
     assert len(handlers) > 0
 
 def test_file_handler():
-    """FileHandlerのテスト"""
+    """Test file handler"""
     logger = logkiss.getLogger("test_file")
     handler = logkiss.FileHandler("test.log")
     logger.addHandler(handler)
     
-    # FileHandlerが正しく追加されたか確認
+    # FileHandler should be added correctly
     handlers = [h for h in logger.handlers if isinstance(h, logkiss.FileHandler)]
     assert len(handlers) > 0
 
 def test_formatter():
-    """フォーマッターのテスト"""
+    """Test formatter"""
     formatter = logkiss.ColoredFormatter()
     assert formatter is not None
     
-    # 基本的なフォーマット文字列が設定されているか確認
+    # Basic format string should be set
     assert formatter._fmt is not None
     assert "%(levelname)" in formatter._fmt
     assert "%(message)" in formatter._fmt

@@ -6,10 +6,10 @@ import sys
 import logkiss as logging
 
 def capture_output():
-    """出力をキャプチャする"""
+    """Capture the output to a string buffer"""
     output = io.StringIO()
     sys.stderr = output
-    # ロガーのハンドラーを更新
+    # Update logger handlers
     logger = logging.getLogger()
     for handler in logger.handlers[:]:
         if isinstance(handler, logging.KissConsoleHandler):
@@ -17,36 +17,36 @@ def capture_output():
     return output
 
 def restore_output(output):
-    """出力を元に戻す"""
+    """Restore the output and get the captured content"""
     sys.stderr = sys.__stderr__
     return output.getvalue()
 
 def reset_logger():
-    """ロガーをリセットする"""
+    """Reset the logger to its default state"""
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)  # デフォルトレベルをDEBUGに設定
+    logger.setLevel(logging.DEBUG)  # Set default level to DEBUG
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
     handler = logging.KissConsoleHandler()
-    handler.setLevel(logging.DEBUG)  # ハンドラーのレベルもDEBUGに設定
+    handler.setLevel(logging.DEBUG)  # Set handler level to DEBUG
     logger.addHandler(handler)
 
 def test_simplest():
-    """simplest.pyのテスト"""
-    reset_logger()  # ロガーをリセット
+    """Test simplest.py"""
+    reset_logger()  # Reset logger
     output = capture_output()
 
-    # ログを出力
-    logging.debug("デバッグメッセージ")
-    logging.info("情報メッセージ")
-    logging.warning("警告メッセージ")
-    logging.error("エラーメッセージ")
-    logging.critical("重大なエラーメッセージ")
+    # Output logs
+    logging.debug("Debug message")
+    logging.info("Info message")
+    logging.warning("Warning message")
+    logging.error("Error message")
+    logging.critical("Critical message")
 
     result = restore_output(output)
     lines = [line for line in result.split('\n') if line]
 
-    # 5行出力されることを確認（全レベル）
+    # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
@@ -55,24 +55,24 @@ def test_simplest():
     assert "CRITICAL" in lines[4]
 
 def test_simple():
-    """simple.pyのテスト"""
-    reset_logger()  # ロガーをリセット
+    """Test simple.py"""
+    reset_logger()  # Reset logger
     output = capture_output()
 
-    # ロガーを取得
+    # Get logger
     logger = logging.getLogger()
 
-    # ログを出力
-    logger.debug("デバッグメッセージ")
-    logger.info("情報メッセージ")
-    logger.warning("警告メッセージ")
-    logger.error("エラーメッセージ")
-    logger.critical("重大なエラーメッセージ")
+    # Output logs
+    logger.debug("Debug message")
+    logger.info("Info message")
+    logger.warning("Warning message")
+    logger.error("Error message")
+    logger.critical("Critical message")
 
     result = restore_output(output)
     lines = [line for line in result.split('\n') if line]
 
-    # 5行出力されることを確認（全レベル）
+    # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
@@ -81,27 +81,27 @@ def test_simple():
     assert "CRITICAL" in lines[4]
 
 def test_simple_config():
-    """simple_config.pyのテスト"""
-    reset_logger()  # ロガーをリセット
+    """Test simple_config.py"""
+    reset_logger()  # Reset logger
     output = capture_output()
 
-    # ロガーとハンドラーをDEBUGレベルに設定
+    # Set logger and handler to DEBUG level
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     for handler in logger.handlers:
         handler.setLevel(logging.DEBUG)
 
-    # ログを出力
-    logger.debug("デバッグメッセージ")
-    logger.info("情報メッセージ")
-    logger.warning("警告メッセージ")
-    logger.error("エラーメッセージ")
-    logger.critical("重大なエラーメッセージ")
+    # Output logs
+    logger.debug("Debug message")
+    logger.info("Info message")
+    logger.warning("Warning message")
+    logger.error("Error message")
+    logger.critical("Critical message")
 
     result = restore_output(output)
     lines = [line for line in result.split('\n') if line]
 
-    # 5行出力されることを確認（全レベル）
+    # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
@@ -110,25 +110,25 @@ def test_simple_config():
     assert "CRITICAL" in lines[4]
 
 def test_simple_config_2():
-    """simple_config_2.pyのテスト"""
-    reset_logger()  # ロガーをリセット
+    """Test simple_config_2.py"""
+    reset_logger()  # Reset logger
     output = capture_output()
 
-    # ロガーを取得してERRORレベルに設定
+    # Set logger to ERROR level
     logger = logging.getLogger()
     logger.setLevel(logging.ERROR)
 
-    # ログを出力
-    logger.debug("デバッグメッセージ")
-    logger.info("情報メッセージ")
-    logger.warning("警告メッセージ")
-    logger.error("エラーメッセージ")
-    logger.critical("重大なエラーメッセージ")
+    # Output logs
+    logger.debug("Debug message")
+    logger.info("Info message")
+    logger.warning("Warning message")
+    logger.error("Error message")
+    logger.critical("Critical message")
 
     result = restore_output(output)
     lines = [line for line in result.split('\n') if line]
 
-    # 2行出力されることを確認（ERROR以上）
+    # Verify only ERROR and CRITICAL are output
     assert len(lines) == 2, f"Expected 2 lines, got {len(lines)}"
     assert "ERROR" in lines[0]
     assert "CRITICAL" in lines[1]

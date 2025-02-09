@@ -3,13 +3,13 @@
 
 import logkiss as logging
 
-# ロガーを取得
-logger = logging.getLogger()  # ルートロガーを使う
+# Get logger
+logger = logging.getLogger()  # Use root logger
 
-print("3行でたら正解")
-# ログを出力
-logger.debug("デバッグメッセージ")
-logger.info("情報メッセージ")
-logger.warning("警告メッセージ")
-logger.error("エラーメッセージ")
-logger.critical("重大なエラーメッセージ")
+print("Success if 3 lines are output")
+# Output logs
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")

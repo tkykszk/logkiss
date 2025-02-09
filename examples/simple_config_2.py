@@ -4,14 +4,14 @@
 import logkiss as logging
 logging.basicConfig(level=logging.INFO)
 
-# ルートロガーを取得
-logger = logging.getLogger()
+# Get logger
+logger = logging.getLogger()  # Use root logger
 logger.setLevel(logging.ERROR)  
 
-print("2行でたら正解")
-# ログを出力
-logger.debug("デバッグメッセージ")
-logger.info("情報メッセージ")
-logger.warning("警告メッセージ")
-logger.error("エラーメッセージ")
-logger.critical("重大なエラーメッセージ")
+print("Success if 2 lines are output")
+# Output logs
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
