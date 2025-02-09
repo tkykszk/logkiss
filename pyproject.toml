@@ -32,6 +32,12 @@ Homepage = "https://github.com/yourusername/logkiss"
 Repository = "https://github.com/yourusername/logkiss"
 Documentation = "https://github.com/yourusername/logkiss/blob/main/README.md"
 
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "matplotlib>=3.7.0",
+]
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
