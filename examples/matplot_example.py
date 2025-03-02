@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Example of using logkiss with matplotlib.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import os
 import sys
 import numpy as np
@@ -9,11 +16,19 @@ import logkiss as logging
 
 # Configure logger
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # DEBUGレベル以上のログを表示
+logger.propagate = False  # ルートロガーへの伝播を無効化
+
+# ハンドラーがない場合は追加
+if not logger.handlers:
+    handler = logging.KissConsoleHandler()
+    handler.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
 
 # Suppress matplotlib logs
 plt.set_loglevel('warning')
 
-logger.error("Suppressing matplotlib logs")
+logger.error("Suppressing matplotlib debug logs")
 
 def generate_sample_data():
     """Generate sample data"""
@@ -43,7 +58,7 @@ def create_plot():
         # Save plot
         output_file = 'sample_plot.png'
         plt.savefig(output_file)
-        logger.info(f"Plot saved to: {output_file}")
+        logger.debug(f"Plot saved to: {output_file}")
         
         # Clean up
         plt.close()
@@ -54,11 +69,11 @@ def create_plot():
 
 def main():
     """Main function"""
-    logger.info("Starting matplotlib example")
+    logger.debug("Starting matplotlib example")
     
     try:
         create_plot()
-        logger.info("Example completed successfully")
+        logger.debug("Example completed successfully")
     except Exception as e:
         logger.critical(f"Unexpected error occurred: {e}")
         sys.exit(1)
