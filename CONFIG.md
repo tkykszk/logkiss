@@ -24,11 +24,12 @@ levels:
     color: yellow
     style: bold
   error:
-    color: red
+    color: black
+    background: red
     style: bold
   critical:
-    color: white
-    background: red
+    color: black
+    background: bright_red
     style: bold
 
 messages:
@@ -39,10 +40,11 @@ messages:
   warning:
     color: yellow
   error:
-    color: red
-  critical:
-    color: white
+    color: black
     background: red
+  critical:
+    color: black
+    background: bright_red
 
 elements:
   timestamp:
@@ -143,11 +145,12 @@ levels:
     color: yellow
     style: bold
   error:
-    color: red
+    color: black
+    background: red
     style: bold
   critical:
-    color: white
-    background: red
+    color: black
+    background: bright_red
     style: bold
 ```
 
@@ -155,8 +158,12 @@ levels:
 
 ログの色付けは以下の環境変数で制御できます：
 
-- `FORCE_COLOR`: 色付けを強制的に有効にする（値: 1, true, yes）
-- `NO_COLOR`: 色付けを無効にする（値: 任意）
+- `LOGKISS_FORCE_COLOR`: 色付けを強制的に有効にする（値: 1, true, yes）
+- `LOGKISS_NO_COLOR`: 色付けを無効にする（値: 任意）
+- `LOGKISS_LEVEL_FORMAT`: ログレベル名の表示長を指定する（値: 数値、デフォルト: 5）
+  - 例: `LOGKISS_LEVEL_FORMAT=5` とすると、全てのログレベル名が5文字に調整されます
+  - WARNINGは特別に「WARN」に短縮されます
+  - 指定した長さより長いレベル名は切り詰められ、短いレベル名は空白で埋められます
 
 ## 注意事項
 

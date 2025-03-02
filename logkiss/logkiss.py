@@ -1,3 +1,13 @@
+"""Core module of logkiss.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+
+This module provides the core functionality of logkiss,
+including logging setup and configuration management.
+"""
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -9,7 +19,7 @@ from typing import Optional, Union, TextIO, Dict, Any
 from dataclasses import dataclass
 from yaml import safe_load
 from logging import FileHandler, LogRecord, StreamHandler, Formatter, Filter
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 
 # Exported functions and classes
@@ -19,13 +29,17 @@ __all__ = [
     'KissLogger',
     'use_console_handler',
     'PathShortenerFilter',
-    'KissFileHandler',
-    'KissRotatingFileHandler',
-    'KissTimedRotatingFileHandler',
 ]
 
 # Debug mode settings
 DEBUG = os.environ.get('LOGKISS_DEBUG', '').lower() in ('1', 'true', 'yes')
+
+# Level format settings
+_level_format = os.environ.get('LOGKISS_LEVEL_FORMAT', '5')
+try:
+    LEVEL_FORMAT = int(_level_format)
+except ValueError:
+    LEVEL_FORMAT = 5
 
 # Path shortening settings
 _path_shorten = os.environ.get('LOGKISS_PATH_SHORTEN', '0')
@@ -127,8 +141,8 @@ class ColorManager:
                 'DEBUG': {'fg': 'blue'},
                 'INFO': {'fg': 'white'},
                 'WARNING': {'fg': 'yellow'},
-                'ERROR': {'fg': 'red'},
-                'CRITICAL': {'fg': 'red', 'style': 'bold'},
+                'ERROR': {'fg': 'black', 'bg': 'red'},
+                'CRITICAL': {'fg': 'black', 'bg': 'bright_red', 'style': 'bold'},
             },
             'elements': {
                 'timestamp': {'fg': 'white'},
@@ -137,8 +151,8 @@ class ColorManager:
                     'DEBUG': {'fg': 'blue'},
                     'INFO': {'fg': 'white'},
                     'WARNING': {'fg': 'yellow'},
-                    'ERROR': {'fg': 'red'},
-                    'CRITICAL': {'fg': 'red', 'style': 'bold'},
+                    'ERROR': {'fg': 'black', 'bg': 'red'},
+                    'CRITICAL': {'fg': 'black', 'bg': 'bright_red', 'style': 'bold'},
                 }
             }
         }
@@ -153,14 +167,20 @@ class ColorManager:
                 return default_config
         return default_config
     
-    def get_level_color(self, level: int) -> Dict[str, Any]:
+    def get_level_color(self, level: Union[int, str]) -> Dict[str, Any]:
         """Get color settings for a log level"""
-        level_name = logging.getLevelName(level)
+        if isinstance(level, int):
+            level_name = logging.getLevelName(level)
+        else:
+            level_name = level
         return self.config['levels'].get(level_name, {})
     
-    def get_message_color(self, level: int) -> Dict[str, Any]:
+    def get_message_color(self, level: Union[int, str]) -> Dict[str, Any]:
         """Get color settings for a log message"""
-        level_name = logging.getLevelName(level)
+        if isinstance(level, int):
+            level_name = logging.getLevelName(level)
+        else:
+            level_name = level
         return self.config['elements']['message'].get(level_name, {})
     
     def get_element_color(self, element: str) -> Dict[str, Any]:
@@ -190,10 +210,13 @@ class ColorManager:
         # Apply ANSI escape sequence
         return "".join(codes) + text + Colors.RESET
     
-    def colorize_level(self, levelname: str) -> str:
+    def colorize_level(self, levelname: str, levelno: Optional[int] = None) -> str:
         """Colorize log level name"""
-        level = logging.getLevelName(levelname)
-        level_config = self.get_level_color(level)
+        if levelno is not None:
+            level_config = self.get_level_color(levelno)
+        else:
+            level = logging.getLevelName(levelname)
+            level_config = self.get_level_color(level)
         return self.apply_color(levelname, level_config)
     
     def colorize_filename(self, filename: str) -> str:
@@ -237,8 +260,47 @@ class PathShortenerFilter(Filter):
         return True
 
 class ColoredFormatter(Formatter):
-    """Formatter that applies colors to log messages based on their level"""
-
+    """Formatter that applies colors to log messages based on their level.
+    
+    This formatter extends the standard logging.Formatter to add color
+    to log messages based on their level. Colors can be customized through
+    a configuration file.
+    
+    To disable colors, set use_color=False when creating the formatter:
+        formatter = ColoredFormatter(use_color=False)
+    
+    Note:
+        When using KissConsoleHandler, a ColoredFormatter is automatically
+        created with use_color set based on the output stream. To disable
+        colors with KissConsoleHandler, you need to create a ColoredFormatter
+        with use_color=False and set it explicitly:
+            handler = KissConsoleHandler()
+            formatter = ColoredFormatter(use_color=False)
+            handler.setFormatter(formatter)
+    
+    Environment Variables:
+        The following environment variables can be used to control coloring:
+        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
+        - LOGKISS_NO_COLOR: Disable colors (any value)
+        These environment variables override the use_color parameter.
+        
+        The following environment variable can be used to control level name formatting:
+        - LOGKISS_LEVEL_FORMAT: Specify the length of level names (value: integer, default: 5)
+          For example, LOGKISS_LEVEL_FORMAT=5 will adjust all level names to be 5 characters.
+          WARNING is specially shortened to "WARN".
+          Level names longer than the specified length will be truncated,
+          and shorter ones will be padded with spaces.
+    
+    Args:
+        fmt: Format string for log messages. Default is 
+             '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
+        datefmt: Date format string. Default is None (ISO8601 format).
+        style: Format style ('%', '{', '$'). Default is '%'.
+        validate: Whether to validate format string. Default is True.
+        color_config: Path to color configuration file. Default is None.
+        use_color: Whether to apply colors to log messages. Default is True.
+    """
+    
     def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None,
                  style: str = '%', validate: bool = True,
                  color_config: Optional[Union[str, Path]] = None,
@@ -256,16 +318,52 @@ class ColoredFormatter(Formatter):
             fmt = '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
         super().__init__(fmt, datefmt, style, validate)
         self.color_manager = ColorManager(color_config)
-        self.use_color = use_color
+        
+        # Check environment variables for color settings
+        force_color = os.environ.get('LOGKISS_FORCE_COLOR', '').lower() in ('1', 'true', 'yes')
+        no_color = 'LOGKISS_NO_COLOR' in os.environ
+        
+        # Environment variables override the use_color parameter
+        if force_color:
+            self.use_color = True
+        elif no_color:
+            self.use_color = False
+        else:
+            self.use_color = use_color
 
     def format(self, record: LogRecord) -> str:
         """Format log record with colors"""
+        # Save original levelname and level number
+        orig_levelname = record.levelname
+        levelno = record.levelno
+        
+        # Format level name based on LEVEL_FORMAT
+        if LEVEL_FORMAT > 0:
+            # Special case for WARNING -> WARN
+            if orig_levelname == 'WARNING':
+                display_levelname = 'WARN'
+            else:
+                display_levelname = orig_levelname
+            
+            # Truncate or pad level name
+            if len(display_levelname) > LEVEL_FORMAT:
+                # Truncate
+                display_levelname = display_levelname[:LEVEL_FORMAT]
+            elif len(display_levelname) < LEVEL_FORMAT:
+                # Pad
+                display_levelname = display_levelname.ljust(LEVEL_FORMAT)
+                
+            # Replace levelname with formatted version
+            record.levelname = display_levelname
+        
         # Apply colors
         if self.use_color:
-            record.levelname = self.color_manager.colorize_level(record.levelname)
+            # Use original level for color lookup, but apply to formatted level name
+            record.levelname = self.color_manager.colorize_level(record.levelname, levelno)
+            
             record.filename = self.color_manager.colorize_filename(record.filename)
             record.asctime = self.color_manager.colorize_timestamp(self.formatTime(record, self.datefmt))
-            record.message = self.color_manager.colorize_message(record.getMessage(), record.levelno)
+            record.message = self.color_manager.colorize_message(record.getMessage(), levelno)
         else:
             record.message = record.getMessage()
 
@@ -273,7 +371,29 @@ class ColoredFormatter(Formatter):
         return Formatter.format(self, record)
 
 class KissConsoleHandler(StreamHandler):
-    """Handler that outputs colored log messages to the console"""
+    """Handler that outputs colored log messages to the console.
+    
+    This handler extends the standard logging.StreamHandler to add color
+    to log messages based on their level. Colors can be customized through
+    a configuration file.
+    
+    By default, colors are enabled when outputting to sys.stderr or sys.stdout.
+    To disable colors, you need to create a ColoredFormatter with use_color=False
+    and set it explicitly:
+        handler = KissConsoleHandler()
+        formatter = ColoredFormatter(use_color=False)
+        handler.setFormatter(formatter)
+    
+    Environment Variables:
+        The following environment variables can be used to control coloring:
+        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
+        - LOGKISS_NO_COLOR: Disable colors (any value)
+        These environment variables override the use_color parameter of the formatter.
+    
+    Args:
+        stream: Output stream. Default is sys.stderr.
+        color_config: Path to color configuration file. Default is None.
+    """
     
     def __init__(self, stream: Optional[TextIO] = None,
                  color_config: Optional[Union[str, Path]] = None):
@@ -314,72 +434,6 @@ class KissConsoleHandler(StreamHandler):
         except Exception:
             self.handleError(record)
 
-class KissFileHandler(FileHandler):
-    """Handler that outputs colored log messages to a file"""
-
-    def __init__(self, filename: str,
-                 mode: str = 'a', encoding: Optional[str] = None,
-                 delay: bool = False,
-                 color_config: Optional[Union[str, Path]] = None):
-        """
-        Args:
-            filename: Log file path
-            mode: File open mode
-            encoding: File encoding
-            delay: Delay file open
-            color_config: Path to color configuration file
-        """
-        super().__init__(filename, mode, encoding, delay)
-        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
-        self.setFormatter(self.formatter)
-
-class KissRotatingFileHandler(RotatingFileHandler):
-    """Handler that outputs colored log messages to a rotating file"""
-
-    def __init__(self, filename: str,
-                 mode: str = 'a', maxBytes: int = 0,
-                 backupCount: int = 0, encoding: Optional[str] = None,
-                 delay: bool = False,
-                 color_config: Optional[Union[str, Path]] = None):
-        """
-        Args:
-            filename: Log file path
-            mode: File open mode
-            maxBytes: Maximum log file size
-            backupCount: Number of backup files
-            encoding: File encoding
-            delay: Delay file open
-            color_config: Path to color configuration file
-        """
-        super().__init__(filename, mode, maxBytes, backupCount, encoding, delay)
-        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
-        self.setFormatter(self.formatter)
-
-class KissTimedRotatingFileHandler(TimedRotatingFileHandler):
-    """Handler that outputs colored log messages to a timed rotating file"""
-
-    def __init__(self, filename: str,
-                 when: str = 'h', interval: int = 1,
-                 backupCount: int = 0, encoding: Optional[str] = None,
-                 delay: bool = False, utc: bool = False,
-                 atTime: Optional[datetime.time] = None,
-                 color_config: Optional[Union[str, Path]] = None):
-        """
-        Args:
-            filename: Log file path
-            when: Rotation timing
-            interval: Rotation interval
-            backupCount: Number of backup files
-            encoding: File encoding
-            delay: Delay file open
-            utc: Use UTC time
-            atTime: Rotation time
-            color_config: Path to color configuration file
-        """
-        super().__init__(filename, when, interval, backupCount, encoding, delay, utc, atTime)
-        self.formatter = ColoredFormatter(color_config=color_config, use_color=False)
-        self.setFormatter(self.formatter)
-
 class KissLogger(logging.Logger):
     """Logger that uses colored output by default"""
 
@@ -419,7 +473,25 @@ class KissLogger(logging.Logger):
 
 # Helper function to use a standard ConsoleHandler
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
-    """Configure the logger to use a standard ConsoleHandler"""
+    """Configure the logger to use a standard StreamHandler instead of KissConsoleHandler.
+    
+    This function removes any existing KissConsoleHandler from the specified logger
+    and adds a standard StreamHandler with a basic formatter. This is useful when
+    you want to disable the colored output and use a simple console handler.
+    
+    Args:
+        logger: Logger to configure. Default is None (root logger).
+        
+    Returns:
+        None
+        
+    Example:
+        >>> import logkiss as logging
+        >>> logger = logging.getLogger(__name__)
+        >>> logging.use_console_handler(logger)
+        >>> logger.info('This message will be displayed without color')
+    """
+    # Get the root logger if no logger is specified
     if logger is None:
         logger = logging.getLogger()
     
@@ -435,6 +507,3 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
         datefmt='%Y-%m-%d %H:%M:%S'
     ))
     logger.addHandler(handler)
-
-# Version information
-__version__ = '0.1.0'
