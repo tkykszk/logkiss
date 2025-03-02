@@ -48,13 +48,12 @@ class BaseHandler:
         raise NotImplementedError("handle method must be implemented")
 
 
-class GCPCloudLoggingHandler(BaseHandler):
+class GCPCloudLoggingHandler(logging.Handler):
     """Handler for sending logs to Google Cloud Logging"""
     
     def __init__(
         self,
         project_id: Optional[str] = None,
-        log_name: str = "python",
         resource: Optional[Dict[str, str]] = None,
         labels: Optional[Dict[str, str]] = None,
         batch_size: int = 100,
@@ -62,10 +61,9 @@ class GCPCloudLoggingHandler(BaseHandler):
     ) -> None:
         """
         Args:
-            project_id: GCP project ID. If None, it will be automatically detected from environment variables
-            log_name: Log name
-            resource: Resource information. If None, it will be set to global
-            labels: Labels
+            project_id: Google Cloud project ID. If None, it will be automatically detected from environment variables
+            resource: Google Cloud resource. If None, it will be automatically detected
+            labels: Labels to add to all log entries
             batch_size: Batch size
             flush_interval: Flush interval in seconds
         """
@@ -76,12 +74,9 @@ class GCPCloudLoggingHandler(BaseHandler):
             )
         
         super().__init__()
-        print("DEBUG: Creating GCP client with project:", project_id)
         self.client = google_logging.Client(project=project_id)
-        print("DEBUG: Client created with project:", getattr(self.client, 'project', None))
         self.project_id = project_id or self.client.project  # プロジェクトIDを設定
-        print("DEBUG: Project ID set to:", self.project_id)
-        self.logger = self.client.logger(log_name)
+        self.logger = self.client.logger()
         self.resource = resource or {"type": "global"}
         self.labels = labels or {}
         
@@ -91,9 +86,7 @@ class GCPCloudLoggingHandler(BaseHandler):
         self._flush_interval = flush_interval
         self._executor = ThreadPoolExecutor(max_workers=1)
         self._running = True
-        print("DEBUG: Starting periodic flush")
         self._start_periodic_flush()
-        print("DEBUG: Initialization complete")
     
     def handle(self, log_entry: Dict[str, Any]) -> None:
         """
@@ -117,20 +110,12 @@ class GCPCloudLoggingHandler(BaseHandler):
     
     def _start_periodic_flush(self) -> None:
         """Start periodic flush"""
-        print("DEBUG: _start_periodic_flush called")
         def _periodic_flush():
-            print("DEBUG: _periodic_flush started")
             while self._running:
-                print("DEBUG: Sleeping for", self._flush_interval, "seconds")
                 time.sleep(self._flush_interval)
-                print("DEBUG: Calling _flush")
                 self._flush()
-                print("DEBUG: _flush completed")
-            print("DEBUG: _periodic_flush exiting")
         
-        print("DEBUG: Submitting _periodic_flush to executor")
         self._executor.submit(_periodic_flush)
-        print("DEBUG: _start_periodic_flush completed")
     
     def _flush(self) -> None:
         """Flush batch"""
@@ -142,7 +127,20 @@ class GCPCloudLoggingHandler(BaseHandler):
             self._batch = []
         
         try:
-            self.logger.batch_write_entries(entries)
+            # Google Cloud Logging APIに合わせてエントリを変換
+            cloud_entries = []
+            for entry in entries:
+                cloud_entry = {
+                    "severity": entry["severity"],
+                    "text_payload": entry["message"],
+                    "labels": entry.get("labels", {}),
+                }
+                if entry.get("timestamp"):
+                    cloud_entry["timestamp"] = entry["timestamp"]
+                cloud_entries.append(cloud_entry)
+                
+            # バッチでログを送信
+            self.logger.log_entries(cloud_entries, resource=self.resource)
         except Exception as e:
             # Error log will be printed to standard error
             import sys
@@ -159,11 +157,38 @@ class GCPCloudLoggingHandler(BaseHandler):
         }
         return mapping.get(level.upper(), "DEFAULT")
 
-    def __del__(self):
-        """Cleanup when the handler is deleted"""
+    def emit(self, record: logging.LogRecord) -> None:
+        """
+        Emit a record to Google Cloud Logging
+        
+        Args:
+            record: Log record to be emitted
+        """
+        try:
+            self.handle({
+                "level": record.levelname,
+                "timestamp": record.created,
+                "message": record.getMessage(),
+                "labels": {}
+            })
+        except Exception:
+            self.handleError(record)
+
+    def close(self) -> None:
+        """Close the handler and clean up resources"""
         self._running = False
+        with self._batch_lock:
+            if self._batch:
+                self._flush()
+        
         if hasattr(self, '_executor'):
             self._executor.shutdown(wait=True)
+        
+        super().close()
+
+    def __del__(self):
+        """Cleanup when the handler is deleted"""
+        self.close()
 
 
 class AWSCloudWatchHandler(logging.Handler):
@@ -229,14 +254,12 @@ class AWSCloudWatchHandler(logging.Handler):
         # Method 1: Try to get instance ID from environment variable
         instance_id = os.environ.get('AWS_INSTANCE_ID')
         if instance_id:
-            print(f"Using AWS_INSTANCE_ID environment variable as log stream name: {instance_id}")
             return instance_id
             
         # Method 2: Use hostname
         try:
             hostname = socket.gethostname()
             if hostname and hostname != 'localhost':
-                print(f"Using hostname as log stream name: {hostname}")
                 return hostname
         except Exception as e:
             print(f"Failed to get hostname: {str(e)}")
@@ -244,7 +267,6 @@ class AWSCloudWatchHandler(logging.Handler):
         # Method 3: Generate a random UUID as last resort
         import uuid
         random_id = str(uuid.uuid4())
-        print(f"Using random UUID as log stream name: {random_id}")
         return random_id
     
     def _start_periodic_flush(self) -> None:
@@ -329,10 +351,6 @@ class AWSCloudWatchHandler(logging.Handler):
             # Error log will be printed to standard error
             import sys
             print(f"Error writing to CloudWatch Logs: {e}", file=sys.stderr)
-
-    def __del__(self):
-        """Cleanup when the handler is deleted"""
-        self.close()
 
     def close(self):
         """
