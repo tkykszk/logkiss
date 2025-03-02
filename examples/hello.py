@@ -1,3 +1,10 @@
+"""Hello world example for logkiss.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -28,6 +35,9 @@ import logkiss as logging
 kiss_logger = logging.getLogger("logkiss")
 kiss_logger.setLevel(logging.DEBUG)
 
+# 標準のルートロガーへの伝播を無効化
+kiss_logger.propagate = False
+
 # ハンドラーの状態を確認
 print("\nロガーの状態:")
 print(f"ロガー名: {kiss_logger.name}")
@@ -54,6 +64,7 @@ class FilenameFilter(logging.Filter):
 
 # 異なるファイル名でログ出力
 kiss_logger = logging.getLogger("logkiss")
+kiss_logger.propagate = False
 kiss_logger.addFilter(FilenameFilter("custom.py"))
 kiss_logger.info("カスタムファイル名でのログ出力")
 
