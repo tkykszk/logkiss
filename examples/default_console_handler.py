@@ -1,3 +1,10 @@
+"""Example of using default console handler.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import logkiss as logging
 import sys
 

@@ -1,6 +1,6 @@
 [project]
 name = "logkiss"
-version = "2.1.0"
+version = "2.2.0"
 description = "A Simple and Colorful Python Logging Library"
 authors = [
     {name = "Taka Suzuki", email = "tkykszk@gmail.com"}
@@ -37,6 +37,10 @@ test = [
     "pytest>=7.0.0",
     "matplotlib>=3.7.0",
 ]
+cloud = [
+    "google-cloud-logging>=3.9.0",
+    "boto3>=1.34.0",
+]
 
 [build-system]
 requires = ["pdm-backend"]
@@ -63,6 +67,18 @@ lint = [
     "mypy>=1.0",
     "flake8>=6.0",
 ]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "mkdocstrings>=0.23.0",
+    "mkdocstrings-python>=1.7.0",
+    "mkdocs-autorefs>=0.5.0",
+]
+
+[tool.pdm.scripts]
+docs-serve = {cmd = "mkdocs serve"}
+docs-build = {cmd = "mkdocs build"}
+docs-deploy = {cmd = "mkdocs gh-deploy --force"}
 
 [tool.black]
 line-length = 88

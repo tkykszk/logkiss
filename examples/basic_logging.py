@@ -1,3 +1,10 @@
+"""Basic example of logkiss usage.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import logkiss as logging
 
 # Most basic example of logging

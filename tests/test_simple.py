@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Simple test cases for logkiss.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import io
 import sys
 import logkiss as logging
@@ -50,9 +57,9 @@ def test_simplest():
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
-    assert "WARNING" in lines[2]
+    assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
-    assert "CRITICAL" in lines[4]
+    assert "CRITI" in lines[4]
 
 def test_simple():
     """Test simple.py"""
@@ -76,9 +83,9 @@ def test_simple():
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
-    assert "WARNING" in lines[2]
+    assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
-    assert "CRITICAL" in lines[4]
+    assert "CRITI" in lines[4]
 
 def test_simple_config():
     """Test simple_config.py"""
@@ -105,9 +112,9 @@ def test_simple_config():
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
     assert "DEBUG" in lines[0]
     assert "INFO" in lines[1]
-    assert "WARNING" in lines[2]
+    assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
-    assert "CRITICAL" in lines[4]
+    assert "CRITI" in lines[4]
 
 def test_simple_config_2():
     """Test simple_config_2.py"""
@@ -131,4 +138,4 @@ def test_simple_config_2():
     # Verify only ERROR and CRITICAL are output
     assert len(lines) == 2, f"Expected 2 lines, got {len(lines)}"
     assert "ERROR" in lines[0]
-    assert "CRITICAL" in lines[1]
+    assert "CRITI" in lines[1]

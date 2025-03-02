@@ -1,3 +1,10 @@
+"""Test cases for logkiss core functionality.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import unittest
 from logkiss import getLogger
 

@@ -1,0 +1,32 @@
+<svg width="600" height="150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- ロック風の歪みを表現するフィルター -->
+    <filter id="rockFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8"/>
+    </filter>
+    <!-- KISS用のグラデーション -->
+    <linearGradient id="rockGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff0000; stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6600; stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <style>
+    .log {
+      font-family: 'Noto Serif', sans-serif;
+      font-size: 60px;
+      fill: #000;
+      font-weight: bold;
+    }
+    .kiss {
+      font-family: Impact, sans-serif;
+      font-size: 60px;
+      fill: url(#rockGradient);
+      filter: url(#rockFilter);
+    }
+  </style>
+  <!-- 両単語を連続して表示 -->
+  <text x="20" y="80">
+    <tspan class="log">log</tspan><tspan class="kiss">kiss</tspan>
+  </text>
+</svg>

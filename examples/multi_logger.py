@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Example of using multiple loggers.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+"""
+
 import os
 import sys
 from pathlib import Path
@@ -24,7 +31,13 @@ for handler in both_logger.handlers[:]:
     both_logger.removeHandler(handler)
 both_logger.setLevel(logging.DEBUG)
 both_logger.addHandler(logging.KissConsoleHandler())
-both_logger.addHandler(logging.KissFileHandler(log_file))
+
+# 標準のFileHandlerを使用し、ColoredFormatterを設定
+file_handler = logging.FileHandler(log_file)
+formatter = logging.ColoredFormatter(use_color=False)
+file_handler.setFormatter(formatter)
+both_logger.addHandler(file_handler)
+
 both_logger.propagate = False
 
 def main():

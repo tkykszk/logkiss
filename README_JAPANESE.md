@@ -1,5 +1,9 @@
-# LOGKISS
+# 
 
+[](docs/logkiss.svg)
+[![LOGKISS](https://img.shields.io/badge/LOGKISS-Keep%20It%20Simple%20and%20Stupid%20Logger-blue.svg)](https://github.com/takatosh/logkiss)
+
+(README_JAPANEASE.mdのみ日本語です。english versionis in README.md)
 LOGKISS（Keep It Simple and Stupid Logger）は、Pythonのシンプルで使いやすいロギングライブラリです。
 標準のloggingモジュールをベースに、設定をデフォルトでやってくれるインターフェースを提供します。
 
@@ -9,7 +13,6 @@ LOGKISS（Keep It Simple and Stupid Logger）は、Pythonのシンプルで使�
 - **標準ロギングモジュールの代替**: `import logkiss as logging`とすることで、標準の`logging`モジュールの代わりとして使用できます。
 - **柔軟な切り替え**: 必要に応じて、通常の`ConsoleHandler`に切り替えることができます。
 
-
 ## 新機軸
 
 - どのloggerからどれぐらいの量が送られたか集計
@@ -17,6 +20,30 @@ LOGKISS（Keep It Simple and Stupid Logger）は、Pythonのシンプルで使�
 - handlerの共有
 - console UI
 
+## 環境変数の設定
+
+LOGKISSは、クラウドサービス（GCP、AWS）への接続設定などを環境変数から読み込むことができます。以下の手順で設定してください：
+
+1. リポジトリのルートディレクトリに `.env` ファイルを作成します（`.env.example` をコピーして使用できます）
+2. 必要な環境変数を設定します
+
+### Google Cloud Platform (GCP) の設定例
+
+```
+# Google Cloud 設定
+GCP_PROJECT_ID=your-project-id
+GCP_LOG_NAME=test-log
+```
+
+### AWS の設定例
+
+```
+# AWS 設定
+AWS_REGION=us-east-1
+AWS_LOG_GROUP_NAME=your-log-group
+```
+
+注意: `.env` ファイルは `.env.example` を参考に設定してください。
 
 ## インストール
 

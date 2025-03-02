@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 """
 
 import os
-import time
-import logging
-import hashlib
 import uuid
 from datetime import datetime
+import logging
+import hashlib
+from google.cloud import logging as google_logging
 
 # 環境変数から GCP の設定を取得
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
@@ -30,15 +30,22 @@ def generate_test_log_name():
     return f"logkiss_test_{timestamp}_{unique_id}"
 
 # クリーンアップフラグ（テスト後にリソースを削除するかどうか）
-CLEAN_UP = True
+CLEAN_UP = False #True
 
 def main():
+    """メイン関数"""
+    # 必要なモジュールをインポート
+    import time
+    import logging
+    from logkiss import getLogger
+    from logkiss.handlers import GCPCloudLoggingHandler
+    
     # ログ名を設定
     log_name = generate_test_log_name()
     print(f"ログ名: {log_name}")
     
-    # ロガーを設定
-    logger = logging.getLogger("gcp_sample")
+    # ロガーの設定
+    logger = getLogger("gcp_sample")
     logger.setLevel(logging.DEBUG)
     
     # 既存のハンドラーをクリア（重複出力を避けるため）
@@ -56,6 +63,7 @@ def main():
     try:
         gcp_handler = GCPCloudLoggingHandler(
             project_id=GCP_PROJECT_ID,
+            log_name=log_name,
             batch_size=10,  # 小さいバッチサイズを設定（サンプル用）
             flush_interval=2.0  # 短いフラッシュ間隔を設定（サンプル用）
         )
@@ -109,18 +117,29 @@ def main():
         print("\n=== クリーンアップ ===")
         print(f"ログ「{log_name}」を削除します...")
         try:
-            from google.cloud import logging as google_logging
             client = google_logging.Client(project=GCP_PROJECT_ID)
             
             # ログエントリを削除するためのフィルタを作成
             filter_str = f'logName="projects/{client.project}/logs/{log_name}"'
             print(f"削除フィルタ: {filter_str}")
+
+            # web consoleを開く
+            import webbrowser
+            console_url = f"https://console.cloud.google.com/logs/query;query=resource.type%3D%22global%22%20AND%20logName%3D%22projects%2F{client.project}%2Flogs%2F{log_name}%22?project={client.project}"
+            print(f"ログコンソールを開きます: {console_url}")
+            webbrowser.open(console_url)
             
-            # ログエントリを削除
-            client.delete_entries(filter_=filter_str)
-            print("ログエントリを削除しました")
+            # 少し待ってからログを削除（ブラウザが開くのを待つ）
+            import time
+            time.sleep(2)
+            
+            # 注意: Google Cloud Loggingには直接ログを削除するAPIがないため、
+            # 実際のクリーンアップはGCPコンソールまたはgcloudコマンドで行う必要があります
+            print("注意: Google Cloud Loggingには直接ログを削除するAPIがありません。")
+            print("GCPコンソールまたはgcloudコマンドを使用して手動でログを削除してください。")
+            print("例: gcloud logging logs delete " + log_name)
         except Exception as e:
-            print(f"ログエントリの削除中にエラーが発生しました: {e}")
+            print(f"クリーンアップ中にエラーが発生しました: {e}")
     else:
         print("\n=== クリーンアップはスキップされました ===")
         print("CLEAN_UP = False に設定されているため、リソースは削除されません")

@@ -1,3 +1,12 @@
+"""logkiss - Keep It Simple and Stupid Logger.
+
+Copyright (c) 2025 Taka Suzuki
+SPDX-License-Identifier: MIT
+See LICENSE for details.
+
+A simple and colorful Python logging library.
+"""
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -14,7 +23,6 @@ DEBUG_MODE = os.environ.get('LOGKISS_DEBUG', '0').lower() in ('1', 'true', 'yes'
 # Import logkiss module classes
 from .logkiss import (
     KissLogger, KissConsoleHandler, ColoredFormatter,
-    KissFileHandler, KissRotatingFileHandler, KissTimedRotatingFileHandler,
 )
 
 # Import standard logging module functions

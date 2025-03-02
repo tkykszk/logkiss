@@ -8,12 +8,15 @@ Copyright (c) 2025 Taka Suzuki
 SPDX-License-Identifier: MIT
 """
 
+import json
 import os
-import time
-import logging
-import hashlib
+import socket
 import uuid
+import hashlib
+import logging
 from datetime import datetime
+
+import boto3
 
 # 環境変数から AWS の設定を取得
 AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "ap-northeast-1")
@@ -33,15 +36,21 @@ def generate_test_log_group_name():
 CLEAN_UP = True
 
 def main():
+    """メイン関数"""
+    # 必要なモジュールをインポート
+    import time
+    import logging
+    from logkiss import getLogger
+    from logkiss.handlers import AWSCloudWatchHandler
+    
     # ロググループとストリームの名前を設定
     log_group_name = generate_test_log_group_name()
     log_stream_name = f"sample-{datetime.now().strftime('%H%M%S')}"
-    
     print(f"ロググループ名: {log_group_name}")
     print(f"ログストリーム名: {log_stream_name}")
     
-    # ロガーを設定
-    logger = logging.getLogger("aws_sample")
+    # ロガーの設定
+    logger = getLogger("aws_sample")
     logger.setLevel(logging.DEBUG)
     
     # 既存のハンドラーをクリア（重複出力を避けるため）
@@ -118,10 +127,24 @@ def main():
         try:
             import boto3
             logs_client = boto3.client('logs', region_name=AWS_REGION)
+            
+            # CloudWatch Logsコンソールを開く
+            import webbrowser
+            region = logs_client.meta.region_name
+            # 特定のロググループに直接アクセスするURL
+            console_url = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups/log-group/{log_group_name}"
+            print(f"CloudWatch Logsコンソールを開きます: {console_url}")
+            webbrowser.open(console_url)
+            
+            # 少し待ってからロググループを削除（ブラウザが開くのを待つ）
+            import time
+            time.sleep(2)
+            
+            # ロググループを削除
             logs_client.delete_log_group(logGroupName=log_group_name)
             print("ロググループを削除しました")
         except Exception as e:
-            print(f"ロググループの削除中にエラーが発生しました: {e}")
+            print(f"クリーンアップ中にエラーが発生しました: {e}")
     else:
         print("\n=== クリーンアップはスキップされました ===")
         print("CLEAN_UP = False に設定されているため、リソースは削除されません")
