@@ -8,7 +8,7 @@ See LICENSE for details.
 This module contains various handlers used in logkiss.
 Main classes:
 - BaseHandler: Base handler class for implementing custom handlers
-- GCPCloudLoggingHandler: Handler for sending logs to Google Cloud Logging
+- KissGCPCloudLoggingHandler: Handler for sending logs to Google Cloud Logging
 - AWSCloudWatchHandler: Handler for sending logs to AWS CloudWatch Logs
 """
 
@@ -48,7 +48,7 @@ class BaseHandler:
         raise NotImplementedError("handle method must be implemented")
 
 
-class GCPCloudLoggingHandler(logging.Handler):
+class KissGCPCloudLoggingHandler(logging.Handler):
     """Handler for sending logs to Google Cloud Logging"""
     
     def __init__(
@@ -57,7 +57,7 @@ class GCPCloudLoggingHandler(logging.Handler):
         resource: Optional[Dict[str, str]] = None,
         labels: Optional[Dict[str, str]] = None,
         batch_size: int = 100,
-        flush_interval: float = 5.0,
+        flush_interval: float = 2.0,
         log_name: str = "python",
     ) -> None:
         """
@@ -99,7 +99,7 @@ class GCPCloudLoggingHandler(logging.Handler):
             self._start_periodic_flush()
         except Exception as e:
             import sys
-            print(f"Error initializing GCPCloudLoggingHandler: {e}", file=sys.stderr)
+            print(f"Error initializing KissGCPCloudLoggingHandler: {e}", file=sys.stderr)
             # 初期化に失敗した場合は、runningフラグをFalseにして、スレッドが開始されないようにする
             self._running = False
             raise
@@ -148,21 +148,35 @@ class GCPCloudLoggingHandler(logging.Handler):
             # ログレベルをGoogle Cloud Loggingのseverityに変換
             severity = self._convert_level_to_severity(record.levelname)
             
+            # エラーログまたは例外情報がある場合は常にERRORレベルに設定
+            if record.levelno >= logging.ERROR or record.exc_info:
+                severity = "ERROR"
+            
             # エントリを作成
             entry = {
                 "message": message,
                 "severity": severity,
                 "labels": self.labels.copy(),
+                "json_payload": {},  # extraの内容をjson_payloadとして送信するための辞書
             }
             
             # 追加情報がある場合は追加
             if hasattr(record, "extra") and isinstance(record.extra, dict):
-                entry["labels"].update(record.extra)
+                # extraの内容をjson_payloadにコピー
+                entry["json_payload"] = record.extra.copy()
+                
+                # labelsにも追加（文字列に変換）
+                for key, value in record.extra.items():
+                    if not isinstance(value, (str, bytes)):
+                        entry["labels"][key] = str(value)
+                    else:
+                        entry["labels"][key] = value
             
             # exc_info=Trueが指定された場合のスタックトレース情報を追加
             if record.exc_info:
                 import traceback
-                entry["labels"]["stack_trace"] = traceback.format_exception(*record.exc_info)
+                stack_trace_list = traceback.format_exception(*record.exc_info)
+                entry["labels"]["stack_trace"] = ''.join(stack_trace_list)
             
             # バッチに追加
             with self._batch_lock:
@@ -173,7 +187,7 @@ class GCPCloudLoggingHandler(logging.Handler):
                     self._flush()
         except Exception as e:
             import sys
-            print(f"Error in GCPCloudLoggingHandler.emit: {e}", file=sys.stderr)
+            print(f"Error in KissGCPCloudLoggingHandler.emit: {e}", file=sys.stderr)
 
     def _convert_level_to_severity(self, level: str) -> str:
         """Convert log level to Google Cloud Logging severity"""
@@ -205,8 +219,18 @@ class GCPCloudLoggingHandler(logging.Handler):
         try:
             # Google Cloud Logging APIを使用してログを送信
             for entry in entries:
-                self.logger.log_text(
-                    text=entry["message"],
+                # 構造化ログを作成
+                struct_data = {
+                    "message": entry["message"]
+                }
+                
+                # json_payloadがある場合は構造化ログに追加
+                if entry.get("json_payload"):
+                    struct_data.update(entry["json_payload"])
+                
+                # log_structメソッドを使用して構造化ログを送信
+                self.logger.log_struct(
+                    info=struct_data,
                     severity=entry["severity"],
                     labels=entry.get("labels", {})
                 )

@@ -25,6 +25,15 @@ from .logkiss import (
     KissLogger, KissConsoleHandler, ColoredFormatter,
 )
 
+# Import handlers
+from .handlers import (
+    KissGCPCloudLoggingHandler,  # 元の実装
+)
+from .handler_gcp import (
+    GCloudLoggingHandler,    # 新しい実装
+    setup_logging as setup_gcp_logging,
+)
+
 # Import standard logging module functions
 from logging import (
     BASIC_FORMAT, CRITICAL, DEBUG, ERROR, FATAL, INFO,
@@ -42,6 +51,10 @@ __all__ = [
     'critical', 'debug', 'disable', 'error', 'exception', 'fatal',
     'getLevelName', 'getLogger', 'getLoggerClass', 'info', 'log',
     'makeLogRecord', 'setLoggerClass', 'warn', 'warning',
+    # ハンドラー
+    'KissGCPCloudLoggingHandler',  # 元の実装
+    'GCloudLoggingHandler',    # 新しい実装
+    'setup_gcp_logging',
 ]
 
 # Register custom logger class

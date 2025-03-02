@@ -14,7 +14,7 @@ from datetime import datetime
 # logkissモジュールをインポート
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import logkiss
-from logkiss.handlers import GCPCloudLoggingHandler
+from logkiss.handlers import KissGCPCloudLoggingHandler
 
 
 def configure_logging():
@@ -34,18 +34,26 @@ def configure_logging():
     log_name = f"exception_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     # GCP Cloud Loggingハンドラーを追加
-    gcp_handler = GCPCloudLoggingHandler(
-        project_id=project_id,
-        log_name=log_name,
-        labels={
-            "application": "exception_sample",
-            "environment": "development"
-        }
-    )
-    logger.addHandler(gcp_handler)
-    
-    print(f"GCP Cloud Logging ハンドラーを追加しました (プロジェクトID: {project_id}, ログ名: {log_name})")
-    return logger, project_id, log_name
+    try:
+        # 一意のログ名を生成
+        log_name = f"logkiss_test_{datetime.now().strftime('%Y%m%d')}_{os.urandom(4).hex()}"
+        
+        # GCP Cloud Loggingハンドラーを作成
+        gcp_handler = KissGCPCloudLoggingHandler(
+            project_id=project_id,
+            log_name=log_name,
+            labels={
+                "application": "exception_sample",
+                "environment": "development"
+            }
+        )
+        logger.addHandler(gcp_handler)
+        
+        print(f"GCP Cloud Logging ハンドラーを追加しました (プロジェクトID: {project_id}, ログ名: {log_name})")
+        return logger, project_id, log_name
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        sys.exit(1)
 
 
 def simulate_error():
@@ -72,7 +80,7 @@ def demonstrate_exception_logging(logger):
         result = simulate_error()
     except Exception as e:
         logger.error(
-            "エラーが発生しました: %s", str(e), 
+            "(1)エラーが発生しました: %s", str(e), 
             exc_info=True
         )
     
@@ -82,7 +90,7 @@ def demonstrate_exception_logging(logger):
         result = simulate_error()
     except Exception as e:
         logger.error(
-            "エラーが発生しました: %s", str(e), 
+            "(2)エラーが発生しました: %s", str(e), 
             exc_info=e
         )
     
@@ -91,7 +99,7 @@ def demonstrate_exception_logging(logger):
         print("\n方法3: logger.exception() を使用")
         result = simulate_error()
     except Exception as e:
-        logger.exception("エラーが発生しました: %s", str(e))
+        logger.exception("(3)エラーが発生しました: %s", str(e))
     
     # 方法4: スタックトレースを手動で取得して出力
     try:
@@ -99,19 +107,21 @@ def demonstrate_exception_logging(logger):
         result = simulate_error()
     except Exception as e:
         stack_trace = traceback.format_exc()
-        logger.error("エラーが発生しました: %s\n%s", str(e), stack_trace)
+        logger.error("(4)エラーが発生しました: %s\n%s", str(e), stack_trace)
     
     # 方法5: 構造化ログとして出力
     try:
         print("\n方法5: 構造化ログとして出力")
         result = simulate_error()
     except Exception as e:
+        # スタックトレースを文字列として取得
+        stack_trace = traceback.format_exc()
         logger.error(
-            "エラーが発生しました", 
+            "(5)エラーが発生しました", 
             extra={
                 "error_type": type(e).__name__,
                 "error_message": str(e),
-                "stack_trace": traceback.format_exc()
+                "stack_trace": stack_trace
             }
         )
 
