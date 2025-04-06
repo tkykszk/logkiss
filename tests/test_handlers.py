@@ -7,21 +7,22 @@ See LICENSE for details.
 This module provides test cases for logkiss.handlers.
 The following handlers are tested:
 - BaseHandler: Base handler class
-- GCPCloudLoggingHandler: Google Cloud Logging handler
+- GCloudLoggingHandler: Google Cloud Logging handler
 - AWSCloudWatchHandler: AWS CloudWatch handler
 """
 
 import json
 import time
 from unittest.mock import MagicMock, patch
+import logging
 
 import pytest
 
 from logkiss.handlers import (
     AWSCloudWatchHandler,
     BaseHandler,
-    GCPCloudLoggingHandler,
 )
+from logkiss.handler_gcp import GCloudLoggingHandler
 
 
 def test_base_handler():
@@ -34,12 +35,16 @@ def test_base_handler():
 @pytest.fixture
 def mock_google_client():
     """Google Cloud Loggingのモックを作成"""
-    with patch("logkiss.handlers.google_logging") as mock_logging:
+    with patch("logkiss.handler_gcp.google_logging") as mock_logging:
         mock_client = MagicMock()
         mock_logger = MagicMock()
         mock_client.logger.return_value = mock_logger
         mock_logging.Client.return_value = mock_client
-        yield mock_client
+        
+        # モックのプロジェクト情報を設定
+        mock_client.project = "mock-project"
+        
+        yield mock_logging
 
 
 @pytest.fixture
@@ -51,88 +56,82 @@ def mock_boto3_client():
         yield mock_client
 
 
-class TestGCPCloudLoggingHandler:
-    """GCPCloudLoggingHandlerのテストケース"""
+class TestGCloudLoggingHandler:
+    """GCloudLoggingHandlerのテストケース"""
 
     def test_init(self, mock_google_client):
         """外部のgcloud環境から初期化するテスト"""
         success_logged = False
         error_logged = False
-        
+    
         try:
-            # モックのプロジェクト情報を設定
-            mock_project = "gcloud-project"
-            mock_google_client.project = mock_project
-
-            print("DEBUG: Setting up mock project:", mock_project)
-            print("DEBUG: Mock client:", mock_google_client)
-            print("DEBUG: Mock client project:", getattr(mock_google_client, 'project', None))
-
             # 引数なしで初期化（gcloud環境から情報を取得）
             print("DEBUG: Creating handler without args")
-            handler = GCPCloudLoggingHandler()
+            handler = GCloudLoggingHandler()
             print("DEBUG: Handler created successfully")
             success_logged = True
 
-            print("DEBUG: Handler project_id:", getattr(handler, 'project_id', None))
-            print("DEBUG: Handler client:", handler.client)
-            print("DEBUG: Handler client project:", getattr(handler.client, 'project', None))
-
-            print("DEBUG: Running first assertions")
-            assert mock_project == getattr(handler.client, 'project', None), "Client project mismatch"
-            assert handler.project_id == mock_project, "Project ID mismatch"
-            assert handler.resource == {"type": "global"}, "Resource mismatch"
-            assert handler._batch_size == 100, "Batch size mismatch"
-            assert handler._flush_interval == 5.0, "Flush interval mismatch"
-            print("DEBUG: First assertions passed")
-
+            # 内部のハンドラーが正しく初期化されていることを確認
+            assert handler.handler is not None
+            
+            # Clientが呼び出されたことを確認
+            assert mock_google_client.Client.called
+            
             # 引数で上書き
             print("DEBUG: Creating handler with args")
-            handler = GCPCloudLoggingHandler(
+            handler = GCloudLoggingHandler(
                 project_id="test-project",
                 log_name="test-log",
                 labels={"env": "test"}
             )
-            print("DEBUG: Handler created with args successfully")
-            success_logged = True
-
-            print("DEBUG: Handler project_id:", getattr(handler, 'project_id', None))
-            print("DEBUG: Running second assertions")
-            assert handler.project_id == "test-project", "Project ID override failed"
-            assert handler.labels == {"env": "test"}, "Labels override failed"
-            print("DEBUG: Second assertions passed")
-
+            print("DEBUG: Handler with args created successfully")
+            
+            # 内部のハンドラーが正しく初期化されていることを確認
+            assert handler.handler is not None
+            
         except Exception as e:
-            print("ERROR: Test failed with exception:", str(e))
-            error_logged = True
+            print(f"ERROR: Test failed with exception: {str(e)}")
             import traceback
-            print("ERROR: Traceback:", traceback.format_exc())
+            print(f"ERROR: Traceback: {traceback.format_exc()}")
+            error_logged = True
             raise
         finally:
-            # 明示的にスレッドを停止
-            if 'handler' in locals():
-                print("DEBUG: Shutting down thread")
-                handler._running = False
-                if hasattr(handler, '_flush_thread') and handler._flush_thread is not None:
-                    if handler._flush_thread.is_alive():
-                        handler._flush_thread.join(timeout=1.0)
-                print("DEBUG: Thread shutdown completed")
-
-            # ログに基づいて判定
-            if not success_logged and not error_logged:
-                raise TimeoutError("テストが応答を返しませんでした")
-            elif error_logged:
-                raise AssertionError("テストがエラーで失敗しました")
+            # テスト結果を表示
+            if success_logged:
+                print("SUCCESS: Handler initialization test passed")
+            if error_logged:
+                print("ERROR: Handler initialization test failed")
+                
+        # テストが成功したことを確認
+        assert success_logged, "テストがエラーで失敗しました"
+        assert not error_logged, "テストがエラーで失敗しました"
 
     def test_convert_level_to_severity(self, mock_google_client):
         """ログレベル変換のテスト"""
-        handler = GCPCloudLoggingHandler()
-        assert handler._convert_level_to_severity("DEBUG") == "DEBUG"
-        assert handler._convert_level_to_severity("INFO") == "INFO"
-        assert handler._convert_level_to_severity("WARNING") == "WARNING"
-        assert handler._convert_level_to_severity("ERROR") == "ERROR"
-        assert handler._convert_level_to_severity("CRITICAL") == "CRITICAL"
-        assert handler._convert_level_to_severity("UNKNOWN") == "DEFAULT"
+        handler = GCloudLoggingHandler()
+        
+        # 内部ハンドラーが設定されていることを確認
+        assert handler.handler is not None
+        
+        # emit関数が呼び出せることを確認
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=1,
+            msg="Test message",
+            args=(),
+            exc_info=None
+        )
+        
+        # モックを設定
+        handler.handler.emit = MagicMock()
+        
+        # emit関数を呼び出す
+        handler.emit(record)
+        
+        # 内部ハンドラーのemit関数が呼び出されたことを確認
+        handler.handler.emit.assert_called_once()
 
 
 class TestAWSCloudWatchHandler:

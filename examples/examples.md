@@ -4,40 +4,69 @@ This directory contains various sample codes demonstrating how to use the logkis
 
 ## Basic Usage Examples
 
-### 1. Simplest Examples
+### 1. Simple Examples
+
 - `basic_logging.py`: Shows the most basic usage of logkiss.
-- `simplest.py`: A simple logging output example.
+- `hello.py`: A Hello World example.
+- `sample.py`: Basic sample.
+- `sample_usage.py`: General usage example.
 
 ### 2. Log Levels and Formatting
-- `file_logging.py`: Demonstrates file logging and the use of different log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-- `variable_logging.py`: Shows how to output log messages with variable data. Includes examples of various string formatting methods (%-style, str.format(), f-string).
+
+- `sample_file_logging.py`: Demonstrates file logging and various log levels.
+- `sample_variable_logging.py`: Shows how to output log messages with variable data.
+- `sample_matplot_debug_log.py`: Example of debug logging with matplotlib.
+
+## Exception Handling and Error Logging
+
+- `sample_exception.py`: Basic example of exception handling.
+- `sample_test_exc_info.py`: Example of using exc_info.
+
+## Multiple Loggers and Existing Loggers
+
+- `sample_multi_logger.py`: Example of using multiple loggers.
+- `sample_existing_logger.py`: Example of integrating with existing loggers.
+
+## Cloud Logging
+
+### 1. AWS CloudWatch Logs
+
+- `sample_aws.py`: Example of logging to AWS CloudWatch Logs.
+- `sample_exception_aws.py`: Example of exception logging with AWS CloudWatch.
+
+### 2. Google Cloud Logging
+
+- `sample_gcp.py`: Example of logging to Google Cloud Logging.
+- `sample_exception_gcp.py`: Example of exception logging with Google Cloud.
+- `sample_gcloud_handler.py`: Detailed example of using Google Cloud Logging handler.
 
 ## Customization Examples
 
 ### 1. Handler Customization
-- `default_console_handler.py`: Shows how to replace KissConsoleHandler with the standard StreamHandler.
-- `disable_color.py`: Demonstrates how to disable color output.
+
+- `console_handler_example.py`: Example of customizing console handler.
+- `default_console_handler.py`: Example of replacing with standard StreamHandler.
+- `disable_color.py`: Example of disabling color output.
 
 ### 2. Configuration and Logger Management
-- `simple_config.py` and `simple_config_2.py`: Examples of logging configuration methods.
-- `multi_logger.py`: Shows how to use multiple loggers.
 
-## Special Usage Examples
-
-### 1. Graphical Output
-- `matplot_example.py`: Example of integration with Matplotlib.
-
-### 2. Others
-- `usage_example.py`: A comprehensive example showing more advanced usage.
-- `hello.py`: Demonstration of basic usage.
-- `simple.py`: Example with simple configuration.
+- `sample_config.py`: Basic example of logging configuration.
+- `sample_config_2.py`: Advanced example of logging configuration.
 
 ## How to Run Examples
 
-You can run each example as follows:
+You can run each example directly using Python. Make sure you have installed logkiss in development mode:
 
 ```bash
-python examples/[example_filename].py
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -e .
+```
+
+Then run any example:
+
+```bash
+python examples/hello.py
 ```
 
 For example:

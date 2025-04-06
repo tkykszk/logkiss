@@ -1,5 +1,6 @@
-# LOGKISS
+![LOGKISS](docs/logkiss.svg)
 
+# LOGKISS
 LOGKISS (Keep It Simple and Stupid Logger) is a user-friendly logging library for Python.
 Built on top of the standard logging module, it provides an interface with sensible defaults out of the box.
 

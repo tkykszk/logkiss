@@ -20,7 +20,7 @@ from datetime import datetime
 # logkissモジュールをインポート
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import logkiss
-from logkiss.handler_gcp import GCloudLoggingHandler, setup_logging
+from logkiss.handler_gcp import GCloudLoggingHandler, setup_gcp_logging
 
 
 def simple_example():
@@ -93,7 +93,7 @@ def setup_logging_example():
     print(f"Google Cloud Loggingにログを送信します (プロジェクトID: {project_id}, ログ名: {log_name})")
     
     # setup_logging関数を使用してロギングを設定
-    setup_logging(
+    setup_gcp_logging(
         project_id=project_id,
         log_name=log_name,
         labels={

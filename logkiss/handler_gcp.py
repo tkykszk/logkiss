@@ -15,7 +15,7 @@ import os
 from typing import Dict, Any, Optional, Union
 
 from google.cloud import logging as google_logging
-from google.cloud.logging_v2.handlers import CloudLoggingHandler as GoogleCloudLoggingHandler
+from google.cloud.logging_v2.handlers import CloudLoggingHandler
 from google.cloud.logging_v2.handlers.handlers import EXCLUDED_LOGGER_DEFAULTS
 
 
@@ -42,31 +42,40 @@ class GCloudLoggingHandler(logging.Handler):
         self,
         project_id: Optional[str] = None,
         credentials: Any = None,
-        labels: Optional[Dict[str, str]] = None,
         log_name: str = "python",
+        labels: Optional[Dict[str, str]] = None,
         resource: Any = None,
         excluded_loggers: Optional[list] = None,
-    ):
-        """Initialize the handler."""
+    ) -> None:
+        """Initialize the handler.
+        
+        Args:
+            project_id: Google Cloud project ID. If None, it will be automatically detected.
+            credentials: Google Cloud credentials. If None, default credentials will be used.
+            log_name: Name of the log to write to.
+            labels: Labels to add to all log entries.
+            resource: Monitored resource to use for logging.
+            excluded_loggers: List of logger names to exclude from logging.
+        """
         super().__init__()
         
         # Initialize Google Cloud Logging client
-        self.project_id = project_id
-        self.client = google_logging.Client(
-            project=project_id,
-            credentials=credentials,
-        )
+        client = google_logging.Client(project=project_id, credentials=credentials)
         
-        # Create the handler
-        self.handler = GoogleCloudLoggingHandler(
-            client=self.client,
+        # Create the handler with the specified configuration
+        self.handler = CloudLoggingHandler(
+            client,
             name=log_name,
             labels=labels,
             resource=resource,
         )
         
-        # Set up excluded loggers
-        self.excluded_loggers = excluded_loggers or EXCLUDED_LOGGER_DEFAULTS
+        # Store excluded loggers
+        self.excluded_loggers = excluded_loggers or []
+        
+        # Formatter for the handler
+        formatter = logging.Formatter('%(message)s')
+        self.setFormatter(formatter)
     
     def emit(self, record: logging.LogRecord) -> None:
         """Emit a log record.
@@ -90,8 +99,18 @@ class GCloudLoggingHandler(logging.Handler):
         if not hasattr(record, "_labels"):
             record._labels = {}
             
-        # extraの内容を_labelsに追加
+        # extraの内容を処理
         if hasattr(record, "extra") and isinstance(record.extra, dict):
+            # 特別なキー "json_fields" を使用して構造化ログを設定
+            # CloudLoggingHandlerは内部でjson_fieldsをjsonPayloadとして扱う
+            record.json_fields = {}
+            for key, value in record.extra.items():
+                # 値を文字列に変換（必要な場合）
+                if not isinstance(value, (str, int, float, bool, dict, list, type(None))):
+                    value = str(value)
+                record.json_fields[key] = value
+                
+            # labelsにも追加（文字列に変換）
             for key, value in record.extra.items():
                 record._labels[key] = str(value) if not isinstance(value, (str, bytes)) else value
         
@@ -109,54 +128,41 @@ class GCloudLoggingHandler(logging.Handler):
         super().close()
 
 
-def setup_logging(
+def setup_gcp_logging(
     project_id: Optional[str] = None,
-    credentials: Any = None,
-    labels: Optional[Dict[str, str]] = None,
     log_name: str = "python",
-    resource: Any = None,
+    labels: Optional[Dict[str, str]] = None,
+    level: Union[int, str] = logging.INFO,
     excluded_loggers: Optional[list] = None,
-    level: int = logging.INFO,
-    root_level: int = logging.WARNING,
 ) -> GCloudLoggingHandler:
-    """Set up logging to Google Cloud Logging.
-    
-    This function creates a GCloudLoggingHandler and adds it to the root logger.
-    
+    """Google Cloud Loggingの設定を行います。
+
     Args:
-        project_id (str, optional): Google Cloud Project ID. If not provided, it will be
-            determined from the environment.
-        credentials (google.auth.credentials.Credentials, optional): Google Cloud credentials.
-            If not provided, default credentials will be used.
-        labels (Dict[str, str], optional): Labels to add to all log entries.
-        log_name (str, optional): Name of the log to write to. Defaults to 'python'.
-        resource (google.cloud.logging_v2.resource.Resource, optional): Monitored resource
-            to use for logging. If not provided, it will be determined from the environment.
-        excluded_loggers (list, optional): List of logger names to exclude from logging.
-        level (int, optional): Logging level for the handler. Defaults to INFO.
-        root_level (int, optional): Logging level for the root logger. Defaults to WARNING.
-    
+        project_id: Google CloudプロジェクトのプロジェクトID。Noneの場合は環境変数から自動検出します。
+        log_name: ログ名
+        labels: すべてのログエントリに追加するラベル
+        level: ログレベル
+        excluded_loggers: 除外するロガー名のリスト
+
     Returns:
-        GCloudLoggingHandler: The created handler.
+        GCloudLoggingHandler: 設定されたハンドラー
     """
-    # Create the handler
+    # ルートロガーを取得
+    root_logger = logging.getLogger()
+    
+    # GCloudLoggingHandlerを作成
     handler = GCloudLoggingHandler(
         project_id=project_id,
-        credentials=credentials,
-        labels=labels,
         log_name=log_name,
-        resource=resource,
+        labels=labels,
         excluded_loggers=excluded_loggers,
     )
     
-    # Set the handler level
+    # ログレベルを設定
     handler.setLevel(level)
     
-    # Add the handler to the root logger
-    logging.getLogger().addHandler(handler)
-    
-    # Set the root logger level
-    logging.getLogger().setLevel(root_level)
+    # ルートロガーにハンドラーを追加
+    root_logger.addHandler(handler)
     
     return handler
 
