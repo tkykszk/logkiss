@@ -282,6 +282,7 @@ class ColoredFormatter(Formatter):
     
     Environment Variables:
         The following environment variables can be used to control coloring:
+        - LOGKISS_DISABLE_COLOR: Disable colors (values: 1, true, yes)
         - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
         - LOGKISS_NO_COLOR: Disable colors (any value)
         These environment variables override the use_color parameter.
@@ -306,7 +307,8 @@ class ColoredFormatter(Formatter):
     def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None,
                  style: str = '%', validate: bool = True,
                  color_config: Optional[Union[str, Path]] = None,
-                 use_color: bool = True):
+                 use_color: bool = True,
+                 format: Optional[str] = None):
         """
         Args:
             fmt: Format string
@@ -316,19 +318,18 @@ class ColoredFormatter(Formatter):
             color_config: Path to color configuration file
             use_color: Apply colors to log messages
         """
-        if fmt is None:
+        if fmt is None and format is not None:
+            fmt = format
+        elif fmt is None:
             fmt = '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
         super().__init__(fmt, datefmt, style, validate)
         self.color_manager = ColorManager(color_config)
         
-        # Check environment variables for color settings
-        force_color = os.environ.get('LOGKISS_FORCE_COLOR', '').lower() in ('1', 'true', 'yes')
-        no_color = 'LOGKISS_NO_COLOR' in os.environ
+        # Check if color should be disabled via environment variable
+        disable_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes')
         
-        # Environment variables override the use_color parameter
-        if force_color:
-            self.use_color = True
-        elif no_color:
+        # Environment variables take precedence over the use_color parameter
+        if disable_color:
             self.use_color = False
         else:
             self.use_color = use_color
@@ -409,8 +410,13 @@ class KissConsoleHandler(StreamHandler):
             stream = sys.stderr
         
         super().__init__(stream)
-        # Apply colors if outputting to sys.stderr or sys.stdout
-        use_color = stream is None or stream is sys.stderr or stream is sys.stdout
+        
+        # Check environment variables for disabling color
+        disable_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes')
+        
+        # Apply colors if not disabled by env var and outputting to sys.stderr or sys.stdout
+        use_color = not disable_color and (stream is None or stream is sys.stderr or stream is sys.stdout)
+        
         self.formatter = ColoredFormatter(color_config=color_config, use_color=use_color)
         self.setFormatter(self.formatter)
         self.setLevel(logging.DEBUG)  # Set default level to DEBUG
@@ -585,7 +591,12 @@ def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
     
     # Configure root logger
     root_config = config.get('root', {})
-    if 'level' in root_config:
+    
+    # Check environment variables first
+    env_level = os.environ.get('LOGKISS_LEVEL')
+    if env_level:
+        logger.setLevel(getattr(logging, env_level.upper()))
+    elif 'level' in root_config:
         logger.setLevel(getattr(logging, root_config['level']))
     
     # Store config path for reload
@@ -612,16 +623,27 @@ def setup_from_env() -> logging.Logger:
     level = os.environ.get('LOGKISS_LEVEL', 'WARNING')
     logger.setLevel(getattr(logging, level.upper()))
     
-    # Configure handler
-    handler = KissConsoleHandler()
+    # Create a console handler
+    handler = StreamHandler(sys.stderr)
     
     # Configure formatter
     fmt = os.environ.get('LOGKISS_FORMAT',
                         '%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s')
     datefmt = os.environ.get('LOGKISS_DATEFMT', '%Y-%m-%d %H:%M:%S')
-    use_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() != 'true'
     
-    formatter = ColoredFormatter(fmt=fmt, datefmt=datefmt, use_color=use_color)
+    # Determine color usage based on environment variable
+    use_color = True  # Default is to use color
+    if os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes'):
+        use_color = False
+    
+    # Create formatter with color settings
+    formatter = ColoredFormatter(
+        fmt=fmt,
+        datefmt=datefmt,
+        use_color=use_color
+    )
+    
+    # Set the formatter on the handler
     handler.setFormatter(formatter)
     
     # Add handler to logger

@@ -23,6 +23,7 @@ DEBUG_MODE = os.environ.get('LOGKISS_DEBUG', '0').lower() in ('1', 'true', 'yes'
 # Import logkiss module classes
 from .logkiss import (
     KissLogger, KissConsoleHandler, ColoredFormatter,
+    setup_from_yaml, setup_from_env,
 )
 
 # Import handlers
@@ -59,6 +60,9 @@ __all__ = [
     'AWSCloudWatchHandler',
     'GCloudLoggingHandler',
     'setup_gcp_logging',
+    # 設定
+    'setup_from_yaml',
+    'setup_from_env',
 ]
 
 # Register custom logger class
