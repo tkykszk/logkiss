@@ -114,5 +114,7 @@ def test_config_paths(tmp_path):
     logger1 = logkiss.setup_from_yaml(str(config1))
     assert logger1.level == logkiss.INFO
     
-    logger2 = logkiss.setup_from_yaml(str(config2).replace("/", "\\"))
+    # Use os.path.normpath to handle path separators in a platform-independent way
+    config2_path = os.path.normpath(str(config2))
+    logger2 = logkiss.setup_from_yaml(config2_path)
     assert logger2.level == logkiss.INFO

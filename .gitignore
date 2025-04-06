@@ -61,5 +61,14 @@ pdm.lock
 .windsurfrules
 # Temp files
 /var/folders/
+/private/var/
+\var\folders\\
 *.tmp
+*.yaml.tmp
+*.yaml.bak
+**/tmp*/
+
+# OS specific
+.DS_Store
+Thumbs.db
 
