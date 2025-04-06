@@ -15,8 +15,9 @@ import yaml
 import logkiss
 
 
-def test_load_yaml_config():
-    """Test loading configuration from YAML file."""
+@pytest.fixture
+def temp_config_file():
+    """Create a temporary YAML config file."""
     config = {
         "version": 1,
         "formatters": {
@@ -38,18 +39,26 @@ def test_load_yaml_config():
     }
     
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(config, f)
-        config_path = f.name
+        yaml.safe_dump(config, f)
+        config_path = Path(f.name)
     
+    yield config_path
+    
+    # Cleanup
     try:
-        # Test loading the config
-        logger = logkiss.setup_from_yaml(config_path)
-        assert logger is not None
-        assert logger.level == logkiss.INFO
-    finally:
-        os.unlink(config_path)
+        config_path.unlink()
+    except FileNotFoundError:
+        pass
 
 
+def test_load_yaml_config(temp_config_file):
+    """Test loading configuration from YAML file."""
+    logger = logkiss.setup_from_yaml(str(temp_config_file))
+    assert logger is not None
+    assert logger.level == logkiss.INFO
+
+
+@pytest.mark.config
 def test_env_var_config():
     """Test configuration through environment variables."""
     with mock.patch.dict(os.environ, {
@@ -62,44 +71,29 @@ def test_env_var_config():
         assert not logger.handlers[0].formatter.use_color
 
 
-def test_config_priority():
+@pytest.mark.config
+def test_config_priority(temp_config_file):
     """Test configuration priority (env vars should override file config)."""
-    config = {
-        "version": 1,
-        "root": {
-            "level": "WARNING"
-        }
-    }
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(config, f)
-        config_path = f.name
-    
-    try:
-        with mock.patch.dict(os.environ, {'LOGKISS_LEVEL': 'DEBUG'}):
-            logger = logkiss.setup_from_yaml(config_path)
-            assert logger.level == logkiss.DEBUG  # env var should override file
-    finally:
-        os.unlink(config_path)
+    with mock.patch.dict(os.environ, {'LOGKISS_LEVEL': 'DEBUG'}):
+        logger = logkiss.setup_from_yaml(str(temp_config_file))
+        assert logger.level == logkiss.DEBUG  # env var should override file
 
 
-def test_invalid_config():
+@pytest.mark.config
+def test_invalid_config(tmp_path):
     """Test handling of invalid configuration."""
+    nonexistent = tmp_path / "nonexistent.yaml"
     with pytest.raises(ValueError):
-        logkiss.setup_from_yaml("nonexistent.yaml")
+        logkiss.setup_from_yaml(str(nonexistent))
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        f.write("invalid: yaml: content:")
-        config_path = f.name
-    
-    try:
-        with pytest.raises(yaml.YAMLError):
-            logkiss.setup_from_yaml(config_path)
-    finally:
-        os.unlink(config_path)
+    invalid_yaml = tmp_path / "invalid.yaml"
+    invalid_yaml.write_text("invalid: yaml: content:")
+    with pytest.raises(yaml.YAMLError):
+        logkiss.setup_from_yaml(str(invalid_yaml))
 
 
-def test_config_reload():
+@pytest.mark.config
+def test_config_reload(tmp_path):
     """Test configuration reload functionality."""
     config = {
         "version": 1,
@@ -108,21 +102,18 @@ def test_config_reload():
         }
     }
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(config, f)
-        config_path = f.name
+    config_file = tmp_path / "config.yaml"
+    with config_file.open('w') as f:
+        yaml.safe_dump(config, f)
     
-    try:
-        logger = logkiss.setup_from_yaml(config_path)
-        assert logger.level == logkiss.INFO
-        
-        # Modify config
-        config["root"]["level"] = "DEBUG"
-        with open(config_path, 'w') as f:
-            yaml.dump(config, f)
-        
-        # Test reload
-        logger.reload_config()
-        assert logger.level == logkiss.DEBUG
-    finally:
-        os.unlink(config_path)
+    logger = logkiss.setup_from_yaml(str(config_file))
+    assert logger.level == logkiss.INFO
+    
+    # Modify config
+    config["root"]["level"] = "DEBUG"
+    with config_file.open('w') as f:
+        yaml.safe_dump(config, f)
+    
+    # Test reload
+    logger.reload_config()
+    assert logger.level == logkiss.DEBUG
