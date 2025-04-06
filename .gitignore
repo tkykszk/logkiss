@@ -63,12 +63,23 @@ pdm.lock
 /var/folders/
 /private/var/
 \var\folders\\
+/tmp/
+\tmp\\
 *.tmp
+*.temp
 *.yaml.tmp
 *.yaml.bak
 **/tmp*/
+**/temp*/
+**/Temp*/
+# テスト一時ファイル
+.coverage.*
+.pytest_temp/
+*.pyc.tmp
 
 # OS specific
 .DS_Store
 Thumbs.db
+desktop.ini
+*.lnk
 
