@@ -29,6 +29,8 @@ __all__ = [
     'KissLogger',
     'use_console_handler',
     'PathShortenerFilter',
+    'setup_from_yaml',
+    'setup_from_env',
 ]
 
 # Debug mode settings
@@ -471,6 +473,29 @@ class KissLogger(logging.Logger):
         record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
         return record
 
+    def reload_config(self) -> None:
+        """Reload configuration from the original source.
+        
+        This method reloads the logger configuration from the original YAML file
+        if it was configured using setup_from_yaml, or from environment variables
+        if it was configured using setup_from_env.
+        
+        Raises:
+            ValueError: If the logger was not configured using setup_from_yaml
+                      or setup_from_env.
+        """
+        # Check if config path is available
+        if hasattr(self, 'config_path'):
+            # Remove existing handlers
+            for handler in self.handlers[:]:
+                self.removeHandler(handler)
+            
+            # Reload from YAML
+            setup_from_yaml(self.config_path)
+        else:
+            # Reload from environment variables
+            setup_from_env()
+
 # Helper function to use a standard ConsoleHandler
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
     """Configure the logger to use a standard StreamHandler instead of KissConsoleHandler.
@@ -507,3 +532,99 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
         datefmt='%Y-%m-%d %H:%M:%S'
     ))
     logger.addHandler(handler)
+
+
+def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
+    """Set up logging configuration from a YAML file.
+    
+    Args:
+        config_path: Path to YAML configuration file
+        
+    Returns:
+        Configured logger instance
+        
+    Raises:
+        ValueError: If config file does not exist
+        yaml.YAMLError: If config file is invalid YAML
+    """
+    config_path = Path(config_path)
+    if not config_path.exists():
+        raise ValueError(f"Configuration file not found: {config_path}")
+    
+    with open(config_path) as f:
+        config = safe_load(f)
+    
+    # Get root logger
+    logger = logging.getLogger()
+    
+    # Configure formatters
+    formatters = {}
+    for name, formatter_config in config.get('formatters', {}).items():
+        formatters[name] = ColoredFormatter(**formatter_config)
+    
+    # Configure handlers
+    for name, handler_config in config.get('handlers', {}).items():
+        handler_class = handler_config.pop('class')
+        formatter = handler_config.pop('formatter', None)
+        
+        # Create handler instance
+        if handler_class == 'logging.StreamHandler':
+            handler = KissConsoleHandler()
+        elif handler_class == 'logging.FileHandler':
+            handler = FileHandler(**handler_config)
+        elif handler_class == 'logging.TimedRotatingFileHandler':
+            handler = TimedRotatingFileHandler(**handler_config)
+        else:
+            continue
+        
+        # Set formatter if specified
+        if formatter and formatter in formatters:
+            handler.setFormatter(formatters[formatter])
+        
+        logger.addHandler(handler)
+    
+    # Configure root logger
+    root_config = config.get('root', {})
+    if 'level' in root_config:
+        logger.setLevel(getattr(logging, root_config['level']))
+    
+    # Store config path for reload
+    logger.config_path = config_path
+    
+    return logger
+
+
+def setup_from_env() -> logging.Logger:
+    """Set up logging configuration from environment variables.
+    
+    Environment variables:
+        LOGKISS_LEVEL: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        LOGKISS_FORMAT: Log format string
+        LOGKISS_DISABLE_COLOR: Disable colored output if 'true'
+        
+    Returns:
+        Configured logger instance
+    """
+    # Get root logger
+    logger = logging.getLogger()
+    
+    # Configure level
+    level = os.environ.get('LOGKISS_LEVEL', 'WARNING')
+    logger.setLevel(getattr(logging, level.upper()))
+    
+    # Configure handler
+    handler = KissConsoleHandler()
+    
+    # Configure formatter
+    fmt = os.environ.get('LOGKISS_FORMAT',
+                        '%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s')
+    datefmt = os.environ.get('LOGKISS_DATEFMT', '%Y-%m-%d %H:%M:%S')
+    use_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() != 'true'
+    
+    formatter = ColoredFormatter(fmt=fmt, datefmt=datefmt, use_color=use_color)
+    handler.setFormatter(formatter)
+    
+    # Add handler to logger
+    logger.addHandler(handler)
+    
+    return logger
