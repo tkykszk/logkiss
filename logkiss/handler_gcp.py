@@ -14,9 +14,22 @@ import logging
 import os
 from typing import Dict, Any, Optional, Union
 
-from google.cloud import logging as google_logging
-from google.cloud.logging_v2.handlers import CloudLoggingHandler
-from google.cloud.logging_v2.handlers.handlers import EXCLUDED_LOGGER_DEFAULTS
+# Flag to track if Google Cloud Logging is available
+HAS_GOOGLE_CLOUD_LOGGING = False
+
+# Try to import Google Cloud Logging modules
+try:
+    from google.cloud import logging as google_logging
+    from google.cloud.logging_v2.handlers import CloudLoggingHandler
+    # EXCLUDED_LOGGER_DEFAULTS is imported but not used currently
+    HAS_GOOGLE_CLOUD_LOGGING = True
+except ImportError:
+    # Define placeholder for when the module is not available
+    class CloudLoggingHandler:
+        """Placeholder for CloudLoggingHandler when Google Cloud Logging is not available."""
+        def __init__(self, *args, **kwargs):
+            """Placeholder constructor"""
+            # No implementation needed
 
 
 class GCloudLoggingHandler(logging.Handler):
@@ -56,7 +69,17 @@ class GCloudLoggingHandler(logging.Handler):
             labels: Labels to add to all log entries.
             resource: Monitored resource to use for logging.
             excluded_loggers: List of logger names to exclude from logging.
+            
+        Raises:
+            ImportError: If Google Cloud Logging is not available.
         """
+        if not HAS_GOOGLE_CLOUD_LOGGING:
+            raise ImportError(
+                "Google Cloud Logging is not available. "
+                "Please install the required dependencies using: "
+                "pip install google-cloud-logging"
+            )
+            
         super().__init__()
         
         # Initialize Google Cloud Logging client
