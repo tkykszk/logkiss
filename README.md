@@ -60,6 +60,8 @@ LOGKISS can be configured using the following environment variables:
 - `LOGKISS_DEBUG`: Enable debug mode by setting to `1`, `true`, or `yes`. When enabled:
   - Root logger's level is set to `DEBUG` instead of `INFO`
   - More detailed logging information is displayed
+- `LOGKISS_DISABLE_COLOR`: Disable colored output by setting to `1`, `true`, or `yes`
+- `NO_COLOR`: Industry standard environment variable to disable colors (any value)
 
 Example:
 ```bash
