@@ -283,8 +283,7 @@ class ColoredFormatter(Formatter):
     Environment Variables:
         The following environment variables can be used to control coloring:
         - LOGKISS_DISABLE_COLOR: Disable colors (values: 1, true, yes)
-        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
-        - LOGKISS_NO_COLOR: Disable colors (any value)
+        - NO_COLOR: Industry standard to disable colors (any value)
         These environment variables override the use_color parameter.
         
         The following environment variable can be used to control level name formatting:
@@ -389,8 +388,8 @@ class KissConsoleHandler(StreamHandler):
     
     Environment Variables:
         The following environment variables can be used to control coloring:
-        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
-        - LOGKISS_NO_COLOR: Disable colors (any value)
+        - LOGKISS_DISABLE_COLOR: Disable colors (values: 1, true, yes)
+        - NO_COLOR: Industry standard to disable colors (any value)
         These environment variables override the use_color parameter of the formatter.
     
     Args:
