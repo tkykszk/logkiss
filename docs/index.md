@@ -1,6 +1,6 @@
-# logkiss
+# logKISS
 
-![logkiss logo](https://via.placeholder.com/200x100?text=logkiss)
+![logkiss logo](logkiss-logo.png)
 
 **logkiss** is a simple and beautiful Python logging library.
 

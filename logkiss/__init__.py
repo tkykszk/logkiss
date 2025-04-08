@@ -36,6 +36,12 @@ from .handler_gcp import (
     setup_gcp_logging,
 )
 
+# Try to import Qt handler if available
+try:
+    from .handler_qt import QtTextEditHandler, QT_AVAILABLE
+except ImportError:
+    QT_AVAILABLE = False
+
 # Import standard logging module functions
 from logging import (
     BASIC_FORMAT, CRITICAL, DEBUG, ERROR, FATAL, INFO,
@@ -60,6 +66,9 @@ __all__ = [
     'AWSCloudWatchHandler',
     'GCloudLoggingHandler',
     'setup_gcp_logging',
+    # Qt handler
+    'QtTextEditHandler',
+    'QT_AVAILABLE',
     # 設定
     'setup_from_yaml',
     'setup_from_env',

@@ -1,6 +1,5 @@
-# 
+![LOGKISS](docs/logkiss-logo-tiny.png)
 
-![LOGKISS](docs/logkiss.svg)
 [![LOGKISS](https://img.shields.io/badge/LOGKISS-Keep%20It%20Simple%20and%20Stupid%20Logger-blue.svg)](https://github.com/takatosh/logkiss)
 
 (README_JAPANEASE.mdのみ日本語です。english versionis in README.md)

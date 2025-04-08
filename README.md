@@ -1,4 +1,6 @@
-![LOGKISS](docs/logkiss.svg)
+![LOGKISS](docs/logkiss-logo-tiny.png)
+
+[![LOGKISS](https://img.shields.io/badge/LOGKISS-Keep%20It%20Simple%20and%20Stupid%20Logger-blue.svg)](https://github.com/takatosh/logkiss)
 
 # LOGKISS
 LOGKISS (Keep It Simple and Stupid Logger) is a user-friendly logging library for Python.
@@ -82,4 +84,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Other Languages
 
-- [日本語](README_JAPAN.md)
+- [日本語](README_JAPANESE.md)
