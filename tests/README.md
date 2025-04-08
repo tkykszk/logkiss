@@ -9,6 +9,11 @@ Tests are organized into two main categories:
 1. **Unit Tests**: These tests run without external dependencies and can run in any environment, including CI pipelines.
 2. **E2E Tests**: End-to-end tests that require real cloud service credentials (AWS, GCP) and are skipped in CI environments by default.
 
+## Mock Tests vs E2E Tests
+
+- **Mock Tests**: `test_aws_handler_mock.py` and `test_gcp_handler_mock.py` use mocked cloud services and can run without credentials.
+- **E2E Tests**: `test_aws_log.py` and `test_gcp_logging.py` connect to actual cloud services and require proper credentials.
+
 ## Running Tests
 
 ### Running All Unit Tests (No Cloud Services)
@@ -18,13 +23,42 @@ Tests are organized into two main categories:
 pytest tests/ -v
 ```
 
+### Configuring Cloud Credentials
+
+#### AWS Credentials Setup
+
+```bash
+# Option 1: Using AWS profile
+export AWS_PROFILE=your-aws-profile-name
+
+# Option 2: Using explicit credentials
+export AWS_ACCESS_KEY_ID=your-access-key
+export AWS_SECRET_ACCESS_KEY=your-secret-key
+export AWS_REGION=your-region  # e.g., us-west-2, ap-northeast-1
+```
+
+#### GCP Credentials Setup
+
+```bash
+# Option 1: Using service account key file
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your-service-account-key.json
+export GCP_PROJECT_ID=your-gcp-project-id
+
+# Option 2: Using gcloud CLI authentication
+gcloud auth application-default login
+export GCP_PROJECT_ID=your-gcp-project-id
+```
+
 ### Running AWS Tests
 
 ```bash
-# Make sure you have AWS credentials configured
-# Either set AWS_PROFILE or AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+# Run only AWS mock tests (no credentials needed)
+pytest tests/test_aws_handler_mock.py -v
 
-# Run only AWS tests
+# Run AWS E2E tests (requires credentials)
+pytest tests/test_aws_log.py -v
+
+# Run only tests marked with aws
 pytest tests/ -v -m aws
 
 # Or run all tests including AWS tests
@@ -34,10 +68,13 @@ RUN_AWS_TESTS=1 pytest tests/ -v
 ### Running GCP Tests
 
 ```bash
-# Make sure you have GCP credentials configured
-# Either authenticate with gcloud auth or set GOOGLE_APPLICATION_CREDENTIALS
+# Run only GCP mock tests (no credentials needed)
+pytest tests/test_gcp_handler_mock.py -v
 
-# Run only GCP tests
+# Run GCP E2E tests (requires credentials)
+pytest tests/test_gcp_logging.py -v
+
+# Run only tests marked with gcp
 pytest tests/ -v -m gcp
 
 # Or run all tests including GCP tests
@@ -68,3 +105,52 @@ In CI environments (GitHub Actions), tests with the above markers are automatica
 - `RUN_GCP_TESTS=1`
 
 This ensures that CI builds don't fail due to missing credentials while still allowing thorough testing in development environments.
+
+## テスト実行方法 (日本語)
+
+### テスト構成
+
+- **単体テスト**: クラウド接続を必要としないモックテスト
+- **E2Eテスト**: 実際のクラウドサービスに接続するテスト
+
+### クラウド認証情報の設定
+
+#### AWS認証情報
+
+```bash
+# 方法1: AWSプロファイルを使用
+export AWS_PROFILE=プロファイル名
+
+# 方法2: 直接認証情報を設定
+export AWS_ACCESS_KEY_ID=アクセスキーID
+export AWS_SECRET_ACCESS_KEY=シークレットアクセスキー
+export AWS_REGION=リージョン名  # 例: ap-northeast-1
+```
+
+#### GCP認証情報
+
+```bash
+# 方法1: サービスアカウントキーファイルを使用
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/サービスアカウントキー.json
+export GCP_PROJECT_ID=プロジェクトID
+
+# 方法2: gcloudコマンドで認証
+gcloud auth application-default login
+export GCP_PROJECT_ID=プロジェクトID
+```
+
+### テスト実行コマンド
+
+```bash
+# モックテストのみ実行（認証情報不要）
+pytest tests/test_aws_handler_mock.py tests/test_gcp_handler_mock.py -v
+
+# AWSのE2Eテスト実行（認証情報必要）
+pytest tests/test_aws_log.py -v
+
+# GCPのE2Eテスト実行（認証情報必要）
+pytest tests/test_gcp_logging.py -v
+
+# 全テスト実行（E2E含む）
+RUN_E2E_TESTS=1 RUN_AWS_TESTS=1 RUN_GCP_TESTS=1 pytest tests/ -v
+```
