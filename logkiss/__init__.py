@@ -121,16 +121,31 @@ __all__ = [
     'setup_from_env',
 ]
 
+# グローバル設定
+_replace_root_logger = False  # デフォルトでは置き換えない
+_root_logger_configured = False
+
 # Register custom logger class
 logging.setLoggerClass(KissLogger)
 
-# Initialize root logger
-root_logger = KissLogger('root')
-for handler in root_logger.handlers[:]:
-    root_logger.removeHandler(handler)
+# 元のルートロガーを保存
+_original_root_logger = logging.root
+
+# KissLoggerベースのルートロガーを作成
+_kiss_root_logger = KissLogger('root')
+for handler in _kiss_root_logger.handlers[:]:
+    _kiss_root_logger.removeHandler(handler)
 handler = KissConsoleHandler()
-root_logger.addHandler(handler)
-root_logger.setLevel(WARNING)  # Default to WARNING level
+_kiss_root_logger.addHandler(handler)
+_kiss_root_logger.setLevel(WARNING)  # Default to WARNING level
+
+# KissLoggerルート使用時のみルートロガーを置き換える
+if _replace_root_logger:
+    logging.root = _kiss_root_logger
+    root_logger = _kiss_root_logger
+else:
+    # 標準のルートロガーを使う（デフォルト）
+    root_logger = _original_root_logger
 
 # Set lastResort handler to KissConsoleHandler
 lastResort = KissConsoleHandler(sys.stderr)
@@ -152,21 +167,76 @@ def getLogger(name: str = None) -> logging.Logger:
     """
     logger = _getLogger(name)
     if name is None:
-        # Use existing handlers for root logger
+        # ルートロガーの場合はグローバル変数のルートロガーを返す
         return root_logger
+        
+    # 非ルートロガーの場合、ハンドラーがなければ追加
     if not logger.handlers:
-        handler = KissConsoleHandler()
-        handler.setLevel(INFO)  # Set logger level to INFO
-        logger.addHandler(handler)
-    else:
-        # Update handler levels
-        for handler in logger.handlers:
-            handler.setLevel(INFO)
+        # 親にハンドラーがある場合は伝播されるので追加不要
+        parent_has_handlers = any(h for h in [logger.parent] if h.handlers)
+        if not parent_has_handlers:
+            kiss_handler = KissConsoleHandler()
+            kiss_handler.setLevel(INFO)  # ハンドラーレベルをINFOに設定
+            logger.addHandler(kiss_handler)
+    
     return logger
 
-# Reset root logger
+# ロガーの初期化関数
+def init_logging(replace_root=False, preserve_hierarchy=True):
+    """ロガーシステムを初期化します
+    
+    Args:
+        replace_root: Trueの場合、ルートロガーをKissLoggerで置き換えます
+        preserve_hierarchy: Trueの場合、既存のロガー階層を保持します
+    
+    Returns:
+        ルートロガー
+    """
+    global _replace_root_logger, _root_logger_configured, root_logger
+    _replace_root_logger = replace_root
+    
+    if replace_root:
+        # ルートロガーをKissLoggerで置き換え
+        old_root = logging.root
+        logging.root = _kiss_root_logger
+        root_logger = _kiss_root_logger
+        
+        # 既存のロガー階層を保持する場合は修復処理
+        if preserve_hierarchy:
+            # 既存のロガーを取得
+            existing_loggers = {}
+            for name, logger in old_root.manager.loggerDict.items():
+                if isinstance(logger, logging.Logger):
+                    existing_loggers[name] = logger
+            
+            # ロガーの親子関係を修復
+            for name, logger in existing_loggers.items():
+                if "." in name:
+                    parent_name = name.rsplit(".", 1)[0]
+                    parent = logging.getLogger(parent_name)
+                    logger.parent = parent
+                else:
+                    logger.parent = _kiss_root_logger
+    else:
+        # 標準のルートロガーを使用
+        logging.root = _original_root_logger
+        root_logger = _original_root_logger
+        
+        # 標準ルートロガーにKissConsoleHandlerを追加するか判断
+        if not _root_logger_configured:
+            has_console_handler = any(isinstance(h, logging.StreamHandler) for h in root_logger.handlers)
+            if not has_console_handler:
+                kiss_handler = KissConsoleHandler()
+                root_logger.addHandler(kiss_handler)
+            _root_logger_configured = True
+    
+    return root_logger
+
+# デフォルトでは標準ロガーを使用するように初期化
+init_logging(False)
+
+# getLoggerのみオーバーライド
 logging.getLogger = getLogger
-logging.root = root_logger
 
 def basicConfig(**kwargs):
     """
