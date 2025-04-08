@@ -39,6 +39,11 @@ def check_aws_auth():
     aws_profile = os.environ.get("AWS_PROFILE")
     aws_region = os.environ.get("AWS_DEFAULT_REGION", "ap-northeast-1")
     
+    # 認証情報が設定されていない場合はスキップ
+    if not aws_profile and not os.environ.get("AWS_ACCESS_KEY_ID"):
+        print("警告: AWS認証情報が設定されていません。テストをスキップします。")
+        return False, None
+    
     try:
         # 認証情報の確認
         cmd = ["aws", "sts", "get-caller-identity", "--profile", aws_profile]
@@ -124,6 +129,7 @@ def generate_unique_log_name():
 
 
 @pytest.mark.e2e
+@pytest.mark.aws
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 def test_aws_cloudwatch_logs_e2e():
     """AWS CloudWatch Logsへの実際のログ送信をテスト"""
@@ -236,6 +242,7 @@ def test_aws_cloudwatch_logs_e2e():
 
 
 @pytest.mark.e2e
+@pytest.mark.aws
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 def test_aws_cloudwatch_logs_handler_e2e():
     """AWSCloudWatchHandlerを使用したE2Eテスト"""

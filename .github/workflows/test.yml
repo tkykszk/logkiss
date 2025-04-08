@@ -35,7 +35,9 @@ jobs:
     - name: Run tests
       env:
         PYTHONPATH: ${{ github.workspace }}
+        GITHUB_ACTIONS: true  # CI環境を明示的に設定
       run: |
+        # E2E、AWS、GCPテストをスキップ (conftest.pyでマーカーベースのスキップが設定済み)
         pytest tests/ -v --cov=logkiss --cov-report=xml
         
     - name: Upload coverage to Codecov

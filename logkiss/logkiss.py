@@ -321,7 +321,11 @@ class ColoredFormatter(Formatter):
             fmt = format
         elif fmt is None:
             fmt = '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
-        super().__init__(fmt, datefmt, style, validate)
+        # Python 3.7 compatibility: validate parameter was added in Python 3.8
+        if sys.version_info >= (3, 8):
+            super().__init__(fmt, datefmt, style, validate)
+        else:
+            super().__init__(fmt, datefmt, style)
         self.color_manager = ColorManager(color_config)
         
         # Check if color should be disabled via environment variable
