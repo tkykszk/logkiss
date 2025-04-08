@@ -15,21 +15,14 @@ import os
 from typing import Dict, Any, Optional, Union
 
 # Flag to track if Google Cloud Logging is available
-HAS_GOOGLE_CLOUD_LOGGING = False
-
-# Try to import Google Cloud Logging modules
-try:
-    from google.cloud import logging as google_logging
-    from google.cloud.logging_v2.handlers import CloudLoggingHandler
-    # EXCLUDED_LOGGER_DEFAULTS is imported but not used currently
-    HAS_GOOGLE_CLOUD_LOGGING = True
-except ImportError:
-    # Define placeholder for when the module is not available
-    class CloudLoggingHandler:
-        """Placeholder for CloudLoggingHandler when Google Cloud Logging is not available."""
-        def __init__(self, *args, **kwargs):
-            """Placeholder constructor"""
-            # No implementation needed
+def _check_gcp_available():
+    """Google Cloud Loggingが利用可能か確認する関数"""
+    try:
+        from google.cloud import logging as google_logging
+        from google.cloud.logging_v2.handlers import CloudLoggingHandler
+        return True
+    except ImportError:
+        return False
 
 
 class GCloudLoggingHandler(logging.Handler):
@@ -73,7 +66,11 @@ class GCloudLoggingHandler(logging.Handler):
         Raises:
             ImportError: If Google Cloud Logging is not available.
         """
-        if not HAS_GOOGLE_CLOUD_LOGGING:
+        # 必要なモジュールをインポート - 実際に必要になった時点でインポート
+        try:
+            from google.cloud import logging as google_logging
+            from google.cloud.logging_v2.handlers import CloudLoggingHandler
+        except ImportError:
             raise ImportError(
                 "Google Cloud Logging is not available. "
                 "Please install the required dependencies using: "
@@ -110,45 +107,54 @@ class GCloudLoggingHandler(logging.Handler):
         if record.name in self.excluded_loggers:
             return
         
-        # Ensure extra is a dict if it exists
-        if hasattr(record, "extra") and not isinstance(record.extra, dict):
-            record.extra = {"extra": str(record.extra)}
-        
-        # Google Cloud Loggingのハンドラーが期待する属性を追加
-        if not hasattr(record, "_resource"):
-            record._resource = None
+        try:
+            # Ensure extra is a dict if it exists
+            if hasattr(record, "extra") and not isinstance(record.extra, dict):
+                record.extra = {"extra": str(record.extra)}
             
-        # _labels属性を追加
-        if not hasattr(record, "_labels"):
-            record._labels = {}
-            
-        # extraの内容を処理
-        if hasattr(record, "extra") and isinstance(record.extra, dict):
-            # 特別なキー "json_fields" を使用して構造化ログを設定
-            # CloudLoggingHandlerは内部でjson_fieldsをjsonPayloadとして扱う
-            record.json_fields = {}
-            for key, value in record.extra.items():
-                # 値を文字列に変換（必要な場合）
-                if not isinstance(value, (str, int, float, bool, dict, list, type(None))):
-                    value = str(value)
-                record.json_fields[key] = value
+            # Google Cloud Loggingのハンドラーが期待する属性を追加
+            if not hasattr(record, "_resource"):
+                record._resource = None
                 
-            # labelsにも追加（文字列に変換）
-            for key, value in record.extra.items():
-                record._labels[key] = str(value) if not isinstance(value, (str, bytes)) else value
-        
-        # その他の必要な属性を追加
-        for attr in ["_trace", "_span_id", "_trace_sampled", "_http_request", "_source_location"]:
-            if not hasattr(record, attr):
-                setattr(record, attr, None)
-        
-        # Forward to Google Cloud Logging handler
-        self.handler.emit(record)
+            # _labels属性を追加
+            if not hasattr(record, "_labels"):
+                record._labels = {}
+                
+            # extraの内容を処理
+            if hasattr(record, "extra") and isinstance(record.extra, dict):
+                # 特別なキー "json_fields" を使用して構造化ログを設定
+                # CloudLoggingHandlerは内部でjson_fieldsをjsonPayloadとして扱う
+                record.json_fields = {}
+                for key, value in record.extra.items():
+                    # 値を文字列に変換（必要な場合）
+                    if not isinstance(value, (str, int, float, bool, dict, list, type(None))):
+                        value = str(value)
+                    record.json_fields[key] = value
+                    
+                # labelsにも追加（文字列に変換）
+                for key, value in record.extra.items():
+                    record._labels[key] = str(value) if not isinstance(value, (str, bytes)) else value
+            
+            # その他の必要な属性を追加
+            for attr in ["_trace", "_span_id", "_trace_sampled", "_http_request", "_source_location"]:
+                if not hasattr(record, attr):
+                    setattr(record, attr, None)
+            
+            # Forward to Google Cloud Logging handler
+            self.handler.emit(record)
+        except Exception as e:
+            import sys
+            print(f"Error in GCloudLoggingHandler.emit: {e}", file=sys.stderr)
     
     def close(self) -> None:
         """Close the handler."""
-        self.handler.close()
-        super().close()
+        try:
+            self.handler.close()
+        except Exception as e:
+            import sys
+            print(f"Error closing GCloudLoggingHandler: {e}", file=sys.stderr)
+        finally:
+            super().close()
 
 
 def setup_gcp_logging(

@@ -26,15 +26,62 @@ from .logkiss import (
     setup_from_yaml, setup_from_env,
 )
 
-# Import handlers
-from .handlers import (
-    BaseHandler,
-    AWSCloudWatchHandler,
-)
-from .handler_gcp import (
-    GCloudLoggingHandler,
-    setup_gcp_logging,
-)
+# Import base handler only
+from .handlers import BaseHandler
+
+# プロキシクラスと遅延インポート機能
+# クラウドサービス依存関係を実際に使用するまで読み込まない
+
+# AWS CloudWatchハンドラー用プロキシクラス
+class AWSCloudWatchHandler:
+    """AWS CloudWatch Logs対応のロギングハンドラー
+    
+    実際のAWS SDK (boto3)の読み込みは初めて使用されるときまで遅延されます。
+    """
+    def __new__(cls, *args, **kwargs):
+        # 遅延インポート
+        try:
+            from .handlers import AWSCloudWatchHandler as RealHandler
+            # 実際のクラスのインスタンスを返す
+            return RealHandler(*args, **kwargs)
+        except ImportError as exc:
+            raise ImportError(
+                "AWSCloudWatchHandler requires boto3 package. "
+                "Install it with: pip install 'logkiss[aws]' or pip install boto3"
+            ) from exc
+
+# GCP Cloud Loggingハンドラー用プロキシクラス
+class GCloudLoggingHandler:
+    """Google Cloud Logging対応のロギングハンドラー
+    
+    実際のGoogle Cloud SDK (google-cloud-logging)の読み込みは初めて使用されるときまで遅延されます。
+    """
+    def __new__(cls, *args, **kwargs):
+        # 遅延インポート
+        try:
+            from .handler_gcp import GCloudLoggingHandler as RealHandler
+            # 実際のクラスのインスタンスを返す
+            return RealHandler(*args, **kwargs)
+        except ImportError as exc:
+            raise ImportError(
+                "GCloudLoggingHandler requires google-cloud-logging package. "
+                "Install it with: pip install 'logkiss[gcp]' or pip install google-cloud-logging"
+            ) from exc
+
+# GCPロギング設定関数の遅延インポート版
+def setup_gcp_logging(*args, **kwargs):
+    """Google Cloud Loggingの設定を行う（遅延ロード）
+    
+    実際のGoogle Cloud SDK (google-cloud-logging)の読み込みは初めて使用されるときまで遅延されます。
+    """
+    try:
+        from .handler_gcp import setup_gcp_logging as real_setup
+        return real_setup(*args, **kwargs)
+    except ImportError as exc:
+        raise ImportError(
+            "setup_gcp_logging requires google-cloud-logging package. "
+            "Install it with: pip install 'logkiss[gcp]' or pip install google-cloud-logging"
+        ) from exc
 
 # Try to import Qt handler if available
 try:
@@ -58,7 +105,7 @@ __all__ = [
     'FATAL', 'FileHandler', 'Filter', 'Formatter', 'Handler', 'INFO',
     'LogRecord', 'Logger', 'LoggerAdapter', 'NOTSET', 'NullHandler',
     'StreamHandler', 'WARN', 'WARNING', 'addLevelName', 'basicConfig',
-    'captureWarnings', 'critical', 'debug', 'disable', 'error',
+    'critical', 'debug', 'disable', 'error',
     'exception', 'fatal', 'getLevelName', 'getLogger', 'getLoggerClass',
     'info', 'log', 'makeLogRecord', 'setLoggerClass', 'warn', 'warning',
     # ハンドラー

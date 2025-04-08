@@ -18,12 +18,6 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Union
 
-try:
-    import boto3
-    AWS_AVAILABLE = True
-except ImportError:
-    AWS_AVAILABLE = False
-
 
 class BaseHandler(logging.Handler):
     """Base handler class for implementing custom handlers"""
@@ -40,6 +34,9 @@ class BaseHandler(logging.Handler):
 class AWSCloudWatchHandler(logging.Handler):
     """
     AWS CloudWatch Logs handler
+    
+    CloudWatchにログを送信するためのハンドラー。boto3モジュールが必要です。
+    実際のインポートと初期化は実際に使用されるまで遅延されます。
     """
 
     def __init__(
@@ -50,22 +47,18 @@ class AWSCloudWatchHandler(logging.Handler):
         batch_size: int = 100,
         flush_interval: float = 5.0,
     ) -> None:
-        """
-        Args:
-            log_group_name: Log group name
-            log_stream_name: Log stream name. If None, instance ID will be used
-            region_name: Region name. If None, it will be automatically detected from environment variables
-            batch_size: Batch size
-            flush_interval: Flush interval in seconds
-        """
-        if not AWS_AVAILABLE:
+        """初期化処理は実際の実装クラスに委譲します"""
+        # 先に基底クラスの初期化
+        super().__init__()
+        
+        # boto3が利用可能か確認
+        try:
+            import boto3
+        except ImportError:
             raise ImportError(
                 "boto3 package is required. "
                 "Install it with: pip install 'logkiss[cloud]'"
             )
-        
-        # 先に基底クラスの初期化
-        super().__init__()
         
         # 属性を初期化して、初期化失敗時のエラーを防ぐ
         self._batch = []
@@ -136,66 +129,52 @@ class AWSCloudWatchHandler(logging.Handler):
                 logStreamName=self.log_stream_name
             )
         except self.client.exceptions.ResourceAlreadyExistsException:
-            # Get sequence token
+            # Log stream already exists, get the sequence token
             response = self.client.describe_log_streams(
                 logGroupName=self.log_group_name,
                 logStreamNamePrefix=self.log_stream_name,
                 limit=1
             )
             
-            for stream in response.get("logStreams", []):
-                if stream.get("logStreamName") == self.log_stream_name:
-                    self._sequence_token = stream.get("uploadSequenceToken")
-                    break
+            if response.get("logStreams"):
+                self._sequence_token = response["logStreams"][0].get("uploadSequenceToken")
 
-    def _start_periodic_flush(self):
+    def _start_periodic_flush(self) -> None:
         """Start a background thread to periodically flush the batch."""
-        if self._flush_thread is not None and self._flush_thread.is_alive():
-            return  # すでに実行中のスレッドがある場合は何もしない
-
         self._running = True
         self._flush_thread = threading.Thread(
             target=self._periodic_flush_worker,
-            daemon=True,  # デーモンスレッドとして実行（プログラム終了時に自動終了）
+            daemon=True
         )
         self._flush_thread.start()
 
-    def _periodic_flush_worker(self):
+    def _periodic_flush_worker(self) -> None:
         """Worker function for the periodic flush thread."""
         while self._running:
             try:
-                # ここでの二重チェックは重要
-                if not self._running:
-                    break
-                self._flush()
+                # Sleep for the specified interval
+                time.sleep(self._flush_interval)
+
+                # バッチが空でなければフラッシュ
+                if self._batch:
+                    self._flush()
             except Exception as e:
                 import sys
                 print(f"Error in periodic flush: {e}", file=sys.stderr)
-                # エラーが発生しても継続する
-            
-            # スリープ前に終了フラグを確認
-            if not self._running:
-                break
-                
-            # 次の実行までスリープ
-            time.sleep(self._flush_interval)
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process log record"""
-        if not self._running:
-            return
-            
         try:
-            # ログレコードからメッセージを取得
-            message = self.format(record)
+            # フォーマット済みのメッセージを取得
+            msg = self.format(record)
             
-            # タイムスタンプを取得（ミリ秒単位）
+            # タイムスタンプ（ミリ秒単位）
             timestamp = int(record.created * 1000)
             
-            # エントリを作成
+            # バッチに追加するエントリ
             entry = {
                 "timestamp": timestamp,
-                "message": message,
+                "message": msg
             }
             
             # exc_info=Trueが指定された場合のスタックトレース情報を追加
@@ -246,8 +225,11 @@ class AWSCloudWatchHandler(logging.Handler):
             for entry in entries
         ]
         
-        # Send to CloudWatch Logs
+        # ここでLazy Importを行う - 実際にAWS操作が必要なときだけ
         try:
+            import boto3
+            
+            # Send to CloudWatch Logs
             kwargs = {
                 "logGroupName": self.log_group_name,
                 "logStreamName": self.log_stream_name,
@@ -259,20 +241,25 @@ class AWSCloudWatchHandler(logging.Handler):
             
             response = self.client.put_log_events(**kwargs)
             self._sequence_token = response.get("nextSequenceToken")
-        except self.client.exceptions.InvalidSequenceTokenException as e:
-            # Get the correct sequence token from the error message
-            import re
-            match = re.search(r"sequenceToken is: (\S+)", str(e))
-            if match:
-                self._sequence_token = match.group(1)
-                # Retry with the correct sequence token
-                self._flush()
         except Exception as e:
-            import sys
-            print(f"Error writing to CloudWatch Logs: {e}", file=sys.stderr)
-            # Put the entries back in the batch
-            with self._batch_lock:
-                self._batch = entries + self._batch
+            if hasattr(e, "__class__") and e.__class__.__name__ == "InvalidSequenceTokenException":
+                # Get the correct sequence token from the error message
+                import re
+                match = re.search(r"sequenceToken is: (\S+)", str(e))
+                if match:
+                    self._sequence_token = match.group(1)
+                    # Retry with the correct sequence token
+                    self._flush()
+            else:
+                import sys
+                print(f"Error writing to CloudWatch Logs: {e}", file=sys.stderr)
+                # Put the entries back in the batch
+                with self._batch_lock:
+                    self._batch = entries + self._batch
+
+    def flush(self) -> None:
+        """Flush all queued messages to CloudWatch Logs"""
+        self._flush()
 
     def close(self):
         """
