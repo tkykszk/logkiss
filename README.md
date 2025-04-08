@@ -55,6 +55,9 @@ logger3.addHandler(handler)
 logger3.error("Standard monochrome output")
 ```
 
+![logkiss-terminal-demo](docs/logkiss-terminal-demo.png)
+
+
 ## Environment Variables
 
 LOGKISS can be configured using the following environment variables:
@@ -77,6 +80,10 @@ python your_script.py
 ## Configuration
 
 For detailed configuration options, please refer to [CONFIG.md](CONFIG.md).
+
+## Acknowledgments
+
+The output format of logkiss is inspired by [deigan / loguru](https://github.com/Delgan/loguru)
 
 ## License
 
