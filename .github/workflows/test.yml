@@ -1,5 +1,7 @@
 name: Test
 
+# Python 3.7は最新のUbuntu 24.04ではサポートされていないため、
+# 明示的にubuntu-22.04を指定しています
 on:
   push:
     branches: [ "main", "newgcplogging" ]
@@ -10,6 +12,7 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false  # 一つのジョブが失敗しても他のジョブは継続する
       matrix:
         os: [ubuntu-22.04, windows-latest]
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
