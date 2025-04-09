@@ -1,129 +1,79 @@
-# logkiss サンプルコード集
+# logkiss Sample Code Collection
 
-このディレクトリには、Python logging モジュールと logkiss を組み合わせて使用する方法を示すサンプルコードが含まれています。
+This directory contains sample code demonstrating how to use Python's logging module in combination with logkiss.
 
-## サンプル一覧
+## Sample List
 
 ### console_handler_example.py
 
-標準の Python logging モジュールと logkiss を組み合わせて、コンソールにログを出力する方法を示すサンプルです。
+A sample demonstrating how to output logs to the console by combining the standard Python logging module with logkiss.
 
-**主な機能**:
-- `logkiss.logkiss.KissConsoleHandler` を使用して、色付きコンソールハンドラーを設定
-- 通常のログメッセージの出力
-- 構造化ログの出力
-- ネストされた構造化ログの出力
-- ルートロガーの使用例
+**Main Features**:
+- Setting up a colored console handler using `logkiss.logkiss.KissConsoleHandler`
+- Outputting normal log messages
+- Outputting structured logs
+- Outputting nested structured logs
+- Example of using the root logger
 
-**実行方法**:
+**How to Run**:
 ```bash
 python examples/console_handler_example.py
 ```
 
-### existing_logger_example.py
+### file_handler_example.py
 
-既存のロギング設定に logkiss を追加する方法を示すサンプルです。
+A sample demonstrating how to output logs to a file using logkiss.
 
-**主な機能**:
-- デフォルトのロガー設定（basicConfig）を使用
-- 既存のロガーに logkiss の KissConsoleHandler を追加
-- ルートロガーと個別のロガーの両方での使用例
-- 構造化ログの出力
-- 元のロガー設定に戻す方法
+**Main Features**:
+- Setting up a file handler
+- Log rotation
+- Log filtering
+- Specifying log formats
 
-**実行方法**:
+**How to Run**:
 ```bash
-python examples/existing_logger_example.py
+python examples/file_handler_example.py
 ```
 
-### sample_aws.py
+### Cloud Logging Examples
 
-AWS CloudWatch Logs にログを送信する方法を示すサンプルです。
+#### sample_aws_fixed.py
 
-**主な機能**:
-- AWS CloudWatch Logs へのログ送信
-- ロググループ、ストリーム、エントリの作成
-- ログの送信と表示
+Example of sending logs to AWS CloudWatch Logs.
 
-**実行方法**:
+**Main Features**:
+- Setting up an AWS CloudWatch Logs handler
+- Sending logs to CloudWatch Logs
+- Managing log groups and streams
+- Error handling for cloud logging
+
+**How to Run** (AWS credentials required):
 ```bash
-python examples/sample_aws.py
+AWS_DEFAULT_REGION=us-west-2 python examples/sample_aws_fixed.py
 ```
 
-### sample_gcp.py
+#### sample_gcp_fixed.py
 
-Google Cloud Logging にログを送信する方法を示すサンプルです。
+Example of sending logs to Google Cloud Logging.
 
-**主な機能**:
-- Google Cloud Logging へのログ送信
-- ログの作成と表示
+**Main Features**:
+- Setting up a Google Cloud Logging handler
+- Sending logs to Cloud Logging
+- Managing log names and resources
+- Error handling for cloud logging
 
-**実行方法**:
+**How to Run** (GCP credentials required):
 ```bash
-python examples/sample_gcp.py
+GCP_PROJECT_ID=your-project-id python examples/sample_gcp_fixed.py
 ```
 
-## 使用例
+### Proof of Concept Examples
 
-### 基本的な使用方法
+The `poc` directory contains various proof-of-concept examples demonstrating specific features:
 
-```python
-import logging
-from logkiss.logkiss import KissConsoleHandler
+- **poc1_sandbox.py**: Basic usage pattern of logkiss
+- **poc2_integration.py**: Integration with existing loggers
+- **poc2_integration_B.py**: Another integration example
+- **poc3_hierarchy_test.py**: Logger hierarchy preservation
 
-# ロガーを取得
-logger = logging.getLogger("my_app")
-logger.setLevel(logging.DEBUG)
-
-# KissConsoleHandler を追加
-handler = KissConsoleHandler()
-logger.addHandler(handler)
-
-# ログを出力
-logger.debug("デバッグメッセージ")
-logger.info("情報メッセージ")
-logger.warning("警告メッセージ")
-logger.error("エラーメッセージ")
-logger.critical("重大なエラーメッセージ")
-```
-
-### 既存のロガーに追加する方法
-
-```python
-import logging
-from logkiss.logkiss import KissConsoleHandler
-
-# 既存のロガーのハンドラーを一時的に保存
-logger = logging.getLogger("my_app")
-existing_handlers = logger.handlers[:]
-
-# 既存のハンドラーを削除（重複出力を避けるため）
-for handler in logger.handlers[:]:
-    logger.removeHandler(handler)
-
-# KissConsoleHandler を追加
-kiss_handler = KissConsoleHandler()
-logger.addHandler(kiss_handler)
-
-# ログを出力
-logger.info("色付きログメッセージ")
-
-# 元のハンドラーを復元
-for handler in logger.handlers[:]:
-    logger.removeHandler(handler)
-for handler in existing_handlers:
-    logger.addHandler(handler)
-```
-
-## クリーンアップ機能
-
-AWS CloudWatch Logs と Google Cloud Logging のサンプルには、クリーンアップ機能が含まれています。この機能は、テストリソース（ロググループ、ストリーム、エントリ）を削除するために使用されます。クリーンアップ機能は、デフォルトで有効になっています。クリーンアップ機能を無効にするには、`CLEAN_UP` グローバル変数を `False` に設定してください。
-
-## 注意点
-
-- `KissConsoleHandler` は、ログレベルに応じて自動的に色付けされます
-- フォーマットは自動的に `%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s` に設定されます
-- 日付フォーマットは自動的に `%Y-%m-%d %H:%M:%S` に設定されます
-- **色付きログ出力**: logkiss の KissConsoleHandler は、ログレベルに応じて自動的に色付けされます
-
-詳細な使用方法については、[logkiss のドキュメント](../README.md) を参照してください。
+These examples are designed to show how logkiss can be used in different scenarios while maintaining the KISS (Keep It Simple, Stupid) principle.

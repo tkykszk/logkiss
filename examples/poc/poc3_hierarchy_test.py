@@ -39,8 +39,8 @@ api_logger.warning("API: [2] API logger works fine")
 logkiss_logger.warning("Logkiss: [2] This is from logkiss logger")
 
 # logkissをルートロガーを置き換えるモードで初期化
-print("\n3. logkissでルートロガーを置き換える場合(階層保持):")
-logkiss.init_logging(replace_root=True, preserve_hierarchy=True)
+print("\n3. logkissでルートロガーを置き換える場合(階層は自動的に保持):")
+logkiss.init_logging(replace_root=True)
 logging_tree.printout()
 
 # 再度メッセージを出力
@@ -49,9 +49,9 @@ db_logger.warning("Database: [3] After replacing root logger")
 api_logger.warning("API: [3] After replacing root logger")
 logkiss_logger.warning("Logkiss: [3] After replacing root logger")
 
-# 階層を保持しないモードもテスト
-print("\n4. ルートロガー置き換え、階層非保持モード:")
-logkiss.init_logging(replace_root=True, preserve_hierarchy=False)
+# 元の状態に戻すテスト
+print("\n4. init_logging(restore_original=True)で元に戻した後:")
+logkiss.init_logging(restore_original=True)
 logging_tree.printout()
 
 # 検証完了

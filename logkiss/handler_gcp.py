@@ -10,7 +10,8 @@ Copyright (c) 2025 Taka Suzuki
 SPDX-License-Identifier: MIT
 """
 
-import logging
+# Python標準のloggingを明示的に参照するためのエイリアス
+import logging as std_logging
 import os
 from typing import Dict, Any, Optional, Union
 
@@ -26,7 +27,7 @@ def _check_gcp_available():
         return False
 
 
-class GCloudLoggingHandler(logging.Handler):
+class GCloudLoggingHandler(std_logging.Handler):
     """Google Cloud Logging handler for logkiss.
 
     This handler uses the official Google Cloud Logging client library to send logs
@@ -94,11 +95,11 @@ class GCloudLoggingHandler(logging.Handler):
         # Store excluded loggers
         self.excluded_loggers = excluded_loggers or []
 
-        # Formatter for the handler
-        formatter = logging.Formatter('%(message)s')
+        # Formatter for the handler - 標準のloggingを使用
+        formatter = std_logging.Formatter('%(message)s')
         self.setFormatter(formatter)
 
-    def emit(self, record: logging.LogRecord) -> None:
+    def emit(self, record: std_logging.LogRecord) -> None:
         """Emit a log record.
 
         Args:
@@ -171,7 +172,7 @@ def setup_gcp_logging(
     project_id: Optional[str] = None,
     log_name: str = "python",
     labels: Optional[Dict[str, str]] = None,
-    level: Union[int, str] = logging.INFO,
+    level: Union[int, str] = std_logging.INFO,
     excluded_loggers: Optional[list] = None,
 ) -> GCloudLoggingHandler:
     """Google Cloud Loggingの設定を行います。
@@ -187,7 +188,7 @@ def setup_gcp_logging(
         GCloudLoggingHandler: 設定されたハンドラー
     """
     # ルートロガーを取得
-    root_logger = logging.getLogger()
+    root_logger = std_logging.getLogger()
 
     # GCloudLoggingHandlerを作成
     handler = GCloudLoggingHandler(
