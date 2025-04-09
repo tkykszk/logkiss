@@ -413,7 +413,25 @@ TimedRotatingFileHandler = logging.handlers.TimedRotatingFileHandler
 raiseExceptions = logging.raiseExceptions
 
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
-    """Use standard ConsoleHandler"""
+    """Use standard ConsoleHandler
+    
+    .. deprecated:: 2.2.0
+       This function is deprecated. Use standard logging methods instead:
+       
+       .. code-block:: python
+       
+          # Remove existing handlers and add a standard one
+          logger.handlers.clear()
+          logger.addHandler(logging.StreamHandler())
+    """
+    import warnings
+    warnings.warn(
+        "use_console_handler is deprecated. Use standard logging methods instead: "
+        "logger.handlers.clear() and logger.addHandler(logging.StreamHandler())",
+        DeprecationWarning, 
+        stacklevel=2
+    )
+    
     if logger is None:
         logger = logging.getLogger()
     

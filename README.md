@@ -40,13 +40,18 @@ import logkiss as logging
 logger2 = logging.getLogger("example2")
 logger2.warning("Also colorful output")
 
-# 3. Switching to standard ConsoleHandler:
+# 3. Switching to standard ConsoleHandler (e.g., for non-interactive environments):
 import logkiss
+import logging
 
-# Get a logger and switch it to standard console handler
+# Switch to standard handlers for environments where colors aren't needed (CI/CD, file output)
 logger3 = logkiss.getLogger("example3")
-logkiss.use_console_handler(logger3)
-logger3.error("Standard monochrome output")
+
+# Remove existing handlers and add a standard one
+logger3.handlers.clear()
+logger3.addHandler(logging.StreamHandler())  # Standard logging handler without colors
+
+logger3.error("Standard monochrome output, better for logs parsing")
 ```
 
 ### Sample Output
