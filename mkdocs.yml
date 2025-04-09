@@ -1,10 +1,10 @@
 site_name: logkiss
 site_description: A Simple and Colorful Python Logging Library
 site_author: Taka Suzuki
-site_url: https://github.com/yourusername/logkiss
+site_url: https://github.com/tkykszk/logkiss
 
 repo_name: logkiss
-repo_url: https://github.com/yourusername/logkiss
+repo_url: https://github.com/tkykszk/logkiss
 edit_uri: edit/main/docs/
 
 theme:
