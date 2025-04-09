@@ -113,36 +113,40 @@ class TestGCloudLoggingHandler:
         assert success_logged, "テストがエラーで失敗しました"
         assert not error_logged, "テストがエラーで失敗しました"
 
-    def test_convert_level_to_severity(self):
+    def test_convert_level_to_severity(self, mock_google_client):
         """ログレベル変換のテスト"""
-        handler = GCloudLoggingHandler()
-        
-        # ハンドラーが設定されていることを確認
-        assert isinstance(handler, GCloudLoggingHandler)
-        
-        # emit関数が呼び出せることを確認
-        record = std_logging.LogRecord(
-            name="test",
-            level=std_logging.INFO,
-            pathname="test.py",
-            lineno=1,
-            msg="Test message",
-            args=(),
-            exc_info=None
-        )
-        
-        # モックを設定 - 内部メソッドではなくクラス自体をテスト
-        # 新しい実装ではハンドラー自身がemitを処理する
-        
-        # emit関数を呼び出す
-        # ハンドラーがemitできることを確認
-        # 注意: 実際に送信は行わず、単にクラスの使い方をテストする
-        try:
-            handler.emit(record)
-            # ここに来ればエラーなくメッセージを処理できたことになる
-            assert True
-        except Exception as e:
-            assert False, f"Emit関数の呼び出しに失敗しました: {e}"
+        # Google Cloudロギングクライアントの存在確認とモックの有効化
+        with patch('google.cloud.logging', autospec=True):
+            with patch('google.cloud.logging_v2', autospec=True):
+                with patch('google.cloud.logging_v2.handlers', autospec=True):
+                    handler = GCloudLoggingHandler(project_id="test-project")
+                    
+                    # ハンドラーが設定されていることを確認
+                    assert isinstance(handler, GCloudLoggingHandler)
+                    
+                    # emit関数が呼び出せることを確認
+                    record = std_logging.LogRecord(
+                        name="test",
+                        level=std_logging.INFO,
+                        pathname="test.py",
+                        lineno=1,
+                        msg="Test message",
+                        args=(),
+                        exc_info=None
+                    )
+                    
+                    # モックを設定 - 内部メソッドではなくクラス自体をテスト
+                    # 新しい実装ではハンドラー自身がemitを処理する
+                    
+                    # emit関数を呼び出す
+                    # ハンドラーがemitできることを確認
+                    # 注意: 実際に送信は行わず、単にクラスの使い方をテストする
+                    try:
+                        handler.emit(record)
+                        # ここに来ればエラーなくメッセージを処理できたことになる
+                        assert True
+                    except Exception as e:
+                        assert False, f"Emit関数の呼び出しに失敗しました: {e}"
 
 
 class TestAWSCloudWatchHandler:

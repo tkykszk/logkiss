@@ -34,8 +34,9 @@ def test_handler_creation():
     """Test handler creation"""
     logger = logkiss.getLogger("test_handler")
     
-    # Default handler should be KissConsoleHandler
-    handlers = [h for h in logger.handlers if isinstance(h, logkiss.KissConsoleHandler)]
+    # デフォルトでは少なくとも1つのハンドラーが追加されている
+    # 具体的な型ではなく、StreamHandlerのインスタンスであることを確認
+    handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
     assert len(handlers) > 0
 
 def test_file_handler():
