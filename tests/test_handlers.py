@@ -11,8 +11,6 @@ The following handlers are tested:
 - AWSCloudWatchHandler: AWS CloudWatch handler
 """
 
-import json
-import time
 import sys
 from unittest.mock import MagicMock, patch
 # 標準のloggingをstd_loggingとしてインポートしてhandler_gcp.pyと合わせる
@@ -20,11 +18,9 @@ import logging as std_logging
 
 import pytest
 
-from logkiss.handlers import (
-    AWSCloudWatchHandler,
-    BaseHandler,
-)
+from logkiss.handlers import BaseHandler
 from logkiss.handler_gcp import GCloudLoggingHandler
+from logkiss.handler_aws import AWSCloudWatchHandler
 
 
 def test_base_handler():
@@ -60,7 +56,7 @@ def mock_google_client():
 @pytest.fixture
 def mock_boto3_client():
     """AWS CloudWatch Logsのモックを作成"""
-    with patch("logkiss.handlers.boto3") as mock_boto3:
+    with patch("logkiss.handler_aws.boto3") as mock_boto3:
         mock_client = MagicMock()
         mock_boto3.client.return_value = mock_client
         yield mock_client
@@ -117,7 +113,7 @@ class TestGCloudLoggingHandler:
         assert success_logged, "テストがエラーで失敗しました"
         assert not error_logged, "テストがエラーで失敗しました"
 
-    def test_convert_level_to_severity(self, mock_google_client):
+    def test_convert_level_to_severity(self):
         """ログレベル変換のテスト"""
         handler = GCloudLoggingHandler()
         
@@ -155,12 +151,12 @@ class TestAWSCloudWatchHandler:
     def test_init(self, mock_boto3_client):
         """初期化のテスト"""
         handler = AWSCloudWatchHandler(
-            log_group_name="test-group",
-            log_stream_name="test-stream",
-            region_name="us-west-2"
+            log_group="test-group",
+            log_stream="test-stream",
+            aws_region="us-west-2"
         )
-        assert handler.log_group_name == "test-group"
-        assert handler.log_stream_name == "test-stream"
+        assert handler.log_group == "test-group"
+        assert handler.log_stream == "test-stream"
         mock_boto3_client.create_log_group.assert_called_once_with(
             logGroupName="test-group"
         )
@@ -169,11 +165,16 @@ class TestAWSCloudWatchHandler:
             logStreamName="test-stream"
         )
 
-    def test_auto_log_stream_name(self, mock_boto3_client):
+    def test_auto_log_stream_name(self):
         """ログストリーム名の自動生成テスト"""
-        with patch("socket.gethostname", return_value="test-host"):
-            handler = AWSCloudWatchHandler(log_group_name="test-group")
-            assert handler.log_stream_name == "test-host"
+        # mockが必要ないがライブラリーが必要
+        try:
+            # 自動生成されるログストリーム名はdatetimeを含むため、パターンのみをテスト
+            with patch("logkiss.handler_aws.boto3"):
+                handler = AWSCloudWatchHandler(log_group="test-group")
+                assert handler.log_stream.startswith("logkiss-")
+        except ImportError:
+            pytest.skip("boto3 not available")
 
     # def test_handle_and_flush(self, mock_boto3_client):
     #     """ハンドルとフラッシュのテスト"""
