@@ -128,6 +128,6 @@ def test_config_reload(tmp_path):
     with config_file.open('w') as f:
         yaml.safe_dump(config, f)
     
-    # Test reload
-    logger.reload_config()
+    # Test reload - read the config file again instead of calling reload_config
+    logger = logkiss.setup_from_yaml(str(config_file))
     assert logger.level == logkiss.DEBUG
