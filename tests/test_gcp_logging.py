@@ -90,6 +90,7 @@ def generate_test_log_name():
 
 
 @pytest.mark.e2e
+@pytest.mark.gcp
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 def test_gcp_cloud_logging_e2e():
     """GCP Cloud Loggingへの実際のログ送信をテスト"""
@@ -186,6 +187,7 @@ def test_gcp_cloud_logging_e2e():
 
 
 @pytest.mark.e2e
+@pytest.mark.gcp
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 def test_gcp_cloud_logging_handler_e2e():
     """GCPCloudLoggingHandlerを使用したE2Eテスト"""
@@ -203,27 +205,39 @@ def test_gcp_cloud_logging_handler_e2e():
         project_id = os.environ.get("GCP_PROJECT_ID", project_id)
         print(f"DEBUG: Using project_id: {project_id}")
 
-        # GCPCloudLoggingHandlerを使用してテスト
-        from logkiss.handlers import GCPCloudLoggingHandler
-        print("DEBUG: Creating GCPCloudLoggingHandler")
-        handler = GCPCloudLoggingHandler(
+        # GCloudLoggingHandlerを使用してテスト
+        from logkiss.handler_gcp import GCloudLoggingHandler
+        print("DEBUG: Creating GCloudLoggingHandler")
+        handler = GCloudLoggingHandler(
             project_id=project_id,
             log_name=log_name,
-            batch_size=1,  # 即時フラッシュするために1に設定
-            flush_interval=1.0  # 短いフラッシュ間隔
         )
         
         # テスト用のログエントリを送信
-        test_entry = {
-            "message": "Handler E2E test log entry",
-            "level": "INFO",
-            "test_id": 2,
-            "timestamp": time.time()
+        import logging
+        test_message = "Handler E2E test log entry"
+        test_record = logging.LogRecord(
+            name="test_logger",
+            level=logging.INFO,
+            pathname="test_gcp_logging.py",
+            lineno=220,
+            msg=test_message,
+            args=(),
+            exc_info=None
+        )
+        
+        # extra情報を追加（json_fieldsを使用して構造化ログをテスト）
+        test_record.extra = {
+            "json_fields": {
+                "test_id": 2,
+                "timestamp": time.time(),
+                "test_name": "handler_e2e_test"
+            }
         }
         
-        print(f"DEBUG: Sending log entry via handler: {json.dumps(test_entry)}")
-        handler.handle(test_entry)
-        print("DEBUG: Log entry sent")
+        print(f"DEBUG: Sending log record via handler: {test_message}")
+        handler.emit(test_record)
+        print("DEBUG: Log record sent")
         
         # ハンドラーがフラッシュするのを待つ
         print("DEBUG: Waiting for handler to flush")

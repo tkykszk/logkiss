@@ -29,6 +29,8 @@ __all__ = [
     'KissLogger',
     'use_console_handler',
     'PathShortenerFilter',
+    'setup_from_yaml',
+    'setup_from_env',
 ]
 
 # Debug mode settings
@@ -280,8 +282,8 @@ class ColoredFormatter(Formatter):
     
     Environment Variables:
         The following environment variables can be used to control coloring:
-        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
-        - LOGKISS_NO_COLOR: Disable colors (any value)
+        - LOGKISS_DISABLE_COLOR: Disable colors (values: 1, true, yes)
+        - NO_COLOR: Industry standard to disable colors (any value)
         These environment variables override the use_color parameter.
         
         The following environment variable can be used to control level name formatting:
@@ -304,7 +306,8 @@ class ColoredFormatter(Formatter):
     def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None,
                  style: str = '%', validate: bool = True,
                  color_config: Optional[Union[str, Path]] = None,
-                 use_color: bool = True):
+                 use_color: bool = True,
+                 format: Optional[str] = None):
         """
         Args:
             fmt: Format string
@@ -314,19 +317,22 @@ class ColoredFormatter(Formatter):
             color_config: Path to color configuration file
             use_color: Apply colors to log messages
         """
-        if fmt is None:
+        if fmt is None and format is not None:
+            fmt = format
+        elif fmt is None:
             fmt = '%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s'
-        super().__init__(fmt, datefmt, style, validate)
+        # Python 3.7 compatibility: validate parameter was added in Python 3.8
+        if sys.version_info >= (3, 8):
+            super().__init__(fmt, datefmt, style, validate)
+        else:
+            super().__init__(fmt, datefmt, style)
         self.color_manager = ColorManager(color_config)
         
-        # Check environment variables for color settings
-        force_color = os.environ.get('LOGKISS_FORCE_COLOR', '').lower() in ('1', 'true', 'yes')
-        no_color = 'LOGKISS_NO_COLOR' in os.environ
+        # Check if color should be disabled via environment variable
+        disable_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes')
         
-        # Environment variables override the use_color parameter
-        if force_color:
-            self.use_color = True
-        elif no_color:
+        # Environment variables take precedence over the use_color parameter
+        if disable_color:
             self.use_color = False
         else:
             self.use_color = use_color
@@ -386,8 +392,8 @@ class KissConsoleHandler(StreamHandler):
     
     Environment Variables:
         The following environment variables can be used to control coloring:
-        - LOGKISS_FORCE_COLOR: Force enable colors (values: 1, true, yes)
-        - LOGKISS_NO_COLOR: Disable colors (any value)
+        - LOGKISS_DISABLE_COLOR: Disable colors (values: 1, true, yes)
+        - NO_COLOR: Industry standard to disable colors (any value)
         These environment variables override the use_color parameter of the formatter.
     
     Args:
@@ -407,8 +413,13 @@ class KissConsoleHandler(StreamHandler):
             stream = sys.stderr
         
         super().__init__(stream)
-        # Apply colors if outputting to sys.stderr or sys.stdout
-        use_color = stream is None or stream is sys.stderr or stream is sys.stdout
+        
+        # Check environment variables for disabling color
+        disable_color = os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes')
+        
+        # Apply colors if not disabled by env var and outputting to sys.stderr or sys.stdout
+        use_color = not disable_color and (stream is None or stream is sys.stderr or stream is sys.stdout)
+        
         self.formatter = ColoredFormatter(color_config=color_config, use_color=use_color)
         self.setFormatter(self.formatter)
         self.setLevel(logging.DEBUG)  # Set default level to DEBUG
@@ -471,6 +482,29 @@ class KissLogger(logging.Logger):
         record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
         return record
 
+    def reload_config(self) -> None:
+        """Reload configuration from the original source.
+        
+        This method reloads the logger configuration from the original YAML file
+        if it was configured using setup_from_yaml, or from environment variables
+        if it was configured using setup_from_env.
+        
+        Raises:
+            ValueError: If the logger was not configured using setup_from_yaml
+                      or setup_from_env.
+        """
+        # Check if config path is available
+        if hasattr(self, 'config_path'):
+            # Remove existing handlers
+            for handler in self.handlers[:]:
+                self.removeHandler(handler)
+            
+            # Reload from YAML
+            setup_from_yaml(self.config_path)
+        else:
+            # Reload from environment variables
+            setup_from_env()
+
 # Helper function to use a standard ConsoleHandler
 def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
     """Configure the logger to use a standard StreamHandler instead of KissConsoleHandler.
@@ -507,3 +541,115 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
         datefmt='%Y-%m-%d %H:%M:%S'
     ))
     logger.addHandler(handler)
+
+
+def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
+    """Set up logging configuration from a YAML file.
+    
+    Args:
+        config_path: Path to YAML configuration file
+        
+    Returns:
+        Configured logger instance
+        
+    Raises:
+        ValueError: If config file does not exist
+        yaml.YAMLError: If config file is invalid YAML
+    """
+    config_path = Path(config_path)
+    if not config_path.exists():
+        raise ValueError(f"Configuration file not found: {config_path}")
+    
+    with open(config_path) as f:
+        config = safe_load(f)
+    
+    # Get root logger
+    logger = logging.getLogger()
+    
+    # Configure formatters
+    formatters = {}
+    for name, formatter_config in config.get('formatters', {}).items():
+        formatters[name] = ColoredFormatter(**formatter_config)
+    
+    # Configure handlers
+    for name, handler_config in config.get('handlers', {}).items():
+        handler_class = handler_config.pop('class')
+        formatter = handler_config.pop('formatter', None)
+        
+        # Create handler instance
+        if handler_class == 'logging.StreamHandler':
+            handler = KissConsoleHandler()
+        elif handler_class == 'logging.FileHandler':
+            handler = FileHandler(**handler_config)
+        elif handler_class == 'logging.TimedRotatingFileHandler':
+            handler = TimedRotatingFileHandler(**handler_config)
+        else:
+            continue
+        
+        # Set formatter if specified
+        if formatter and formatter in formatters:
+            handler.setFormatter(formatters[formatter])
+        
+        logger.addHandler(handler)
+    
+    # Configure root logger
+    root_config = config.get('root', {})
+    
+    # Check environment variables first
+    env_level = os.environ.get('LOGKISS_LEVEL')
+    if env_level:
+        logger.setLevel(getattr(logging, env_level.upper()))
+    elif 'level' in root_config:
+        logger.setLevel(getattr(logging, root_config['level']))
+    
+    # Store config path for reload
+    logger.config_path = config_path
+    
+    return logger
+
+
+def setup_from_env() -> logging.Logger:
+    """Set up logging configuration from environment variables.
+    
+    Environment variables:
+        LOGKISS_LEVEL: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        LOGKISS_FORMAT: Log format string
+        LOGKISS_DISABLE_COLOR: Disable colored output if 'true'
+        
+    Returns:
+        Configured logger instance
+    """
+    # Get root logger
+    logger = logging.getLogger()
+    
+    # Configure level
+    level = os.environ.get('LOGKISS_LEVEL', 'WARNING')
+    logger.setLevel(getattr(logging, level.upper()))
+    
+    # Create a console handler
+    handler = StreamHandler(sys.stderr)
+    
+    # Configure formatter
+    fmt = os.environ.get('LOGKISS_FORMAT',
+                        '%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s')
+    datefmt = os.environ.get('LOGKISS_DATEFMT', '%Y-%m-%d %H:%M:%S')
+    
+    # Determine color usage based on environment variable
+    use_color = True  # Default is to use color
+    if os.environ.get('LOGKISS_DISABLE_COLOR', '').lower() in ('1', 'true', 'yes'):
+        use_color = False
+    
+    # Create formatter with color settings
+    formatter = ColoredFormatter(
+        fmt=fmt,
+        datefmt=datefmt,
+        use_color=use_color
+    )
+    
+    # Set the formatter on the handler
+    handler.setFormatter(formatter)
+    
+    # Add handler to logger
+    logger.addHandler(handler)
+    
+    return logger

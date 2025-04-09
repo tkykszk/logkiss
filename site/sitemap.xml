@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://github.com/yourusername/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/en/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/en/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/ja/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/zh/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/zh/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/zh/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/zh/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/ja/zh/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/en/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/en/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/en/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/contributing/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/contributing/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/examples/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/examples/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/examples/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/ja/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/ja/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/ja/api/logkiss/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/zh/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/zh/installation/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/installation/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/installation/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/zh/usage/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/usage/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/usage/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/zh/api/handlers/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/handlers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/handlers/"/>
+    </url>
+    <url>
+        <loc>https://github.com/yourusername/logkiss/zh/zh/api/logkiss/</loc>
+        <lastmod>2025-03-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://github.com/yourusername/logkiss/zh/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://github.com/yourusername/logkiss/zh/api/logkiss/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://github.com/yourusername/logkiss/ja/zh/api/logkiss/"/>
+    </url>
+</urlset>

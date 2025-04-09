@@ -1,6 +1,5 @@
-# 
+![LOGKISS](docs/logkiss-logo-tiny.png)
 
-[](docs/logkiss.svg)
 [![LOGKISS](https://img.shields.io/badge/LOGKISS-Keep%20It%20Simple%20and%20Stupid%20Logger-blue.svg)](https://github.com/takatosh/logkiss)
 
 (README_JAPANEASE.mdのみ日本語です。english versionis in README.md)
@@ -79,6 +78,8 @@ logger3.addHandler(handler)
 logger3.error("通常の白黒出力")
 ```
 
+
+
 ## 環境変数
 
 LOGKISSは以下の環境変数で設定を変更できます：
@@ -86,6 +87,8 @@ LOGKISSは以下の環境変数で設定を変更できます：
 - `LOGKISS_DEBUG`: デバッグモードを有効にします。`1`、`true`、`yes`のいずれかを設定すると：
   - ルートロガーのレベルが`INFO`から`DEBUG`に変更されます
   - より詳細なログ情報が表示されます
+- `LOGKISS_DISABLE_COLOR`: カラー出力を無効にします。`1`、`true`、`yes`のいずれかを設定します
+- `NO_COLOR`: 業界標準の色付け無効化環境変数（値は任意）
 
 使用例：
 ```bash
@@ -95,6 +98,23 @@ export LOGKISS_DEBUG=1
 # Pythonスクリプトを実行
 python your_script.py
 ```
+
+
+
+
+### Q. 色の設定はどごて変更する?
+
+
+### Q. レベル名を国際化したい
+
+
+### Q. ログが出ない時デバッグしたい
+
+案: ログトレースモード  checklogger(logger, logger.debug)  とかで調べられるようにする
+
+### Q. スタックトレースからソースコードを開きたい
+
+
 
 ## 設定
 

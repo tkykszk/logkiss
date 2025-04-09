@@ -14,7 +14,7 @@ from datetime import datetime
 # logkissモジュールをインポート
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import logkiss
-from logkiss.handlers import GCPCloudLoggingHandler
+from logkiss.handler_gcp import GCloudLoggingHandler
 
 
 def configure_logging():
@@ -34,18 +34,26 @@ def configure_logging():
     log_name = f"exception_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     # GCP Cloud Loggingハンドラーを追加
-    gcp_handler = GCPCloudLoggingHandler(
-        project_id=project_id,
-        log_name=log_name,
-        labels={
-            "application": "exception_sample",
-            "environment": "development"
-        }
-    )
-    logger.addHandler(gcp_handler)
-    
-    print(f"GCP Cloud Logging ハンドラーを追加しました (プロジェクトID: {project_id}, ログ名: {log_name})")
-    return logger, project_id, log_name
+    try:
+        # 一意のログ名を生成
+        log_name = f"logkiss_test_{datetime.now().strftime('%Y%m%d')}_{os.urandom(4).hex()}"
+        
+        # GCP Cloud Loggingハンドラーを作成
+        gcp_handler = GCloudLoggingHandler(
+            project_id=project_id,
+            log_name=log_name,
+            labels={
+                "application": "exception_sample",
+                "environment": "development"
+            }
+        )
+        logger.addHandler(gcp_handler)
+        
+        print(f"GCP Cloud Logging ハンドラーを追加しました (プロジェクトID: {project_id}, ログ名: {log_name})")
+        return logger, project_id, log_name
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        sys.exit(1)
 
 
 def simulate_error():
@@ -66,52 +74,58 @@ def demonstrate_exception_logging(logger):
     """例外のログ出力方法をデモンストレーション"""
     print("\n=== 例外のログ出力方法 ===")
     
-    # 方法1: exc_info=True を使用
-    try:
-        print("\n方法1: exc_info=True を使用")
-        result = simulate_error()
-    except Exception as e:
-        logger.error(
-            "エラーが発生しました: %s", str(e), 
-            exc_info=True
-        )
-    
-    # 方法2: 例外オブジェクトを直接渡す
-    try:
-        print("\n方法2: 例外オブジェクトを直接渡す")
-        result = simulate_error()
-    except Exception as e:
-        logger.error(
-            "エラーが発生しました: %s", str(e), 
-            exc_info=e
-        )
-    
-    # 方法3: logger.exception() を使用（常にexc_info=Trueと同じ）
-    try:
-        print("\n方法3: logger.exception() を使用")
-        result = simulate_error()
-    except Exception as e:
-        logger.exception("エラーが発生しました: %s", str(e))
-    
-    # 方法4: スタックトレースを手動で取得して出力
-    try:
-        print("\n方法4: スタックトレースを手動で取得")
-        result = simulate_error()
-    except Exception as e:
-        stack_trace = traceback.format_exc()
-        logger.error("エラーが発生しました: %s\n%s", str(e), stack_trace)
-    
+    if True: # disabled
+        
+        # 方法1: exc_info=True を使用
+        try:
+            print("\n方法1: exc_info=True を使用")
+            result = simulate_error()
+        except Exception as e:
+            logger.error(
+                "(1)エラーが発生しました: %s", str(e), 
+                exc_info=True
+            )
+        
+        # 方法2: 例外オブジェクトを直接渡す
+        try:
+            print("\n方法2: 例外オブジェクトを直接渡す")
+            result = simulate_error()
+        except Exception as e:
+            logger.error(
+                "(2)エラーが発生しました: %s", str(e), 
+                exc_info=e
+            )
+        
+        # 方法3: logger.exception() を使用（常にexc_info=Trueと同じ）
+        try:
+            print("\n方法3: logger.exception() を使用")
+            result = simulate_error()
+        except Exception as e:
+            logger.exception("(3)エラーが発生しました: %s", str(e))
+        
+        # 方法4: スタックトレースを手動で取得して出力
+        try:
+            print("\n方法4: スタックトレースを手動で取得")
+            result = simulate_error()
+        except Exception as e:
+            stack_trace = traceback.format_exc()
+            logger.error("(4)エラーが発生しました: %s\n%s", str(e), stack_trace)
+        
     # 方法5: 構造化ログとして出力
     try:
         print("\n方法5: 構造化ログとして出力")
         result = simulate_error()
     except Exception as e:
+        # スタックトレースを文字列として取得
+        stack_trace = traceback.format_exc()
         logger.error(
-            "エラーが発生しました", 
+            "(5)エラーが発生しました", 
             extra={
-                "error_type": type(e).__name__,
-                "error_message": str(e),
-                "stack_trace": traceback.format_exc()
+                "json_fields": {
+                    "error_type": type(e).__name__,
+                    "error_message": str(e),
+                    "stack_trace": stack_trace
+                }
             }
         )
 

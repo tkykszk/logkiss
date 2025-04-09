@@ -1,4 +1,4 @@
-![](logkiss.svg)
+![LOGKISS](logkiss-logo-tiny.png)
 
 # Usage
 

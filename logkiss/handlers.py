@@ -8,7 +8,6 @@ See LICENSE for details.
 This module contains various handlers used in logkiss.
 Main classes:
 - BaseHandler: Base handler class for implementing custom handlers
-- GCPCloudLoggingHandler: Handler for sending logs to Google Cloud Logging
 - AWSCloudWatchHandler: Handler for sending logs to AWS CloudWatch Logs
 """
 
@@ -19,246 +18,25 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Union
 
-try:
-    from google.cloud import logging as google_logging
-    GOOGLE_CLOUD_AVAILABLE = True
-except ImportError:
-    GOOGLE_CLOUD_AVAILABLE = False
 
-try:
-    import boto3
-    AWS_AVAILABLE = True
-except ImportError:
-    AWS_AVAILABLE = False
-
-
-class BaseHandler:
+class BaseHandler(logging.Handler):
     """Base handler class for implementing custom handlers"""
     
-    def __init__(self) -> None:
-        pass
-        
-    def handle(self, log_entry: Dict[str, Any]) -> None:
-        """
-        Handle a log entry
-        
-        Args:
-            log_entry: Log entry to be handled
-        """
-        raise NotImplementedError("handle method must be implemented")
-
-
-class GCPCloudLoggingHandler(logging.Handler):
-    """Handler for sending logs to Google Cloud Logging"""
+    def __init__(self, level=logging.NOTSET):
+        """Initialize the handler"""
+        super().__init__(level)
     
-    def __init__(
-        self,
-        project_id: Optional[str] = None,
-        resource: Optional[Dict[str, str]] = None,
-        labels: Optional[Dict[str, str]] = None,
-        batch_size: int = 100,
-        flush_interval: float = 5.0,
-        log_name: str = "python",
-    ) -> None:
-        """
-        Args:
-            project_id: Google Cloud project ID. If None, it will be automatically detected from environment variables
-            resource: Google Cloud resource. If None, it will be automatically detected
-            labels: Labels to add to all log entries
-            batch_size: Batch size
-            flush_interval: Flush interval in seconds
-            log_name: Name of the log
-        """
-        if not GOOGLE_CLOUD_AVAILABLE:
-            raise ImportError(
-                "google-cloud-logging package is required. "
-                "Install it with: pip install 'logkiss[cloud]'"
-            )
-        
-        # 先に基底クラスの初期化
-        super().__init__()
-        
-        # 属性を初期化して、初期化失敗時のエラーを防ぐ
-        self._batch = []
-        self._batch_lock = threading.Lock()
-        self._batch_size = batch_size
-        self._flush_interval = flush_interval
-        self._executor = None
-        self._running = False
-        self._flush_thread = None
-        
-        try:
-            # Google Cloud Loggingクライアントを初期化
-            self.client = google_logging.Client(project=project_id)
-            self.project_id = project_id or self.client.project  # プロジェクトIDを設定
-            self.logger = self.client.logger(log_name)
-            self.resource = resource or {"type": "global"}
-            self.labels = labels or {}
-            
-            # 定期的なフラッシュを開始
-            self._start_periodic_flush()
-        except Exception as e:
-            import sys
-            print(f"Error initializing GCPCloudLoggingHandler: {e}", file=sys.stderr)
-            # 初期化に失敗した場合は、runningフラグをFalseにして、スレッドが開始されないようにする
-            self._running = False
-            raise
-
-    def _start_periodic_flush(self):
-        """Start a background thread to periodically flush the batch."""
-        if self._flush_thread is not None and self._flush_thread.is_alive():
-            return  # すでに実行中のスレッドがある場合は何もしない
-
-        self._running = True
-        self._flush_thread = threading.Thread(
-            target=self._periodic_flush_worker,
-            daemon=True,  # デーモンスレッドとして実行（プログラム終了時に自動終了）
-        )
-        self._flush_thread.start()
-
-    def _periodic_flush_worker(self):
-        """Worker function for the periodic flush thread."""
-        while self._running:
-            try:
-                # ここでの二重チェックは重要
-                if not self._running:
-                    break
-                self._flush()
-            except Exception as e:
-                import sys
-                print(f"Error in periodic flush: {e}", file=sys.stderr)
-                # エラーが発生しても継続する
-            
-            # スリープ前に終了フラグを確認
-            if not self._running:
-                break
-                
-            # 次の実行までスリープ
-            time.sleep(self._flush_interval)
-
-    def emit(self, record: logging.LogRecord) -> None:
-        """Process log record"""
-        if not self._running:
-            return
-            
-        try:
-            # ログレコードからメッセージを取得
-            message = self.format(record)
-            
-            # ログレベルをGoogle Cloud Loggingのseverityに変換
-            severity = self._convert_level_to_severity(record.levelname)
-            
-            # エントリを作成
-            entry = {
-                "message": message,
-                "severity": severity,
-                "labels": self.labels.copy(),
-            }
-            
-            # 追加情報がある場合は追加
-            if hasattr(record, "extra") and isinstance(record.extra, dict):
-                entry["labels"].update(record.extra)
-            
-            # exc_info=Trueが指定された場合のスタックトレース情報を追加
-            if record.exc_info:
-                import traceback
-                entry["labels"]["stack_trace"] = traceback.format_exception(*record.exc_info)
-            
-            # バッチに追加
-            with self._batch_lock:
-                self._batch.append(entry)
-                
-                # バッチサイズに達したらフラッシュ
-                if len(self._batch) >= self._batch_size:
-                    self._flush()
-        except Exception as e:
-            import sys
-            print(f"Error in GCPCloudLoggingHandler.emit: {e}", file=sys.stderr)
-
-    def _convert_level_to_severity(self, level: str) -> str:
-        """Convert log level to Google Cloud Logging severity"""
-        severity_map = {
-            "DEBUG": "DEBUG",
-            "INFO": "INFO",
-            "WARNING": "WARNING",
-            "ERROR": "ERROR",
-            "CRITICAL": "CRITICAL",
-        }
-        return severity_map.get(level, "DEFAULT")
-
-    def _flush(self) -> None:
-        """Flush batch"""
-        if not self._running:
-            return
-            
-        entries = []
-        with self._batch_lock:
-            if not self._batch:
-                return
-            
-            entries = self._batch
-            self._batch = []
-        
-        if not entries:
-            return
-            
-        try:
-            # Google Cloud Logging APIを使用してログを送信
-            for entry in entries:
-                self.logger.log_text(
-                    text=entry["message"],
-                    severity=entry["severity"],
-                    labels=entry.get("labels", {})
-                )
-        except Exception as e:
-            # Error log will be printed to standard error
-            import sys
-            print(f"Error writing to Cloud Logging: {e}", file=sys.stderr)
-
-    def close(self):
-        """
-        Close the handler and release all resources.
-        """
-        if not hasattr(self, '_running'):
-            # 初期化が完了していない場合は何もしない
-            super().close()
-            return
-            
-        try:
-            # スレッドを停止
-            self._running = False
-            
-            # 最後の一回フラッシュを試みる
-            try:
-                self._flush()
-            except Exception as e:
-                import sys
-                print(f"Error in final flush: {e}", file=sys.stderr)
-                
-            # スレッドが存在し、実行中であれば、終了を待つ（最大1秒）
-            if hasattr(self, '_flush_thread') and self._flush_thread is not None:
-                if self._flush_thread.is_alive():
-                    self._flush_thread.join(timeout=1.0)
-        except Exception as e:
-            import sys
-            print(f"Error closing handler: {e}", file=sys.stderr)
-        finally:
-            # 親クラスのcloseメソッドを呼び出す
-            super().close()
-
-    def __del__(self):
-        """Cleanup when the handler is deleted"""
-        try:
-            if hasattr(self, '_running') and self._running:
-                self.close()
-        except Exception:
-            # __del__内では例外を無視
-            pass
+    def handle(self, record):
+        """Handle a log record"""
+        raise NotImplementedError("handle method must be implemented")
 
 
 class AWSCloudWatchHandler(logging.Handler):
     """
     AWS CloudWatch Logs handler
+    
+    CloudWatchにログを送信するためのハンドラー。boto3モジュールが必要です。
+    実際のインポートと初期化は実際に使用されるまで遅延されます。
     """
 
     def __init__(
@@ -269,22 +47,18 @@ class AWSCloudWatchHandler(logging.Handler):
         batch_size: int = 100,
         flush_interval: float = 5.0,
     ) -> None:
-        """
-        Args:
-            log_group_name: Log group name
-            log_stream_name: Log stream name. If None, instance ID will be used
-            region_name: Region name. If None, it will be automatically detected from environment variables
-            batch_size: Batch size
-            flush_interval: Flush interval in seconds
-        """
-        if not AWS_AVAILABLE:
+        """初期化処理は実際の実装クラスに委譲します"""
+        # 先に基底クラスの初期化
+        super().__init__()
+        
+        # boto3が利用可能か確認
+        try:
+            import boto3
+        except ImportError:
             raise ImportError(
                 "boto3 package is required. "
                 "Install it with: pip install 'logkiss[cloud]'"
             )
-        
-        # 先に基底クラスの初期化
-        super().__init__()
         
         # 属性を初期化して、初期化失敗時のエラーを防ぐ
         self._batch = []
@@ -355,66 +129,52 @@ class AWSCloudWatchHandler(logging.Handler):
                 logStreamName=self.log_stream_name
             )
         except self.client.exceptions.ResourceAlreadyExistsException:
-            # Get sequence token
+            # Log stream already exists, get the sequence token
             response = self.client.describe_log_streams(
                 logGroupName=self.log_group_name,
                 logStreamNamePrefix=self.log_stream_name,
                 limit=1
             )
             
-            for stream in response.get("logStreams", []):
-                if stream.get("logStreamName") == self.log_stream_name:
-                    self._sequence_token = stream.get("uploadSequenceToken")
-                    break
+            if response.get("logStreams"):
+                self._sequence_token = response["logStreams"][0].get("uploadSequenceToken")
 
-    def _start_periodic_flush(self):
+    def _start_periodic_flush(self) -> None:
         """Start a background thread to periodically flush the batch."""
-        if self._flush_thread is not None and self._flush_thread.is_alive():
-            return  # すでに実行中のスレッドがある場合は何もしない
-
         self._running = True
         self._flush_thread = threading.Thread(
             target=self._periodic_flush_worker,
-            daemon=True,  # デーモンスレッドとして実行（プログラム終了時に自動終了）
+            daemon=True
         )
         self._flush_thread.start()
 
-    def _periodic_flush_worker(self):
+    def _periodic_flush_worker(self) -> None:
         """Worker function for the periodic flush thread."""
         while self._running:
             try:
-                # ここでの二重チェックは重要
-                if not self._running:
-                    break
-                self._flush()
+                # Sleep for the specified interval
+                time.sleep(self._flush_interval)
+
+                # バッチが空でなければフラッシュ
+                if self._batch:
+                    self._flush()
             except Exception as e:
                 import sys
                 print(f"Error in periodic flush: {e}", file=sys.stderr)
-                # エラーが発生しても継続する
-            
-            # スリープ前に終了フラグを確認
-            if not self._running:
-                break
-                
-            # 次の実行までスリープ
-            time.sleep(self._flush_interval)
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process log record"""
-        if not self._running:
-            return
-            
         try:
-            # ログレコードからメッセージを取得
-            message = self.format(record)
+            # フォーマット済みのメッセージを取得
+            msg = self.format(record)
             
-            # タイムスタンプを取得（ミリ秒単位）
+            # タイムスタンプ（ミリ秒単位）
             timestamp = int(record.created * 1000)
             
-            # エントリを作成
+            # バッチに追加するエントリ
             entry = {
                 "timestamp": timestamp,
-                "message": message,
+                "message": msg
             }
             
             # exc_info=Trueが指定された場合のスタックトレース情報を追加
@@ -465,8 +225,11 @@ class AWSCloudWatchHandler(logging.Handler):
             for entry in entries
         ]
         
-        # Send to CloudWatch Logs
+        # ここでLazy Importを行う - 実際にAWS操作が必要なときだけ
         try:
+            import boto3
+            
+            # Send to CloudWatch Logs
             kwargs = {
                 "logGroupName": self.log_group_name,
                 "logStreamName": self.log_stream_name,
@@ -478,20 +241,25 @@ class AWSCloudWatchHandler(logging.Handler):
             
             response = self.client.put_log_events(**kwargs)
             self._sequence_token = response.get("nextSequenceToken")
-        except self.client.exceptions.InvalidSequenceTokenException as e:
-            # Get the correct sequence token from the error message
-            import re
-            match = re.search(r"sequenceToken is: (\S+)", str(e))
-            if match:
-                self._sequence_token = match.group(1)
-                # Retry with the correct sequence token
-                self._flush()
         except Exception as e:
-            import sys
-            print(f"Error writing to CloudWatch Logs: {e}", file=sys.stderr)
-            # Put the entries back in the batch
-            with self._batch_lock:
-                self._batch = entries + self._batch
+            if hasattr(e, "__class__") and e.__class__.__name__ == "InvalidSequenceTokenException":
+                # Get the correct sequence token from the error message
+                import re
+                match = re.search(r"sequenceToken is: (\S+)", str(e))
+                if match:
+                    self._sequence_token = match.group(1)
+                    # Retry with the correct sequence token
+                    self._flush()
+            else:
+                import sys
+                print(f"Error writing to CloudWatch Logs: {e}", file=sys.stderr)
+                # Put the entries back in the batch
+                with self._batch_lock:
+                    self._batch = entries + self._batch
+
+    def flush(self) -> None:
+        """Flush all queued messages to CloudWatch Logs"""
+        self._flush()
 
     def close(self):
         """
