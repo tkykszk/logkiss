@@ -12,12 +12,6 @@ LOGKISS（Keep It Simple and Stupid Logger）は、Pythonのシンプルで使�
 - **標準ロギングモジュールの代替**: `import logkiss as logging`とすることで、標準の`logging`モジュールの代わりとして使用できます。
 - **柔軟な切り替え**: 必要に応じて、通常の`ConsoleHandler`に切り替えることができます。
 
-## 新機軸
-
-- どのloggerからどれぐらいの量が送られたか集計
-- logger単位で抑制するconfigを案内してもらう
-- handlerの共有
-- console UI
 
 ## 環境変数の設定
 
