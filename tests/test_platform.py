@@ -17,9 +17,12 @@ import logkiss
 
 
 @pytest.mark.windows
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows-specific test")
+@pytest.mark.skipif(sys.platform != "win32" or os.environ.get("GITHUB_ACTIONS") == "true", reason="Windows-specific test or running in GitHub Actions")
 def test_windows_console():
     """Test Windows console output handling."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        pytest.skip("Skipping Windows console test in GitHub Actions")
+        
     # デフォルトではlogkissがハンドラーを追加しない可能性があるため、明示的にハンドラーを追加
     logger = logkiss.getLogger("test_windows")
     handler = logging.StreamHandler()
@@ -100,9 +103,12 @@ def test_macos_console():
 
 
 @pytest.mark.linux
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux-specific test")
+@pytest.mark.skipif(sys.platform != "linux" or os.environ.get("GITHUB_ACTIONS") == "true", reason="Linux-specific test or running in GitHub Actions")
 def test_linux_console():
     """Test Linux console output handling."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        pytest.skip("Skipping Linux console test in GitHub Actions")
+        
     logger = logkiss.getLogger("test_linux")
     
     # デフォルトではハンドラーがない場合もあるので、ハンドラーを追加

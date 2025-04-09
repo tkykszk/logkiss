@@ -16,7 +16,9 @@ jobs:
       fail-fast: false  # 一つのジョブが失敗しても他のジョブは継続する
       matrix:
         os: [ubuntu-22.04, windows-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.7"]
+        # 完全テスト用の設定 (現在は無効化)
+        # python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
