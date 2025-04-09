@@ -2,10 +2,6 @@
 
 [![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
-![LOGKISS](docs/logkiss-logo-tiny.png)
-
-[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
-
 LOGKISS (Keep It Simple and Stupid Logger) is a user-friendly logging library for Python.
 Built on top of the standard logging module, it provides an interface with sensible defaults out of the box.
 
@@ -15,12 +11,6 @@ Built on top of the standard logging module, it provides an interface with sensi
 - **Drop-in Replacement**: Use it as a drop-in replacement for the standard `logging` module with `import logkiss as logging`.
 - **Flexible Switching**: Easily switch back to the standard `ConsoleHandler` when needed.
 
-## Innovations
-
-- Aggregate log volume statistics per logger
-- Guided configuration for logger-level suppression
-- Handler sharing capabilities
-- Console UI
 
 ## Installation
 
