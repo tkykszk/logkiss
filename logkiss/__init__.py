@@ -183,18 +183,17 @@ def getLogger(name: str = None) -> logging.Logger:
     return logger
 
 # ロガーの初期化関数
-def init_logging(replace_root=False, preserve_hierarchy=True, restore_original=False):
+def init_logging(replace_root=False, restore_original=False):
     """ロガーシステムを初期化します
     
     Args:
-        replace_root: Trueの場合、ルートロガーをKissLoggerで置き換えます
-        preserve_hierarchy: Trueの場合、既存のロガー階層を保持します
+        replace_root: Trueの場合、ルートロガーをKissLoggerで置き換えます（階層は自動的に保持）
         restore_original: Trueの場合、変更前の状態に戻します
     
     Returns:
         ルートロガー
     """
-    global _replace_root_logger, _root_logger_configured, root_logger, _original_root_state
+    global _replace_root_logger, _root_logger_configured, root_logger, _original_root_state  # pylint: disable=global-statement
     
     # 最初の呼び出し時にオリジナルの状態を保存
     if _original_root_state is None:
@@ -245,7 +244,7 @@ def init_logging(replace_root=False, preserve_hierarchy=True, restore_original=F
             old_root.removeHandler(handler)
             
         # KissConsoleHandlerを追加
-        kiss_handler = KissConsoleHandler()
+        kiss_handler = KissConsoleHandler()  # pylint: disable=redefined-outer-name
         old_root.addHandler(kiss_handler)
         old_root.setLevel(WARNING)
         
@@ -258,7 +257,7 @@ def init_logging(replace_root=False, preserve_hierarchy=True, restore_original=F
                 except (AttributeError, TypeError):
                     pass
         
-        # 既存のロガー階層は自動的に保持される（インプレース更新なので）
+        # 既存のロガー階層は自動的に保持される（インプレース更新のため）
         root_logger = old_root
     else:
         # 標準のルートロガーを使用
@@ -268,7 +267,7 @@ def init_logging(replace_root=False, preserve_hierarchy=True, restore_original=F
         if not _root_logger_configured:
             has_console_handler = any(isinstance(h, logging.StreamHandler) for h in root_logger.handlers)
             if not has_console_handler:
-                kiss_handler = KissConsoleHandler()
+                kiss_handler = KissConsoleHandler()  # pylint: disable=redefined-outer-name
                 root_logger.addHandler(kiss_handler)
             _root_logger_configured = True
     
