@@ -124,6 +124,7 @@ __all__ = [
 # グローバル設定
 _replace_root_logger = False  # デフォルトでは置き換えない
 _root_logger_configured = False
+_original_root_state = None  # 元のルートロガーの状態を保存
 
 # Register custom logger class
 logging.setLoggerClass(KissLogger)
@@ -182,44 +183,85 @@ def getLogger(name: str = None) -> logging.Logger:
     return logger
 
 # ロガーの初期化関数
-def init_logging(replace_root=False, preserve_hierarchy=True):
+def init_logging(replace_root=False, preserve_hierarchy=True, restore_original=False):
     """ロガーシステムを初期化します
     
     Args:
         replace_root: Trueの場合、ルートロガーをKissLoggerで置き換えます
         preserve_hierarchy: Trueの場合、既存のロガー階層を保持します
+        restore_original: Trueの場合、変更前の状態に戻します
     
     Returns:
         ルートロガー
     """
-    global _replace_root_logger, _root_logger_configured, root_logger
+    global _replace_root_logger, _root_logger_configured, root_logger, _original_root_state
+    
+    # 最初の呼び出し時にオリジナルの状態を保存
+    if _original_root_state is None:
+        # オリジナルの状態を辞書として保存
+        _original_root_state = {
+            'level': logging.root.level,
+            'handlers': logging.root.handlers[:],
+            'disabled': logging.root.disabled,
+            'propagate': logging.root.propagate,
+            'filters': logging.root.filters[:],
+            'class': logging.root.__class__
+        }
+    
+    if restore_original:
+        # オリジナルの状態に戻す
+        old_root = logging.root
+        
+        # ハンドラをクリア
+        for handler in old_root.handlers[:]:
+            old_root.removeHandler(handler)
+            
+        # 保存したハンドラーを復元
+        for handler in _original_root_state['handlers']:
+            old_root.addHandler(handler)
+            
+        # 基本属性を復元
+        old_root.level = _original_root_state['level']
+        old_root.disabled = _original_root_state['disabled']
+        old_root.propagate = _original_root_state['propagate']
+        
+        # ロガークラスを復元
+        logging.setLoggerClass(_original_root_state['class'])
+        
+        _replace_root_logger = False
+        root_logger = old_root
+        _root_logger_configured = False
+        
+        return root_logger
+    
     _replace_root_logger = replace_root
     
     if replace_root:
-        # ルートロガーをKissLoggerで置き換え
+        # インプレース更新方式（broken parent問題を解消）
         old_root = logging.root
-        logging.root = _kiss_root_logger
-        root_logger = _kiss_root_logger
         
-        # 既存のロガー階層を保持する場合は修復処理
-        if preserve_hierarchy:
-            # 既存のロガーを取得
-            existing_loggers = {}
-            for name, logger in old_root.manager.loggerDict.items():
-                if isinstance(logger, logging.Logger):
-                    existing_loggers[name] = logger
+        # ハンドラーを更新
+        for handler in old_root.handlers[:]:
+            old_root.removeHandler(handler)
             
-            # ロガーの親子関係を修復
-            for name, logger in existing_loggers.items():
-                if "." in name:
-                    parent_name = name.rsplit(".", 1)[0]
-                    parent = logging.getLogger(parent_name)
-                    logger.parent = parent
-                else:
-                    logger.parent = _kiss_root_logger
+        # KissConsoleHandlerを追加
+        kiss_handler = KissConsoleHandler()
+        old_root.addHandler(kiss_handler)
+        old_root.setLevel(WARNING)
+        
+        # KissLoggerの属性をルートロガーにコピーする
+        attrs_to_copy = ['findCaller', 'handle', 'makeRecord']
+        for attr in attrs_to_copy:
+            if hasattr(_kiss_root_logger, attr):
+                try:
+                    setattr(old_root, attr, getattr(_kiss_root_logger, attr))
+                except (AttributeError, TypeError):
+                    pass
+        
+        # 既存のロガー階層は自動的に保持される（インプレース更新なので）
+        root_logger = old_root
     else:
         # 標準のルートロガーを使用
-        logging.root = _original_root_logger
         root_logger = _original_root_logger
         
         # 標準ルートロガーにKissConsoleHandlerを追加するか判断
