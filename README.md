@@ -2,6 +2,10 @@
 
 [![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
+![LOGKISS](docs/logkiss-logo-tiny.png)
+
+[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
+
 LOGKISS (Keep It Simple and Stupid Logger) is a user-friendly logging library for Python.
 Built on top of the standard logging module, it provides an interface with sensible defaults out of the box.
 
@@ -26,6 +30,7 @@ pip install logkiss
 
 ## Usage
 
+
 LOGKISS provides three different ways to enhance your logging experience:
 
 ### 1. Colorful Console Logging
@@ -36,34 +41,50 @@ Use LOGKISS directly to get beautiful colored log output with minimal setup:
 import logkiss
 
 logger = logkiss.getLogger("example1")
-logger.info("Colorful output in your terminal")
+logger.warning("Colorful output in your terminal")
 ```
+![picture 0](images/1744211555459.png)  
 
-### 2. Drop-in Replacement Mode
 
-Use LOGKISS as a direct replacement for the standard logging module - ideal for existing projects:
+# 2. Using as a logging module replacement:
+
 
 ```python
 import logkiss as logging
 
-logger = logging.getLogger("example2")
-logger.warning("Colorful warnings without changing your code")
+logger2 = logging.getLogger("example2")
+logger2.warning("Also colorful warning")
+logger2.error("Also colorful error")
 ```
 
-### 3. Standard Output Mode
+![picture 1](images/1744211946693.png)  
 
-```python
-# 3. Switching to standard ConsoleHandler (e.g., for non-interactive environments):
+# 3. Using custom handler configuration:
+```
+import logging
 import logkiss
+```
 
-# Get a logger with colorful output (default behavior)
-logger3 = logkiss.getLogger("example3")
+# Get a logger with standard logging module
+```
+logger3 = logging.getLogger("example3")
+```
 
-# Switch to standard handler when color isn't needed (CI/CD or log parsing)
+# Clear existing handlers
+```
 logger3.handlers.clear()
-logger3.addHandler(logkiss.StreamHandler())  # Using standard handler from logkiss
+```
 
-logger3.error("Standard monochrome output, better for logs parsing")
+# Add logkiss custom handler
+```
+handler = logkiss.KissConsoleHandler()  # カラフルな出力用のハンドラー
+handler.setFormatter(logkiss.ColoredFormatter(use_color=True))
+logger3.addHandler(handler)
+```
+
+# Log with customized handler
+```
+logger3.error("Customized colorful output")
 ```
 
 ### Sample Output
