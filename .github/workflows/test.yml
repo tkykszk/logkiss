@@ -4,7 +4,7 @@ name: Test
 # 明示的にubuntu-22.04を指定しています
 on:
   push:
-    branches: [ "main", "newgcplogging" ]
+    branches: [ "main", "newgcplogging", "override2" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:  # 手動実行用のトリガーを追加
