@@ -16,14 +16,6 @@ import logkiss as logging
 
 # Configure logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # DEBUGレベル以上のログを表示
-logger.propagate = False  # ルートロガーへの伝播を無効化
-
-# ハンドラーがない場合は追加
-if not logger.handlers:
-    handler = logging.KissConsoleHandler()
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
 
 # Suppress matplotlib logs
 plt.set_loglevel('warning')

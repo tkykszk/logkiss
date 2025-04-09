@@ -1,6 +1,6 @@
 [project]
 name = "logkiss"
-version = "2.2.0"
+version = "2.2.1"
 description = "A Simple and Colorful Python Logging Library"
 authors = [
     {name = "Taka Suzuki", email = "tkykszk@gmail.com"}
@@ -8,7 +8,7 @@ authors = [
 dependencies = [
     "pyyaml>=6.0",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 readme = "README.md"
 license = {text = "MIT"}
 keywords = ["logging", "color", "console", "terminal"]
@@ -28,9 +28,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/logkiss"
-Repository = "https://github.com/yourusername/logkiss"
-Documentation = "https://github.com/yourusername/logkiss/blob/main/README.md"
+Homepage = "https://github.com/tkykszk/logkiss"
+Repository = "https://github.com/tkykszk/logkiss"
+Documentation = "https://github.com/tkykszk/logkiss/blob/main/README.md"
 
 [project.optional-dependencies]
 test = [

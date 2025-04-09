@@ -20,7 +20,7 @@ GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 
 # logkiss をインポート
 import logkiss
-from logkiss.handlers import GCPCloudLoggingHandler
+from logkiss.handler_gcp import GCloudLoggingHandler
 
 # ユニークなログ名を生成（テスト用）
 def generate_test_log_name():
@@ -38,7 +38,6 @@ def main():
     import time
     import logging
     from logkiss import getLogger
-    from logkiss.handlers import GCPCloudLoggingHandler
     
     # ログ名を設定
     log_name = generate_test_log_name()
@@ -59,13 +58,11 @@ def main():
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # GCPCloudLoggingHandler を追加
+    # GCloudLoggingHandler を追加
     try:
-        gcp_handler = GCPCloudLoggingHandler(
+        gcp_handler = GCloudLoggingHandler(
             project_id=GCP_PROJECT_ID,
             log_name=log_name,
-            batch_size=10,  # 小さいバッチサイズを設定（サンプル用）
-            flush_interval=2.0  # 短いフラッシュ間隔を設定（サンプル用）
         )
         logger.addHandler(gcp_handler)
         print("Google Cloud Logging ハンドラーを追加しました")
@@ -93,7 +90,10 @@ def main():
     except Exception as e:
         logger.error(f"エラーが発生しました: {str(e)}", extra={
             "error_type": type(e).__name__,
-            "timestamp": time.time()
+            "error_message": str(e),
+            "timestamp": time.time(),
+            "test_field": "これはテストフィールドです",
+            "numeric_value": 42
         })
     
     # バッチがフラッシュされるのを待つ
