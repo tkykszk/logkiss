@@ -1,0 +1,53 @@
+# カラフルな設定ファイル - 特徴的な色とスタイルを使用
+
+levels:
+  debug:
+    color: bright_magenta
+    style: bold
+  info:
+    color: bright_cyan
+    style: bold
+  warning:
+    color: bright_yellow
+    background: blue
+    style: bold
+  error:
+    color: white
+    background: bright_red
+    style: bold
+  critical:
+    color: bright_white
+    background: magenta
+    style: bold
+
+messages:
+  debug:
+    color: magenta
+    style: italic
+  info:
+    color: cyan
+    style: underline
+  warning:
+    color: yellow
+    style: blink
+  error:
+    color: red
+    style: strike
+  critical:
+    color: white
+    background: red
+    style: reverse
+
+elements:
+  timestamp:
+    color: bright_green
+    style: bold
+  filename:
+    color: bright_blue
+    style: underline
+  lineno:
+    color: yellow
+    style: bold
+  levelname:
+    color: bright_white
+    background: blue
