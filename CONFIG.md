@@ -1,16 +1,16 @@
 # LOGKISS Configuration Guide
 
-LOGKISSは、YAMLファイルを使用してログの色とスタイルをカスタマイズできます。この設定ファイルでは、ログレベル、メッセージ、およびその他の要素の色やスタイルを詳細に制御できます。
+LOGKISS allows you to customize log colors and styles using a YAML configuration file. This configuration file lets you control colors and styles for log levels, messages, and other elements in detail.
 
-## 設定ファイルの構造
+## Configuration File Structure
 
-設定ファイルは以下の3つの主要なセクションで構成されています：
+The configuration file consists of three main sections:
 
-1. `levels`: ログレベル名の色設定
-2. `messages`: ログメッセージの色設定
-3. `elements`: タイムスタンプやファイル名などの要素の色設定
+1. `levels`: Color settings for log level names
+2. `messages`: Color settings for log messages
+3. `elements`: Color settings for elements like timestamps and filenames
 
-### 基本構造
+### Basic Structure
 
 ```yaml
 levels:
@@ -55,11 +55,11 @@ elements:
     style: bold
 ```
 
-## 設定オプション
+## Configuration Options
 
-### ログレベルの表示
+### Log Level Display
 
-デフォルトでは、ログレベルは5文字に制限されています。そのため、以下のように表示されます：
+By default, log levels are limited to 5 characters, so they are displayed as follows:
 
 - DEBUG → DEBUG
 - INFO → INFO
@@ -67,11 +67,11 @@ elements:
 - ERROR → ERROR
 - CRITICAL → CRITI
 
-この文字数制限は、ログの整形を美しく保つためのものです。文字数制限を変更したい場合は、カスタムフォーマッターを使用してください。
+This character limit is intended to keep log formatting clean. If you want to change the character limit, use a custom formatter.
 
-### 利用可能な色
+### Available Colors
 
-#### 前景色（文字色）
+#### Foreground Colors (Text)
 - black
 - red
 - green
@@ -89,7 +89,7 @@ elements:
 - bright_cyan
 - bright_white
 
-#### 背景色
+#### Background Colors
 - black
 - red
 - green
@@ -107,19 +107,19 @@ elements:
 - bright_cyan
 - bright_white
 
-### スタイル
-- bold: 太字
-- dim: 暗い
-- italic: イタリック
-- underline: 下線
-- blink: 点滅
-- reverse: 反転
-- hidden: 非表示
-- strike: 取り消し線
+### Styles
+- bold: Bold text
+- dim: Dimmed text
+- italic: Italic text
+- underline: Underlined text
+- blink: Blinking text
+- reverse: Reversed colors
+- hidden: Hidden text
+- strike: Strikethrough text
 
-## 設定の使用方法
+## How to Use Configuration
 
-1. 設定ファイルの作成:
+1. Create a configuration file:
 ```python
 # logkiss.yaml
 levels:
@@ -132,7 +132,7 @@ levels:
     background: black
 ```
 
-2. ロガーの初期化時に設定ファイルを指定:
+2. Specify the configuration file when initializing the logger:
 ```python
 import logkiss
 from pathlib import Path
@@ -141,9 +141,9 @@ config_path = Path('logkiss.yaml')
 logger = logkiss.getLogger(__name__, color_config=config_path)
 ```
 
-## デフォルト設定
+## Default Configuration
 
-設定ファイルを指定しない場合、以下のデフォルト設定が使用されます：
+If you don't specify a configuration file, the following default configuration is used:
 
 ```yaml
 levels:
@@ -166,20 +166,20 @@ levels:
     style: bold
 ```
 
-## 環境変数
+## Environment Variables
 
-ログの色付けは以下の環境変数で制御できます：
+Log coloring can be controlled using the following environment variables:
 
-- `LOGKISS_DISABLE_COLOR`: 色付けを無効にする（値: 1, true, yes）
-- `NO_COLOR`: 業界標準で色付けを無効にする（値: 任意）
-- `LOGKISS_LEVEL_FORMAT`: ログレベル名の表示長を指定する（値: 数値、デフォルト: 5）
-  - 例: `LOGKISS_LEVEL_FORMAT=5` とすると、全てのログレベル名が5文字に調整されます
-  - WARNINGは特別に「WARN」に短縮されます
-  - 指定した長さより長いレベル名は切り詰められ、短いレベル名は空白で埋められます
+- `LOGKISS_DISABLE_COLOR`: Disable coloring (values: 1, true, yes)
+- `NO_COLOR`: Industry standard for disabling colors (any value)
+- `LOGKISS_LEVEL_FORMAT`: Specify the display length of log level names (value: number, default: 5)
+  - Example: `LOGKISS_LEVEL_FORMAT=5` adjusts all log level names to 5 characters
+  - WARNING is specially shortened to "WARN"
+  - Level names longer than the specified length are truncated, and shorter names are padded with spaces
 
-## 注意事項
+## Notes
 
-1. 設定ファイルの読み込みに失敗した場合は、デフォルト設定が使用されます
-2. 未定義の色やスタイルは無視されます
-3. 各セクション（levels, messages, elements）は独立して設定可能です
-4. 特定のログレベルや要素の設定を省略した場合、その部分はデフォルト設定が使用されます
+1. If the configuration file fails to load, default settings will be used
+2. Undefined colors or styles are ignored
+3. Each section (levels, messages, elements) can be configured independently
+4. If settings for specific log levels or elements are omitted, default settings will be used for those parts

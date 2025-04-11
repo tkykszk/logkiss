@@ -1,0 +1,46 @@
+# 反転表示されたレベル名を使用するLOGKISS設定
+# すべてのログレベル名が反転色で表示されます
+
+levels:
+  debug:
+    color: cyan
+    background: black
+    style: reverse  # 反転表示により、背景がcyan、文字がblackになる
+  info:
+    color: bright_white
+    background: blue
+    style: reverse  # 反転表示により、背景がbright_white、文字がblueになる
+  warning:
+    color: black
+    background: yellow
+    style: reverse  # 反転表示により、背景がblack、文字がyellowになる
+  error:
+    color: white
+    background: red
+    style: reverse  # 反転表示により、背景がwhite、文字がredになる
+  critical:
+    color: black
+    background: bright_magenta
+    style: reverse  # 反転表示により、背景がblack、文字がbright_magentaになる
+
+# メッセージとレベル名で対照的な配色にする
+messages:
+  debug:
+    color: cyan
+  info: 
+    color: blue
+  warning:
+    color: yellow
+  error:
+    color: red
+  critical:
+    color: bright_magenta
+
+elements:
+  timestamp:
+    color: bright_green
+  filename:
+    color: bright_blue
+    style: underline
+  lineno:
+    color: white

@@ -1,0 +1,24 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+
+mkdocs:
+  configuration: mkdocs.yml
+
+python:
+  install:
+    - method: pip
+      path: .
+    - requirements: docs/requirements.txt
+
+# 言語設定を追加
+search:
+  ranking:
+    api/handlers: 3
+    api/logkiss: 2
+    index: 10
+    usage: 8
+    installation: 9

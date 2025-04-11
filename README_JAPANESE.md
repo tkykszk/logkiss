@@ -1,42 +1,15 @@
 ![LOGKISS](docs/logkiss-logo-tiny.png)
 
-[![LOGKISS](https://img.shields.io/badge/LOGKISS-Keep%20It%20Simple%20and%20Stupid%20Logger-blue.svg)](https://github.com/takatosh/logkiss)
+[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
-(README_JAPANEASE.mdのみ日本語です。english versionis in README.md)
-LOGKISS（Keep It Simple and Stupid Logger）は、Pythonのシンプルで使いやすいロギングライブラリです。
-標準のloggingモジュールをベースに、設定をデフォルトでやってくれるインターフェースを提供します。
+LOGKISS (Keep It Simple and Stupid Logger) は、Python向けの使いやすいロギングライブラリです。
+標準のloggingモジュールをベースに、すぐに使えるセンスのあるデフォルト設定のインターフェースを提供します。
 
 ## 特徴
 
 - **デフォルトでカラフル**: LOGKISSは、デフォルトで`KissConsoleHandler`を使用し、ログレベルに応じて異なる色で出力します。
 - **標準ロギングモジュールの代替**: `import logkiss as logging`とすることで、標準の`logging`モジュールの代わりとして使用できます。
 - **柔軟な切り替え**: 必要に応じて、通常の`ConsoleHandler`に切り替えることができます。
-
-
-## 環境変数の設定
-
-LOGKISSは、クラウドサービス（GCP、AWS）への接続設定などを環境変数から読み込むことができます。以下の手順で設定してください：
-
-1. リポジトリのルートディレクトリに `.env` ファイルを作成します（`.env.example` をコピーして使用できます）
-2. 必要な環境変数を設定します
-
-### Google Cloud Platform (GCP) の設定例
-
-```
-# Google Cloud 設定
-GCP_PROJECT_ID=your-project-id
-GCP_LOG_NAME=test-log
-```
-
-### AWS の設定例
-
-```
-# AWS 設定
-AWS_REGION=us-east-1
-AWS_LOG_GROUP_NAME=your-log-group
-```
-
-注意: `.env` ファイルは `.env.example` を参考に設定してください。
 
 ## インストール
 
@@ -46,33 +19,71 @@ pip install logkiss
 
 ## 使用例
 
+LOGKISSには、ロギング体験を向上させる3つの異なる方法があります：
+
+### 1. カラフルなコンソールロギング
+
+最小限の設定で美しいカラー出力を得るために、LOGKISSを直接使用します：
+
 ```python
-# 1. デフォルトでKissConsoleHandlerを使用:
 import logkiss
 
-logger1 = logkiss.getLogger("example1")
-logger1.info("カラフルな出力")
+logger = logkiss.getLogger("example1")
+logger.warning("ターミナルにカラフルな出力")
+```
+![picture 0](images/1744211555459.png)  
 
-# 2. loggingモジュールの代替として使用:
+### 2. loggingモジュールの代替として使用
+
+```python
 import logkiss as logging
 
 logger2 = logging.getLogger("example2")
-logger2.warning("これもカラフルな出力")
-
-# 3. 通常のConsoleHandlerに切り替え:
-import logging
-
-logger3 = logging.getLogger("example3")
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter(
-    fmt='%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-))
-logger3.addHandler(handler)
-logger3.error("通常の白黒出力")
+logger2.warning("カラフルな警告メッセージ")
+logger2.error("カラフルなエラーメッセージ")
 ```
 
+![picture 1](images/1744211946693.png)  
 
+### 3. カスタムハンドラー設定の使用
+
+```python
+import logging
+import logkiss
+
+# 標準のloggingモジュールでロガーを取得
+logger3 = logging.getLogger("example3")
+
+# 既存のハンドラーをクリア
+logger3.handlers.clear()
+
+# logkissのカスタムハンドラーを追加
+handler = logkiss.KissConsoleHandler()  # カラフルな出力用のハンドラー
+handler.setFormatter(logkiss.ColoredFormatter(use_color=True))
+logger3.addHandler(handler)
+
+# カスタマイズされたハンドラーでログ出力
+logger3.error("カスタマイズされたカラフル出力")
+```
+
+### サンプル出力
+
+上記のコードを実行すると、以下のような出力が表示されます：
+
+```text
+# logger1.info()からの出力：
+2025-04-08 12:27:43,215 INFO  | example.py:5   | カラフルな出力
+
+# logger2.warning()からの出力：
+2025-04-08 12:27:43,219 WARN  | example.py:11  | これもカラフルな出力
+
+# logger3.error()からの出力：
+2025-04-08 12:27:43,224,123 ERROR | example.py:21 | 標準の白黒出力
+```
+
+最初の2つのログメッセージはターミナルでカラーフォーマットで表示され、3つ目のメッセージは色なしの標準ロギング形式を使用します。
+
+![logkiss-terminal-demo](docs/logkiss-terminal-demo.png)
 
 ## 環境変数
 
@@ -93,27 +104,40 @@ export LOGKISS_DEBUG=1
 python your_script.py
 ```
 
+## モジュールとライブラリの振る舞い
 
+LogkissはPythonのロギングシステムの動作を変更します。これには認識しておくべきいくつかの影響があります：
 
+### モジュールの相互作用
 
-### Q. 色の設定はどごて変更する?
+- モジュールでlogkissをインポートすると、Python処理全体のグローバルなロギング設定に影響します
+- モジュールAでlogkissをインポートし、モジュールBで標準のloggingをインポートすると、モジュールBのロギングもlogkissのカラフル出力を使用します
+- 特定のロガーを標準の動作に戻すには、`logkiss.use_console_handler(logger)`を使用します
 
+### サードパーティライブラリとの互換性
 
-### Q. レベル名を国際化したい
+- 標準のloggingモジュールを使用するほとんどのPythonライブラリは、自動的にlogkissのカラフル出力の恩恵を受けます
+- ただし、カスタムハンドラーやフォーマッターを定義するライブラリ（matplotlibなど）はカラー出力を表示しない場合があります
+- ログをリダイレクトしたり、高度なロギング設定を使用するライブラリでは結果が異なる場合があります
 
+### ベストプラクティス
 
-### Q. ログが出ない時デバッグしたい
-
-案: ログトレースモード  checklogger(logger, logger.debug)  とかで調べられるようにする
-
-### Q. スタックトレースからソースコードを開きたい
-
-
+- シンプルなアプリケーションでは、エントリーポイントでlogkissをインポートすることで、アプリケーション全体のログに色が付きます
+- より複雑なアプリケーションでは、どのロガーがカラフル出力を使用するかをより選択的にしたい場合があります
+- 特定のモジュールに特定のフォーマットを維持する必要がある場合は、`logkiss.use_console_handler()`を選択的に使用します
 
 ## 設定
 
-詳細な設定方法については、[CONFIG.md](CONFIG.md)を参照してください。
+詳細な設定方法については、[CONFIG.md](CONFIG.md)を参照してください。詳細な日本語の設定ガイドは[config_JAPANESE.md](config_JAPANESE.md)でも提供しています。
+
+## 謝辞
+
+logkissの出力形式は[deigan / loguru](https://github.com/Delgan/loguru)にインスパイアされています。
 
 ## ライセンス
 
 このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
+
+## 他の言語
+
+- [English](README.md)
