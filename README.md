@@ -104,7 +104,7 @@ LOGKISS can be configured using the following environment variables:
   - Root logger's level is set to `DEBUG` instead of `INFO`
   - More detailed logging information is displayed
 - `LOGKISS_DISABLE_COLOR`: Disable colored output by setting to `1`, `true`, or `yes`
-- `NO_COLOR`: Industry standard environment variable to disable colors (any value)
+- `NO_COLOR`: variable to disable colors (any value)
 
 Example:
 
@@ -136,7 +136,6 @@ Logkiss modifies the behavior of the Python logging system. This has some implic
 
 - In simple applications, importing logkiss at the entry point will colorize logs throughout the application
 - For more complex applications, you may want to be more selective about which loggers use colorful output
-- If you need to maintain specific formatting for certain modules, use `logkiss.use_console_handler()` selectively
 
 ## Configuration
 

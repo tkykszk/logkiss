@@ -3,7 +3,7 @@
 [![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
 LOGKISS (Keep It Simple and Stupid Logger) は、Python向けの使いやすいロギングライブラリです。
-標準のloggingモジュールをベースに、すぐに使えるセンスのあるデフォルト設定のインターフェースを提供します。
+標準のloggingモジュールを活かしつつ、デフォルト設定をすることにより毎回設定を書くことなく使用できます。
 
 ## 特徴
 
@@ -129,7 +129,7 @@ python your_script.py
 
 ## モジュールとライブラリの振る舞い
 
-LogkissはPythonのロギングシステムの動作を変更します。これには認識しておくべきいくつかの影響があります：
+LogkissはPythonの標準のloggingの動作を変更します。これには認識しておくべきいくつかの影響があります：
 
 ### モジュールの相互作用
 
@@ -140,14 +140,13 @@ LogkissはPythonのロギングシステムの動作を変更します。これ�
 ### サードパーティライブラリとの互換性
 
 - 標準のloggingモジュールを使用するほとんどのPythonライブラリは、自動的にlogkissのカラフル出力の恩恵を受けます
-- ただし、カスタムハンドラーやフォーマッターを定義するライブラリ（matplotlibなど）はカラー出力を表示しない場合があります
+- ただし、カスタムハンドラーやフォーマッターを定義するライブラリはカラー出力を表示しない場合があります
 - ログをリダイレクトしたり、高度なロギング設定を使用するライブラリでは結果が異なる場合があります
 
 ### ベストプラクティス
 
 - シンプルなアプリケーションでは、エントリーポイントでlogkissをインポートすることで、アプリケーション全体のログに色が付きます
 - より複雑なアプリケーションでは、どのロガーがカラフル出力を使用するかをより選択的にしたい場合があります
-- 特定のモジュールに特定のフォーマットを維持する必要がある場合は、`logkiss.use_console_handler()`を選択的に使用します
 
 ## 設定
 
