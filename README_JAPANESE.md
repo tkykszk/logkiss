@@ -31,7 +31,11 @@ import logkiss
 logger = logkiss.getLogger("example1")
 logger.warning("ターミナルにカラフルな出力")
 ```
-![picture 0](images/1744211555459.png)  
+
+出力結果：
+```
+2025-04-12 08:06:23,215 WARN  | example.py:4   | ターミナルにカラフルな出力
+```
 
 ### 2. loggingモジュールの代替として使用
 
@@ -41,6 +45,12 @@ import logkiss as logging
 logger2 = logging.getLogger("example2")
 logger2.warning("カラフルな警告メッセージ")
 logger2.error("カラフルなエラーメッセージ")
+```
+
+出力結果：
+```
+2025-04-12 08:06:45,117 WARN  | example.py:4   | カラフルな警告メッセージ
+2025-04-12 08:06:45,119 ERROR | example.py:5   | カラフルなエラーメッセージ
 ```
 
 ![picture 1](images/1744211946693.png)  
@@ -64,6 +74,11 @@ logger3.addHandler(handler)
 
 # カスタマイズされたハンドラーでログ出力
 logger3.error("カスタマイズされたカラフル出力")
+```
+
+出力結果：
+```
+2025-04-12 08:07:12,215 ERROR | example.py:15  | カスタマイズされたカラフル出力
 ```
 
 ### サンプル出力
@@ -102,6 +117,14 @@ export LOGKISS_DEBUG=1
 
 # Pythonスクリプトを実行
 python your_script.py
+```
+
+出力結果例：
+```
+# LOGKISS_DEBUG=1が設定されていると、ルートロガーがDEBUGレベルに設定される
+2025-04-12 08:08:22,215 DEBUG | example.py:3   | デバッグメッセージ
+2025-04-12 08:08:22,217 INFO  | example.py:4   | 情報メッセージ
+2025-04-12 08:08:22,219 WARN  | example.py:5   | 警告メッセージ
 ```
 
 ## モジュールとライブラリの振る舞い

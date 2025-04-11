@@ -1,6 +1,6 @@
 [project]
 name = "logkiss"
-version = "2.2.1"
+version = "2.2.2"
 description = "A Simple and Colorful Python Logging Library"
 authors = [
     {name = "Taka Suzuki", email = "tkykszk@gmail.com"}
