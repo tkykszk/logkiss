@@ -21,6 +21,9 @@
 # 基本的なサンプル用
 pip install logkiss
 
+# githubからインストールする方法
+pip install 'git+https://github.com/tkykszk/logkiss.git'
+
 # クラウドロギングのサンプル用
 pip install 'logkiss[cloud]'
 ```
