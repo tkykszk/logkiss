@@ -12,6 +12,7 @@ import io
 import sys
 import logkiss as logging
 
+
 def capture_output():
     """Capture the output to a string buffer"""
     output = io.StringIO()
@@ -23,10 +24,12 @@ def capture_output():
             handler.stream = output
     return output
 
+
 def restore_output(output):
     """Restore the output and get the captured content"""
     sys.stderr = sys.__stderr__
     return output.getvalue()
+
 
 def reset_logger():
     """Reset the logger to its default state"""
@@ -37,6 +40,7 @@ def reset_logger():
     handler = logging.KissConsoleHandler()
     handler.setLevel(logging.DEBUG)  # Set handler level to DEBUG
     logger.addHandler(handler)
+
 
 def test_simplest():
     """Test simplest.py"""
@@ -51,7 +55,7 @@ def test_simplest():
     logging.critical("Critical message")
 
     result = restore_output(output)
-    lines = [line for line in result.split('\n') if line]
+    lines = [line for line in result.split("\n") if line]
 
     # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
@@ -60,6 +64,7 @@ def test_simplest():
     assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
     assert "CRITI" in lines[4]
+
 
 def test_simple():
     """Test simple.py"""
@@ -70,14 +75,14 @@ def test_simple():
     logger = logging.getLogger()
 
     # Output logs
-    logger.debug("Debug message")
-    logger.info("Info message")
-    logger.warning("Warning message")
-    logger.error("Error message")
-    logger.critical("Critical message")
+    logging.getLogger().debug("Debug message")
+    logging.getLogger().info("Info message")
+    logging.getLogger().warning("Warning message")
+    logging.getLogger().error("Error message")
+    logging.getLogger().critical("Critical message")
 
     result = restore_output(output)
-    lines = [line for line in result.split('\n') if line]
+    lines = [line for line in result.split("\n") if line]
 
     # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
@@ -86,6 +91,7 @@ def test_simple():
     assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
     assert "CRITI" in lines[4]
+
 
 def test_simple_config():
     """Test simple_config.py"""
@@ -99,14 +105,14 @@ def test_simple_config():
         handler.setLevel(logging.DEBUG)
 
     # Output logs
-    logger.debug("Debug message")
-    logger.info("Info message")
-    logger.warning("Warning message")
-    logger.error("Error message")
-    logger.critical("Critical message")
+    logging.getLogger().debug("Debug message")
+    logging.getLogger().info("Info message")
+    logging.getLogger().warning("Warning message")
+    logging.getLogger().error("Error message")
+    logging.getLogger().critical("Critical message")
 
     result = restore_output(output)
-    lines = [line for line in result.split('\n') if line]
+    lines = [line for line in result.split("\n") if line]
 
     # Verify all 5 levels are output
     assert len(lines) == 5, f"Expected 5 lines, got {len(lines)}"
@@ -115,6 +121,7 @@ def test_simple_config():
     assert "WARN" in lines[2]
     assert "ERROR" in lines[3]
     assert "CRITI" in lines[4]
+
 
 def test_simple_config_2():
     """Test simple_config_2.py"""
@@ -126,14 +133,14 @@ def test_simple_config_2():
     logger.setLevel(logging.ERROR)
 
     # Output logs
-    logger.debug("Debug message")
-    logger.info("Info message")
-    logger.warning("Warning message")
-    logger.error("Error message")
-    logger.critical("Critical message")
+    logging.getLogger().debug("Debug message")
+    logging.getLogger().info("Info message")
+    logging.getLogger().warning("Warning message")
+    logging.getLogger().error("Error message")
+    logging.getLogger().critical("Critical message")
 
     result = restore_output(output)
-    lines = [line for line in result.split('\n') if line]
+    lines = [line for line in result.split("\n") if line]
 
     # Verify only ERROR and CRITICAL are output
     assert len(lines) == 2, f"Expected 2 lines, got {len(lines)}"

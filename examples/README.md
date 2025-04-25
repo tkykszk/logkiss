@@ -2,6 +2,10 @@
 
 This directory contains sample code demonstrating how to use Python's logging module in combination with logkiss.
 
+## ⚠️ This is an Alpha Release
+
+This package is currently in alpha. Interfaces and behaviors may change without notice. Use at your own risk.
+
 ## Sample List
 
 ### console_handler_example.py
@@ -14,6 +18,15 @@ A sample demonstrating how to output logs to the console by combining the standa
 - Outputting structured logs
 - Outputting nested structured logs
 - Example of using the root logger
+
+**How to Install**:
+
+```bash
+# install from github
+pip install 'git+https://github.com/tkykszk/logkiss.git'
+
+```
+
 
 **How to Run**:
 ```bash

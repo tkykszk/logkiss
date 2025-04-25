@@ -7,8 +7,8 @@ application that already uses the standard logging module.
 
 # First, setup standard logging as it would be in an existing application
 import logging
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 std_logger = logging.getLogger("std_app")
 
 # Log some messages with standard logger
@@ -16,6 +16,7 @@ std_logger.warning("Standard logger: This is a standard warning")
 
 # Now integrate logkiss
 import logkiss  # 正しくlogkissをインポート
+
 logkiss_logger = logkiss.getLogger("logkiss_app")  # logkissからロガーを取得
 print(f"---- logkiss_logger.propagate = {logkiss_logger.propagate}")
 
@@ -38,4 +39,5 @@ except Exception as e:
 print("\nCheck the console output above to see the log messages from both logging systems!")
 
 import logging_tree
-logging_tree.printout() 
+
+logging_tree.printout()

@@ -15,6 +15,7 @@ import logging as std_logging
 import os
 from typing import Dict, Any, Optional, Union
 
+
 # Flag to track if Google Cloud Logging is available
 def _check_gcp_available():
     """Google Cloud Loggingが利用可能か確認する関数"""
@@ -22,6 +23,7 @@ def _check_gcp_available():
         # これらのインポートは実際に使用していないが、可用性チェックに必要
         import google.cloud.logging  # noqa: F401
         import google.cloud.logging_v2.handlers  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -74,9 +76,7 @@ class GCloudLoggingHandler(std_logging.Handler):
             from google.cloud.logging_v2.handlers import CloudLoggingHandler
         except ImportError as exc:
             raise ImportError(
-                "Google Cloud Logging is not available. "
-                "Please install the required dependencies using: "
-                "pip install google-cloud-logging"
+                "Google Cloud Logging is not available. " "Please install the required dependencies using: " "pip install google-cloud-logging"
             ) from exc
 
         super().__init__()
@@ -96,7 +96,7 @@ class GCloudLoggingHandler(std_logging.Handler):
         self.excluded_loggers = excluded_loggers or []
 
         # Formatter for the handler - 標準のloggingを使用
-        formatter = std_logging.Formatter('%(message)s')
+        formatter = std_logging.Formatter("%(message)s")
         self.setFormatter(formatter)
 
     def emit(self, record: std_logging.LogRecord) -> None:
@@ -150,10 +150,12 @@ class GCloudLoggingHandler(std_logging.Handler):
         except (ValueError, TypeError) as err:
             # 値の型エラーなど、よくある例外を具体的に捕捉
             import sys
+
             print(f"Error in GCloudLoggingHandler.emit (value/type error): {err}", file=sys.stderr)
         except Exception as err:  # pylint: disable=broad-excep
             # ここでは幅広い例外をキャッチする必要がある（ロギングは常に動作すべき）
             import sys
+
             print(f"Error in GCloudLoggingHandler.emit: {err}", file=sys.stderr)
 
     def close(self) -> None:
@@ -163,6 +165,7 @@ class GCloudLoggingHandler(std_logging.Handler):
         except Exception as err:  # pylint: disable=broad-excep
             # closeメソッドは常に成功すべきなので、幅広い例外をキャッチ
             import sys
+
             print(f"Error closing GCloudLoggingHandler: {err}", file=sys.stderr)
         finally:
             super().close()

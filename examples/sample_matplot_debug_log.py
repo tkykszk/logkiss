@@ -18,9 +18,10 @@ import logkiss as logging
 logger = logging.getLogger(__name__)
 
 # Suppress matplotlib logs
-plt.set_loglevel('warning')
+plt.set_loglevel("warning")
 
 logger.error("Suppressing matplotlib debug logs")
+
 
 def generate_sample_data():
     """Generate sample data"""
@@ -30,39 +31,41 @@ def generate_sample_data():
     logger.debug(f"Number of data points: {len(x)}")
     return x, y
 
+
 def create_plot():
     """Create plot"""
     logger.info("Creating plot...")
-    
+
     try:
         # Generate data
         x, y = generate_sample_data()
-        
+
         # Create plot
         plt.figure(figsize=(10, 6))
-        plt.plot(x, y, label='sin(x)')
-        plt.title('Sample Plot')
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.plot(x, y, label="sin(x)")
+        plt.title("Sample Plot")
+        plt.xlabel("x")
+        plt.ylabel("y")
         plt.grid(True)
         plt.legend()
-        
+
         # Save plot
-        output_file = 'sample_plot.png'
+        output_file = "sample_plot.png"
         plt.savefig(output_file)
         logger.debug(f"Plot saved to: {output_file}")
-        
+
         # Clean up
         plt.close()
-        
+
     except Exception as e:
         logger.error(f"Error occurred while creating plot: {e}")
         raise
 
+
 def main():
     """Main function"""
     logger.debug("Starting matplotlib example")
-    
+
     try:
         create_plot()
         logger.debug("Example completed successfully")
@@ -70,5 +73,6 @@ def main():
         logger.critical(f"Unexpected error occurred: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

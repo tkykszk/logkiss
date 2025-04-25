@@ -18,12 +18,10 @@ for handler in logger.handlers[:]:
 
 # Add standard StreamHandler
 console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setFormatter(logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-))
+console_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 logger.addHandler(console_handler)
 
 # Test log output
-logger.warning('This will be output in standard format')
-logger.info('Information message')
-logger.error('Error message')
+logger.warning("This will be output in standard format")
+logger.info("Information message")
+logger.error("Error message")

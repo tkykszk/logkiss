@@ -53,14 +53,17 @@ kiss_logger.error("エラーメッセージ")
 kiss_logger.critical("重大なエラーメッセージ")
 
 print("\n3. logkissの拡張機能:")
+
+
 # ファイル名フィルターの使用
 class FilenameFilter(logging.Filter):
     def __init__(self, filename):
         self.filename = filename
-    
+
     def filter(self, record):
         record.filename = self.filename
         return True
+
 
 # 異なるファイル名でログ出力
 kiss_logger = logging.getLogger("logkiss")

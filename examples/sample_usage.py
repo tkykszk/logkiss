@@ -40,10 +40,9 @@ logger3 = std_logging.getLogger("example3")
 for handler in logger3.handlers[:]:
     logger3.removeHandler(handler)
 handler = std_logging.StreamHandler()
-handler.setFormatter(std_logging.Formatter(
-    fmt='%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-))
+handler.setFormatter(
+    std_logging.Formatter(fmt="%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+)
 logger3.addHandler(handler)
 logger3.propagate = False
 logger3.error("通常の白黒出力")

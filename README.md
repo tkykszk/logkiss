@@ -1,6 +1,6 @@
-![LOGKISS](docs/logkiss-logo-tiny.png)
+![LOGKISS](https://raw.githubusercontent.com/tkykszk/logkiss/main/docs/logkiss-logo-tiny.png)
 
-[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
+[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
 LOGKISS (Keep It Simple and Stupid Logger) is a user-friendly logging library for Python.
 Built on top of the standard logging module, it provides an interface with sensible defaults out of the box.
@@ -20,6 +20,23 @@ pip install logkiss
 
 ## Usage
 
+### Minimal Example (Standard logging & logkiss compatibility)
+
+```python
+# examples/minimal_warning.py
+import logging
+logging.warning("Minimal example for beginners")
+```
+
+The same code works with logkiss:
+
+```python
+# examples/minimal_warning.py
+import logkiss as logging
+logging.warning("Minimal example for beginners")
+```
+
+
 
 LOGKISS provides three different ways to enhance your logging experience:
 
@@ -28,36 +45,53 @@ LOGKISS provides three different ways to enhance your logging experience:
 Use LOGKISS directly to get beautiful colored log output with minimal setup:
 
 ```python
+# examples/quickstart_1.py
 import logkiss
 
 logger = logkiss.getLogger("example1")
-logger.warning("Colorful output in your terminal")
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical error message")
 ```
-![picture 0](images/1744211555459.png)  
+![picture 0](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211555459.png)  
 
 
 # 2. Using as a logging module replacement:
 
 
 ```python
+# examples/quickstart_2.py
 import logkiss as logging
 
 logger2 = logging.getLogger("example2")
-logger2.warning("Also colorful warning")
-logger2.error("Also colorful error")
+logger2.debug("Debug message")
+logger2.info("Info message")
+logger2.warning("Warning message")
+logger2.error("Error message")
+logger2.critical("Critical error message")
 ```
 
-![picture 1](images/1744211946693.png)  
+![picture 1](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211946693.png)  
 
 # 3. Using custom handler configuration:
-```
+```python
+# examples/quickstart_3.py
 import logging
 import logkiss
 ```
 
 # Get a logger with standard logging module
-```
+```python
+# examples/quickstart_3.py
 logger3 = logging.getLogger("example3")
+logger3.setLevel(logging.DEBUG)
+logger3.debug("Debug message")
+logger3.info("Info message")
+logger3.warning("Warning message")
+logger3.error("Error message")
+logger3.critical("Critical error message")
 ```
 
 # Clear existing handlers
@@ -94,7 +128,7 @@ When you run the above code, you will see output similar to the following:
 
 The first two log messages will be displayed with color formatting in your terminal, while the third message will use the standard logging format without colors.
 
-![logkiss-terminal-demo](docs/logkiss-terminal-demo.png)
+![logkiss-terminal-demo](https://raw.githubusercontent.com/tkykszk/logkiss/main/docs/logkiss-terminal-demo.png)
 
 ## Environment Variables
 

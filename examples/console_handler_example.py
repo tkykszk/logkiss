@@ -33,31 +33,16 @@ logger.error("これはエラーメッセージです")
 logger.critical("これは重大なエラーメッセージです")
 
 # 構造化ログの出力
-logger.info("構造化ログの例", extra={
-    "user_id": 12345,
-    "action": "login",
-    "status": "success",
-    "ip_address": "192.168.1.1"
-})
+logger.info("構造化ログの例", extra={"user_id": 12345, "action": "login", "status": "success", "ip_address": "192.168.1.1"})
 
 # ネストされた構造化ログの出力
-logger.warning("複雑な構造化ログの例", extra={
-    "request": {
-        "method": "POST",
-        "path": "/api/users",
-        "headers": {
-            "content-type": "application/json",
-            "user-agent": "Mozilla/5.0"
-        }
+logger.warning(
+    "複雑な構造化ログの例",
+    extra={
+        "request": {"method": "POST", "path": "/api/users", "headers": {"content-type": "application/json", "user-agent": "Mozilla/5.0"}},
+        "response": {"status_code": 400, "body": {"error": "Invalid input", "details": ["Username is required", "Email is invalid"]}},
     },
-    "response": {
-        "status_code": 400,
-        "body": {
-            "error": "Invalid input",
-            "details": ["Username is required", "Email is invalid"]
-        }
-    }
-})
+)
 
 print("\n--- ルートロガーを使用する例 ---")
 

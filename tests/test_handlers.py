@@ -13,6 +13,7 @@ The following handlers are tested:
 
 import sys
 from unittest.mock import MagicMock, patch
+
 # 標準のloggingをstd_loggingとしてインポートしてhandler_gcp.pyと合わせる
 import logging as std_logging
 
@@ -38,18 +39,21 @@ def mock_google_client():
     mock_logger = MagicMock()
     mock_client.logger.return_value = mock_logger
     mock_client.project = "mock-project"
-    
+
     # google.cloudモジュール全体をモック
-    with patch.dict('sys.modules', {
-        'google': MagicMock(),
-        'google.cloud': MagicMock(),
-        'google.cloud.logging': MagicMock(),
-        'google.cloud.logging_v2': MagicMock(),
-        'google.cloud.logging_v2.handlers': MagicMock(),
-    }):
+    with patch.dict(
+        "sys.modules",
+        {
+            "google": MagicMock(),
+            "google.cloud": MagicMock(),
+            "google.cloud.logging": MagicMock(),
+            "google.cloud.logging_v2": MagicMock(),
+            "google.cloud.logging_v2.handlers": MagicMock(),
+        },
+    ):
         # モッククライアントを設定
-        sys.modules['google.cloud.logging'].Client = MagicMock(return_value=mock_client)
-        
+        sys.modules["google.cloud.logging"].Client = MagicMock(return_value=mock_client)
+
         yield mock_client
 
 
@@ -69,7 +73,7 @@ class TestGCloudLoggingHandler:
         """外部のgcloud環境から初期化するテスト"""
         success_logged = False
         error_logged = False
-    
+
         try:
             # 引数なしで初期化（gcloud環境から情報を取得）
             print("DEBUG: Creating handler without args")
@@ -80,25 +84,22 @@ class TestGCloudLoggingHandler:
             # フィクスチャでは成功していることにする
             # 実際のモック呼び出しはクラスの実装に依存しすぎたぎるので、ここでは単純にテスト
             # ハンドラーが正しく作成されれば成功とみなす
-            
+
             # ハンドラーが初期化されていることを確認
             assert isinstance(handler, GCloudLoggingHandler)
-            
+
             # 引数で上書き
             print("DEBUG: Creating handler with args")
-            handler = GCloudLoggingHandler(
-                project_id="test-project",
-                log_name="test-log",
-                labels={"env": "test"}
-            )
+            handler = GCloudLoggingHandler(project_id="test-project", log_name="test-log", labels={"env": "test"})
             print("DEBUG: Handler with args created successfully")
-            
+
             # ハンドラーが初期化されていることを確認
             assert isinstance(handler, GCloudLoggingHandler)
-            
+
         except Exception as e:
             print(f"ERROR: Test failed with exception: {str(e)}")
             import traceback
+
             print(f"ERROR: Traceback: {traceback.format_exc()}")
             error_logged = True
             raise
@@ -108,7 +109,7 @@ class TestGCloudLoggingHandler:
                 print("SUCCESS: Handler initialization test passed")
             if error_logged:
                 print("ERROR: Handler initialization test failed")
-                
+
         # テストが成功したことを確認
         assert success_logged, "テストがエラーで失敗しました"
         assert not error_logged, "テストがエラーで失敗しました"
@@ -117,24 +118,16 @@ class TestGCloudLoggingHandler:
         """ログレベル変換のテスト"""
         # Google Cloudロギングクライアントはフィクスチャでモック済み
         handler = GCloudLoggingHandler(project_id="test-project")
-        
+
         # ハンドラーが設定されていることを確認
         assert isinstance(handler, GCloudLoggingHandler)
-        
+
         # emit関数が呼び出せることを確認
-        record = std_logging.LogRecord(
-            name="test",
-            level=std_logging.INFO,
-            pathname="test.py",
-            lineno=1,
-            msg="Test message",
-            args=(),
-            exc_info=None
-        )
-        
+        record = std_logging.LogRecord(name="test", level=std_logging.INFO, pathname="test.py", lineno=1, msg="Test message", args=(), exc_info=None)
+
         # モックを設定 - 内部メソッドではなくクラス自体をテスト
         # 新しい実装ではハンドラー自身がemitを処理する
-        
+
         # emit関数を呼び出す
         # ハンドラーがemitできることを確認
         # 注意: 実際に送信は行わず、単にクラスの使い方をテストする
@@ -151,20 +144,11 @@ class TestAWSCloudWatchHandler:
 
     def test_init(self, mock_boto3_client):
         """初期化のテスト"""
-        handler = AWSCloudWatchHandler(
-            log_group="test-group",
-            log_stream="test-stream",
-            aws_region="us-west-2"
-        )
+        handler = AWSCloudWatchHandler(log_group="test-group", log_stream="test-stream", aws_region="us-west-2")
         assert handler.log_group == "test-group"
         assert handler.log_stream == "test-stream"
-        mock_boto3_client.create_log_group.assert_called_once_with(
-            logGroupName="test-group"
-        )
-        mock_boto3_client.create_log_stream.assert_called_once_with(
-            logGroupName="test-group",
-            logStreamName="test-stream"
-        )
+        mock_boto3_client.create_log_group.assert_called_once_with(logGroupName="test-group")
+        mock_boto3_client.create_log_stream.assert_called_once_with(logGroupName="test-group", logStreamName="test-stream")
 
     def test_auto_log_stream_name(self):
         """ログストリーム名の自動生成テスト"""
@@ -186,12 +170,12 @@ class TestAWSCloudWatchHandler:
     #             log_stream_name="test-stream",
     #             batch_size=2
     #         )
-            
+
     #         # シーケンストークンをセットアップ
     #         mock_boto3_client.put_log_events.return_value = {
     #             "nextSequenceToken": "token123"
     #         }
-            
+
     #         # 1つ目のログ - バッチに追加されるだけ
     #         timestamp1 = int(time.time() * 1000)
     #         log_entry1 = {
@@ -203,7 +187,7 @@ class TestAWSCloudWatchHandler:
     #         handler.handle(log_entry1)
     #         assert len(handler._batch) == 1
     #         mock_boto3_client.put_log_events.assert_not_called()
-            
+
     #         # 2つ目のログ - バッチサイズに達したのでフラッシュされる
     #         timestamp2 = int(time.time() * 1000)
     #         log_entry2 = {
@@ -213,20 +197,20 @@ class TestAWSCloudWatchHandler:
     #         }
     #         handler.handle(log_entry2)
     #         assert len(handler._batch) == 0
-            
+
     #         # フラッシュされたイベントを確認
     #         mock_boto3_client.put_log_events.assert_called_once()
     #         call_args = mock_boto3_client.put_log_events.call_args[1]
     #         assert call_args["logGroupName"] == "test-group"
     #         assert call_args["logStreamName"] == "test-stream"
     #         assert len(call_args["logEvents"]) == 2
-            
+
     #         events = sorted(call_args["logEvents"], key=lambda x: x["timestamp"])
     #         assert events[0]["timestamp"] == timestamp1
     #         assert events[0]["message"] == json.dumps(log_entry1)
     #         assert events[1]["timestamp"] == timestamp2
     #         assert events[1]["message"] == json.dumps(log_entry2)
-            
+
     #         # 次のフラッシュではシーケンストークンが使用される
     #         handler.handle(log_entry1)
     #         handler.handle(log_entry2)
