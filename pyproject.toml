@@ -13,7 +13,7 @@ readme = "README.md"
 license = {text = "MIT"}
 keywords = [
   "logging", "color", "colour", "colorful", "colourful", "console", "terminal", "logger", "python", "simple", "easy",
-  "カラー", "彩色", "彩色日志", "彩色ログ", "ログ", "ロギング", "ログ出力", "日志", "颜色", "日志输出"
+  "カラー", "コンソール", "彩色日志", "色付き", "ログ", "ロギング", "ログ出力", "日志", "颜色", "日志输出"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

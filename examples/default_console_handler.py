@@ -1,4 +1,4 @@
-"""Example of using default console handler.
+"""Example of using standard default console handler.
 
 
 """
