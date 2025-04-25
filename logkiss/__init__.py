@@ -287,4 +287,4 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
 
 
 # Version information
-__version__ = "2.2.2"
+__version__ = "2.2.4"
