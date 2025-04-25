@@ -1,4 +1,4 @@
-![LOGKISS](docs/logkiss-logo-tiny.png)
+![LOGKISS](https://raw.githubusercontent.com/tkykszk/logkiss/main/docs/logkiss-logo-tiny.png)
 
 [![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
@@ -20,6 +20,21 @@ pip install logkiss
 
 ## Usage
 
+### Minimal Example (Standard logging & logkiss compatibility)
+
+```python
+import logging
+logging.warning("省略メソッドの最小例")
+```
+
+The same code works with logkiss:
+
+```python
+import logkiss as logging
+logging.warning("初学者を惑わせがちな省略メソッド")
+```
+
+
 
 LOGKISS provides three different ways to enhance your logging experience:
 
@@ -33,7 +48,7 @@ import logkiss
 logger = logkiss.getLogger("example1")
 logger.warning("Colorful output in your terminal")
 ```
-![picture 0](images/1744211555459.png)  
+![picture 0](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211555459.png)  
 
 
 # 2. Using as a logging module replacement:
@@ -47,7 +62,7 @@ logger2.warning("Also colorful warning")
 logger2.error("Also colorful error")
 ```
 
-![picture 1](images/1744211946693.png)  
+![picture 1](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211946693.png)  
 
 # 3. Using custom handler configuration:
 ```
@@ -94,7 +109,7 @@ When you run the above code, you will see output similar to the following:
 
 The first two log messages will be displayed with color formatting in your terminal, while the third message will use the standard logging format without colors.
 
-![logkiss-terminal-demo](docs/logkiss-terminal-demo.png)
+![logkiss-terminal-demo](https://raw.githubusercontent.com/tkykszk/logkiss/main/docs/logkiss-terminal-demo.png)
 
 ## Environment Variables
 

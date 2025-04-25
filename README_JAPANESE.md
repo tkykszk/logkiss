@@ -17,9 +17,21 @@ LOGKISS (Keep It Simple and Stupid Logger) は、Python向けの使いやすい�
 pip install logkiss
 ```
 
-## 使用例
+## 使い方
 
-LOGKISSには、ロギング体験を向上させる3つの異なる方法があります：
+### 最小例（標準logging・logkiss互換）
+
+```python
+import logging
+logging.warning("省略メソッドの最小例")
+```
+
+logkissでも同じ書き方で動作します:
+
+```python
+import logkiss as logging
+logging.warning("初学者を惑わせがちな省略メソッド")
+```
 
 ### 1. カラフルなコンソールロギング
 
