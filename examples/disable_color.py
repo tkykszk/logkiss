@@ -7,9 +7,6 @@ to the handler explicitly.
 Usage:
     python disable_color.py
 
-Copyright (c) 2025 Taka Suzuki
-SPDX-License-Identifier: MIT
-See LICENSE for details.
 """
 
 import logkiss as logging
