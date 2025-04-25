@@ -23,15 +23,17 @@ pip install logkiss
 ### Minimal Example (Standard logging & logkiss compatibility)
 
 ```python
+# examples/minimal_warning.py
 import logging
-logging.warning("省略メソッドの最小例")
+logging.warning("Minimal example for beginners")
 ```
 
 The same code works with logkiss:
 
 ```python
+# examples/minimal_warning.py
 import logkiss as logging
-logging.warning("初学者を惑わせがちな省略メソッド")
+logging.warning("Minimal example for beginners")
 ```
 
 
@@ -43,10 +45,15 @@ LOGKISS provides three different ways to enhance your logging experience:
 Use LOGKISS directly to get beautiful colored log output with minimal setup:
 
 ```python
+# examples/quickstart_1.py
 import logkiss
 
 logger = logkiss.getLogger("example1")
-logger.warning("Colorful output in your terminal")
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical error message")
 ```
 ![picture 0](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211555459.png)  
 
@@ -55,24 +62,36 @@ logger.warning("Colorful output in your terminal")
 
 
 ```python
+# examples/quickstart_2.py
 import logkiss as logging
 
 logger2 = logging.getLogger("example2")
-logger2.warning("Also colorful warning")
-logger2.error("Also colorful error")
+logger2.debug("Debug message")
+logger2.info("Info message")
+logger2.warning("Warning message")
+logger2.error("Error message")
+logger2.critical("Critical error message")
 ```
 
 ![picture 1](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211946693.png)  
 
 # 3. Using custom handler configuration:
-```
+```python
+# examples/quickstart_3.py
 import logging
 import logkiss
 ```
 
 # Get a logger with standard logging module
-```
+```python
+# examples/quickstart_3.py
 logger3 = logging.getLogger("example3")
+logger3.setLevel(logging.DEBUG)
+logger3.debug("Debug message")
+logger3.info("Info message")
+logger3.warning("Warning message")
+logger3.error("Error message")
+logger3.critical("Critical error message")
 ```
 
 # Clear existing handlers

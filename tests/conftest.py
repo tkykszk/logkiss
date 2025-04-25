@@ -20,7 +20,7 @@ def pytest_configure(config):
 def is_ci_environment():
     """Check if we're running in a CI environment."""
     # GitHub Actions sets this environment variable
-    return os.environ.get('GITHUB_ACTIONS') == 'true'
+    return os.environ.get("GITHUB_ACTIONS") == "true"
 
 
 def pytest_collection_modifyitems(config, items):
@@ -28,10 +28,10 @@ def pytest_collection_modifyitems(config, items):
     # If running in CI and the specific flags to enable cloud tests are not set,
     # skip these tests
     if is_ci_environment():
-        run_aws_tests = os.environ.get('RUN_AWS_TESTS', '').lower() in ('1', 'true', 'yes')
-        run_gcp_tests = os.environ.get('RUN_GCP_TESTS', '').lower() in ('1', 'true', 'yes')
-        run_e2e_tests = os.environ.get('RUN_E2E_TESTS', '').lower() in ('1', 'true', 'yes')
-        
+        run_aws_tests = os.environ.get("RUN_AWS_TESTS", "").lower() in ("1", "true", "yes")
+        run_gcp_tests = os.environ.get("RUN_GCP_TESTS", "").lower() in ("1", "true", "yes")
+        run_e2e_tests = os.environ.get("RUN_E2E_TESTS", "").lower() in ("1", "true", "yes")
+
         for item in items:
             # Skip e2e tests unless specifically enabled
             if "e2e" in item.keywords and not run_e2e_tests:

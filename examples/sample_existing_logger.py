@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 import logging
 import sys
 
+
 # メイン処理
 def main():
     # デフォルトのロガー設定を使用
@@ -19,53 +20,48 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("my_app")
     logger.setLevel(logging.DEBUG)
-    
+
     print("=== デフォルトのロガー設定 ===")
     logging.info("これはルートロガーからの情報メッセージです")
     logger.debug("これはアプリケーションロガーからのデバッグメッセージです")
     logger.info("これはアプリケーションロガーからの情報メッセージです")
-    
+
     # 既存のロガーのハンドラーを一時的に保存
     root_handlers = logging.getLogger().handlers[:]
     app_handlers = logger.handlers[:]
-    
+
     # 既存のロガーからハンドラーを削除
     for handler in logging.getLogger().handlers[:]:
         logging.getLogger().removeHandler(handler)
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
-    
+
     print("\n=== logkiss の KissConsoleHandler を使用 ===")
     # ここで logkiss をインポート
     import logkiss
     from logkiss.logkiss import KissConsoleHandler
-    
+
     # KissConsoleHandler を追加
     kiss_handler = KissConsoleHandler()
     logger.addHandler(kiss_handler)
-    
+
     # ログを出力
     logger.debug("これはKissConsoleHandlerを使ったデバッグメッセージです")
     logger.info("これはKissConsoleHandlerを使った情報メッセージです")
-    
+
     # 構造化ログを出力
-    logger.warning("構造化ログの例", extra={
-        "user_id": 12345,
-        "action": "login",
-        "status": "failure",
-        "attempts": 3
-    })
-    
+    logger.warning("構造化ログの例", extra={"user_id": 12345, "action": "login", "status": "failure", "attempts": 3})
+
     print("\n=== ルートロガーにも logkiss の KissConsoleHandler を追加 ===")
     # ルートロガーに KissConsoleHandler を追加
     root_kiss_handler = KissConsoleHandler()
     logging.getLogger().addHandler(root_kiss_handler)
-    
+
     # ログを出力
     logging.info("これはKissConsoleHandlerを使ったルートロガーからの情報メッセージです")
     logger.debug("これはKissConsoleHandlerを使ったデバッグメッセージです")
     logger.info("これはKissConsoleHandlerを使った情報メッセージです")
-    
+
     # 元のハンドラーを復元
     print("\n=== 元のロガー設定に戻す ===")
     # 現在のハンドラーを削除
@@ -73,13 +69,13 @@ def main():
         logging.getLogger().removeHandler(handler)
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
-    
+
     # 元のハンドラーを復元
     for handler in root_handlers:
         logging.getLogger().addHandler(handler)
     for handler in app_handlers:
         logger.addHandler(handler)
-    
+
     # 元のロガー設定でログを出力
     logging.info("元の設定に戻したルートロガーからの情報メッセージです")
     logger.debug("元の設定に戻したアプリケーションロガーからのデバッグメッセージです")
@@ -94,6 +90,7 @@ def main():
     print("4. 元のハンドラーを復元して元の設定に戻す")
     print("\nこの方法を使えば、既存のコードを大幅に変更することなく、")
     print("必要なときだけ logkiss の色付きログ出力を利用できます。")
+
 
 if __name__ == "__main__":
     main()

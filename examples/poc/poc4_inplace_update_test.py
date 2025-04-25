@@ -14,8 +14,7 @@ import logging_tree
 import sys
 
 # 1. まず標準のロギングシステムを設定
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # いくつかの階層構造を持つロガーを作成
 app_logger = logging.getLogger("app")
@@ -55,7 +54,7 @@ try:
     result = 1 / 0
 except Exception:
     app_logger.exception("APP: 例外が発生")
-    
+
 # 4. 元の状態に復元
 print("\n4. init_logging(restore_original=True)で元に戻した後:")
 logkiss.init_logging(restore_original=True)

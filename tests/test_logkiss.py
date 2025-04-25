@@ -8,6 +8,7 @@ See LICENSE for details.
 import unittest
 from logkiss import getLogger
 
+
 class TestKissLog(unittest.TestCase):
     def setUp(self):
         self.logger_name = "test_logger"
@@ -17,5 +18,6 @@ class TestKissLog(unittest.TestCase):
         self.assertIsNotNone(log)
         self.assertEqual(log.name, self.logger_name)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

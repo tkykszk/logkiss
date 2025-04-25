@@ -40,4 +40,3 @@ logger_color.debug("DEBUGレベルのメッセージ")
 logger_color.info("INFOレベルのメッセージ")
 logger_color.warning("WARNINGレベルのメッセージ")
 logger_color.error("ERRORレベルのメッセージ")
-

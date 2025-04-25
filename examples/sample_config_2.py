@@ -9,11 +9,12 @@ See LICENSE for details.
 """
 
 import logkiss as logging
+
 logging.basicConfig(level=logging.INFO)
 
 # Get logger
 logger = logging.getLogger()  # Use root logger
-logger.setLevel(logging.ERROR)  
+logger.setLevel(logging.ERROR)
 
 print("Success if 2 lines are output")
 # Output logs

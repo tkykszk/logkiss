@@ -31,7 +31,7 @@ console_handler.setFormatter(formatter)  # This is the key step to disable color
 logger.addHandler(console_handler)
 
 # Test log output
-logger.debug('This debug message will not be displayed due to log level')
-logger.info('This information message will be displayed without color')
-logger.warning('This warning message will be displayed without color')
-logger.error('This error message will be displayed without color')
+logger.debug("This debug message will not be displayed due to log level")
+logger.info("This information message will be displayed without color")
+logger.warning("This warning message will be displayed without color")
+logger.error("This error message will be displayed without color")

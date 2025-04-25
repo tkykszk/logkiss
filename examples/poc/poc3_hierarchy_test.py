@@ -7,8 +7,8 @@ Logkiss integration test - Logger hierarchy preservation.
 
 # まず、標準のloggingを初期化（既存アプリケーションのシミュレーション）
 import logging
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # アプリケーションの複数ロガーを作成（階層構造を持つ）
 std_logger = logging.getLogger("std_app")
@@ -17,6 +17,7 @@ api_logger = logging.getLogger("app.api")
 
 # ロガー階層を確認
 import logging_tree
+
 print("\n1. 初期状態のロガー階層:")
 logging_tree.printout()
 
@@ -26,6 +27,7 @@ db_logger.warning("Database: [1] This is from db logger")
 
 # logkissをインポート（デフォルトモード - 階層保持）
 import logkiss
+
 print("\n2. logkissをインポートした後のロガー階層:")
 logging_tree.printout()
 
