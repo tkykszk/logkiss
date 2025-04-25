@@ -11,7 +11,7 @@ logger3.handlers.clear()
 
 # Add logkiss custom handler
 handler = logkiss.KissConsoleHandler()  # Handler for colorful output
-handler.setFormatter(logkiss.ColoredFormatter())  #use_color=False
+handler.setFormatter(logkiss.ColoredFormatter())
 logger3.addHandler(handler)
 
 # Output logs with customized handler
