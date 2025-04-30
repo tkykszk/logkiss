@@ -1,6 +1,6 @@
 [project]
 name = "logkiss"
-version = "2.2.4"
+version = "2.2.5"
 description = "A simple, colorful, and drop-in replacement for Python's standard logging module. 彩色ログ・彩色日志・カラー対応・颜色日志・多言語対応のシンプルなPythonログライブラリ。Supports colorful/colourful/カラー/彩色/颜色 log output for Python logging, ログ, 日志, ロギング, logger, logging, simple, easy."
 authors = [
     {name = "Taka Suzuki", email = "tkykszk@gmail.com"}
