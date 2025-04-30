@@ -399,6 +399,7 @@ class ColoredFormatter(Formatter):
         color_config: Optional[Union[str, Path]] = None,
         use_color: bool = True,
         format_str: Optional[str] = None,
+        **kwargs
     ):
         """
         Args:
@@ -408,7 +409,12 @@ class ColoredFormatter(Formatter):
             validate: Validate format string
             color_config: Path to color configuration file
             use_color: Apply colors to log messages
+            format_str: 別名のフォーマット文字列（後方互換性用）
+            **kwargs: 後方互換性のための追加パラメータ（例：'format'）
         """
+        # 後方互換性のために'format'パラメータをサポート
+        if 'format' in kwargs and format_str is None:
+            format_str = kwargs.pop('format')
         if fmt is None and format_str is not None:
             fmt = format_str
         elif fmt is None:
