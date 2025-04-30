@@ -27,6 +27,7 @@ from .logkiss import (
     ColoredFormatter,
     setup_from_yaml,
     setup_from_env,
+    setup,
 )
 
 # Import base handler only
@@ -112,6 +113,7 @@ from logging import (
     WARN,
     WARNING,
     addLevelName,
+    basicConfig,
     critical,
     debug,
     disable,
