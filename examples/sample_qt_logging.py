@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 """
 Example of using logkiss QtTextEditHandler.
 This example shows how to use the QtTextEditHandler to display colored logs in a Qt application.

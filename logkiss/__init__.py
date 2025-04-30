@@ -288,3 +288,23 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
 
 # Version information
 __version__ = "2.2.4"
+
+# --- logkiss default handler initialization ---
+# --- logkiss default handler initialization ---
+root_logger = logging.getLogger()
+root_logger.handlers.clear()  # 既存のハンドラを全て除去
+handler = KissConsoleHandler()
+
+# --- サブロガーにハンドラがある場合はルートで出力しないフィルタ ---
+class _SkipIfLoggerHasHandlers(logging.Filter):
+    def filter(self, record):
+        logger = logging.getLogger(record.name)
+        # サブロガーで、ルート以外でハンドラが1つ以上あればルートで出力しない
+        if logger is not root_logger and logger.handlers:
+            return False
+        return True
+handler.addFilter(_SkipIfLoggerHasHandlers())
+# -------------------------------------------------------------
+
+root_logger.addHandler(handler)
+root_logger.propagate = False

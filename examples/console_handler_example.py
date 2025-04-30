@@ -4,9 +4,6 @@
 
 このサンプルでは、標準の logging モジュールと logkiss を組み合わせて
 コンソールにログを出力する方法を示します。
-
-Copyright (c) 2025 Taka Suzuki
-SPDX-License-Identifier: MIT
 """
 
 import logging

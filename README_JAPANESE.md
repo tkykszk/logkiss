@@ -81,7 +81,7 @@ logger3.handlers.clear()
 
 # logkissのカスタムハンドラーを追加
 handler = logkiss.KissConsoleHandler()  # カラフルな出力用のハンドラー
-handler.setFormatter(logkiss.ColoredFormatter(use_color=True))
+handler.setFormatter(logkiss.ColoredFormatter())
 logger3.addHandler(handler)
 
 # カスタマイズされたハンドラーでログ出力

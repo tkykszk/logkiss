@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 
 import logging
 import logkiss
@@ -12,7 +11,7 @@ logger3.handlers.clear()
 
 # Add logkiss custom handler
 handler = logkiss.KissConsoleHandler()  # Handler for colorful output
-handler.setFormatter(logkiss.ColoredFormatter(use_color=True))
+handler.setFormatter(logkiss.ColoredFormatter())
 logger3.addHandler(handler)
 
 # Output logs with customized handler

@@ -1,8 +1,5 @@
 """Example of logging to a file.
 
-Copyright (c) 2025 Taka Suzuki
-SPDX-License-Identifier: MIT
-See LICENSE for details.
 """
 
 import logkiss as logging

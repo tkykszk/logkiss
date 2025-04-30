@@ -17,10 +17,9 @@ import logging
 from pathlib import Path
 from typing import Optional, Union, TextIO, Dict, Any
 from dataclasses import dataclass
-from yaml import safe_load
+from yaml import safe_load, YAMLError
 from logging import FileHandler, LogRecord, StreamHandler, Formatter, Filter
-from logging.handlers import TimedRotatingFileHandler
-from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 
 # --- colorama for Windows compatibility ---
 try:
@@ -39,10 +38,81 @@ __all__ = [
     "PathShortenerFilter",
     "setup_from_yaml",
     "setup_from_env",
+    "setup",
 ]
 
 # Debug mode settings
 DEBUG = os.environ.get("LOGKISS_DEBUG", "").lower() in ("1", "true", "yes")
+
+
+def should_skip_config() -> bool:
+    """
+    Check if configuration loading should be skipped based on LOGKISS_SKIP_CONFIG env var.
+    Returns True if skip is requested.
+    """
+    skip = os.environ.get("LOGKISS_SKIP_CONFIG", "").lower()
+    return skip in ("1", "true", "yes")
+
+
+def find_config_file(explicit_path: Optional[Union[str, Path]] = None) -> Optional[Path]:
+    """
+    Find the config file path according to priority:
+    1. explicit_path (argument)
+    2. LOGKISS_CONFIG env var
+    3. Default locations (OS dependent)
+    Returns Path if found, else None.
+    """
+    if explicit_path:
+        p = Path(explicit_path).expanduser()
+        if p.exists():
+            return p
+        # If explicit but not found, still return the path for error reporting
+        return p
+    # 2. Env var
+    env_path = os.environ.get("LOGKISS_CONFIG")
+    if env_path:
+        p = Path(env_path).expanduser()
+        if p.exists():
+            return p
+        return p
+    # 3. Default locations
+    candidates = []
+    if sys.platform.startswith("win"):
+        appdata = os.environ.get("APPDATA")
+        userprofile = os.environ.get("USERPROFILE")
+        if appdata:
+            candidates.append(Path(appdata) / "logkiss" / "config.yaml")
+        if userprofile:
+            candidates.append(Path(userprofile) / ".config" / "logkiss" / "config.yaml")
+    else:
+        home = Path.home()
+        candidates.append(home / ".config" / "logkiss" / "config.yaml")
+        candidates.append(Path.cwd() / "logkiss.yaml")
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def setup(explicit_config: Optional[Union[str, Path]] = None) -> logging.Logger:
+    """
+    Unified setup function for logkiss.
+    - Honors LOGKISS_SKIP_CONFIG to skip config loading
+    - Searches config file in documented order
+    - Applies config if found, else uses environment/defaults
+    Args:
+        explicit_config: Path to config file (optional, highest priority)
+    Returns:
+        Configured logger instance
+    """
+    if should_skip_config():
+        return setup_from_env()
+    config_path = find_config_file(explicit_config)
+    if config_path and config_path.exists():
+        return setup_from_yaml(config_path)
+    else:
+        return setup_from_env()
+
 
 # Level format settings
 _level_format = os.environ.get("LOGKISS_LEVEL_FORMAT", "5")
@@ -77,7 +147,7 @@ class Colors:
     DIM = "\033[2m"
     ITALIC = "\033[3m"
     UNDERLINE = "\033[4m"
-    BLINK = "\033[5m"
+
     REVERSE = "\033[7m"
     HIDDEN = "\033[8m"
     STRIKE = "\033[9m"
@@ -175,10 +245,11 @@ class ColorManager:
         # Load configuration from file if available
         if self.config_path:
             try:
-                with open(self.config_path) as f:
+                with open(self.config_path, "r", encoding='utf-8') as f:
                     config = safe_load(f)
                 return {**default_config, **config}
-            except Exception:
+            except (FileNotFoundError, YAMLError, TypeError):
+                # ファイルが存在しない、読み込めない、または無効なYAMLの場合
                 return default_config
         return default_config
 
@@ -327,7 +398,7 @@ class ColoredFormatter(Formatter):
         validate: bool = True,
         color_config: Optional[Union[str, Path]] = None,
         use_color: bool = True,
-        format: Optional[str] = None,
+        format_str: Optional[str] = None,
     ):
         """
         Args:
@@ -338,8 +409,8 @@ class ColoredFormatter(Formatter):
             color_config: Path to color configuration file
             use_color: Apply colors to log messages
         """
-        if fmt is None and format is not None:
-            fmt = format
+        if fmt is None and format_str is not None:
+            fmt = format_str
         elif fmt is None:
             fmt = "%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s"
         # Python 3.7 compatibility: validate parameter was added in Python 3.8
@@ -349,11 +420,15 @@ class ColoredFormatter(Formatter):
             super().__init__(fmt, datefmt, style)
         self.color_manager = ColorManager(color_config)
 
-        # Check if color should be disabled via environment variable
+        # Check if color should be disabled via environment variables
+        # 1. LOGKISS_DISABLE_COLOR: Specific to this library
         disable_color = os.environ.get("LOGKISS_DISABLE_COLOR", "").lower() in ("1", "true", "yes")
+        # 2. NO_COLOR: Industry standard (https://no-color.org/)
+        # Any value (or even empty string) means disable color
+        no_color = "NO_COLOR" in os.environ
 
         # Environment variables take precedence over the use_color parameter
-        if disable_color:
+        if disable_color or no_color:
             self.use_color = False
         else:
             self.use_color = use_color
@@ -436,14 +511,17 @@ class KissConsoleHandler(StreamHandler):
         super().__init__(stream)
 
         # Check environment variables for disabling color
+        # 1. LOGKISS_DISABLE_COLOR: Specific to this library
         disable_color = os.environ.get("LOGKISS_DISABLE_COLOR", "").lower() in ("1", "true", "yes")
+        # 2. NO_COLOR: Industry standard (https://no-color.org/)
+        # Any value (or even empty string) means disable color
+        no_color = "NO_COLOR" in os.environ
 
-        # Apply colors if not disabled by env var and outputting to sys.stderr or sys.stdout
-        use_color = not disable_color and (stream is None or stream is sys.stderr or stream is sys.stdout)
+        # Apply colors if not disabled by env vars and outputting to sys.stderr or sys.stdout
+        use_color = not (disable_color or no_color) and (stream is None or stream is sys.stderr or stream is sys.stdout)
 
         self.formatter = ColoredFormatter(color_config=color_config, use_color=use_color)
         self.setFormatter(self.formatter)
-        self.setLevel(logging.DEBUG)  # Set default level to DEBUG
 
         # Add path shortening filter
         self.addFilter(PathShortenerFilter())
@@ -463,7 +541,8 @@ class KissConsoleHandler(StreamHandler):
             # if exception information is present, it's formatted as text and appended to msg
             stream.write(msg + self.terminator)
             self.flush()
-        except Exception:
+        except (ValueError, TypeError, IOError):
+            # 書き込みエラーや型変換エラーの場合
             self.handleError(record)
 
 
@@ -590,8 +669,9 @@ def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
     if not config_path.exists():
         raise ValueError(f"Configuration file not found: {config_path}")
 
-    with open(config_path) as f:
+    with open(config_path, encoding='utf-8') as f:
         config = safe_load(f)
+    print("[DEBUG] loaded config:", config)
 
     # Get root logger
     logger = logging.getLogger()
@@ -601,18 +681,52 @@ def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
     for name, formatter_config in config.get("formatters", {}).items():
         formatters[name] = ColoredFormatter(**formatter_config)
 
+    # Default to console handler if none specified
+    if not config.get("handlers"):
+        config["handlers"] = {"console": {"class": "StreamHandler"}}
+    # Default root handlers if none specified
+    root_conf = config.setdefault("root", {})
+    if not root_conf.get("handlers"):
+        root_conf["handlers"] = ["console"]
+
     # Configure handlers
+    print("[DEBUG] handlers section:", config.get("handlers", {}))
+    # Remove existing logkiss handlers, preserve external handlers (e.g., caplog)
+    for h in logger.handlers[:]:
+        if isinstance(h, (KissConsoleHandler, FileHandler, RotatingFileHandler, TimedRotatingFileHandler)):
+            logger.removeHandler(h)
+
+    handler_objs = {}
     for name, handler_config in config.get("handlers", {}).items():
+        handler_config = handler_config.copy()  # dictの副作用防止
         handler_class = handler_config.pop("class")
         formatter = handler_config.pop("formatter", None)
+        level = handler_config.pop("level", None)
 
         # Create handler instance
-        if handler_class == "logging.StreamHandler":
+        if handler_class in ("logging.StreamHandler", "StreamHandler", "KissConsoleHandler"):
             handler = KissConsoleHandler()
-        elif handler_class == "logging.FileHandler":
-            handler = FileHandler(**handler_config)
-        elif handler_class == "logging.TimedRotatingFileHandler":
-            handler = TimedRotatingFileHandler(**handler_config)
+        elif handler_class in ("logging.FileHandler", "FileHandler"):
+            try:
+                print("[DEBUG] FileHandler config:", handler_config)
+                handler = FileHandler(**handler_config)
+            except Exception as e:
+                print("[ERROR] FileHandler creation failed:", e)
+                raise
+        elif handler_class in ("logging.handlers.RotatingFileHandler", "RotatingFileHandler"):
+            try:
+                print("[DEBUG] RotatingFileHandler config:", handler_config)
+                handler = RotatingFileHandler(**handler_config)
+            except Exception as e:
+                print("[ERROR] RotatingFileHandler creation failed:", e)
+                raise
+        elif handler_class in ("logging.TimedRotatingFileHandler", "TimedRotatingFileHandler"):
+            try:
+                print("[DEBUG] TimedRotatingFileHandler config:", handler_config)
+                handler = TimedRotatingFileHandler(**handler_config)
+            except Exception as e:
+                print("[ERROR] TimedRotatingFileHandler creation failed:", e)
+                raise
         else:
             continue
 
@@ -620,7 +734,15 @@ def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
         if formatter and formatter in formatters:
             handler.setFormatter(formatters[formatter])
 
-        logger.addHandler(handler)
+        # Set level if specified
+        if level:
+            handler.setLevel(getattr(logging, level.upper()))
+
+        handler_objs[name] = handler
+    # root["handlers"]に従ってのみaddHandler
+    for hname in config.get("root", {}).get("handlers", []):
+        if hname in handler_objs:
+            logger.addHandler(handler_objs[hname])
 
     # Configure root logger
     root_config = config.get("root", {})
@@ -631,10 +753,11 @@ def setup_from_yaml(config_path: Union[str, Path]) -> logging.Logger:
         logger.setLevel(getattr(logging, env_level.upper()))
     elif "level" in root_config:
         logger.setLevel(getattr(logging, root_config["level"]))
+    else:
+        # Default root level to WARNING if not specified
+        logger.setLevel(logging.WARNING)
 
-    # Store config path for reload
-    logger.config_path = config_path
-
+    print("[DEBUG] logger.handlers:", logger.handlers)
     return logger
 
 
@@ -645,6 +768,7 @@ def setup_from_env() -> logging.Logger:
         LOGKISS_LEVEL: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         LOGKISS_FORMAT: Log format string
         LOGKISS_DISABLE_COLOR: Disable colored output if 'true'
+        NO_COLOR: Industry standard to disable colors (any value)
 
     Returns:
         Configured logger instance
@@ -663,9 +787,16 @@ def setup_from_env() -> logging.Logger:
     fmt = os.environ.get("LOGKISS_FORMAT", "%(asctime)s,%(msecs)03d %(levelname)-5s | %(filename)s:%(lineno)3d | %(message)s")
     datefmt = os.environ.get("LOGKISS_DATEFMT", "%Y-%m-%d %H:%M:%S")
 
-    # Determine color usage based on environment variable
+    # Determine color usage based on environment variables
     use_color = True  # Default is to use color
+    
+    # 1. LOGKISS_DISABLE_COLOR: Specific to this library
     if os.environ.get("LOGKISS_DISABLE_COLOR", "").lower() in ("1", "true", "yes"):
+        use_color = False
+        
+    # 2. NO_COLOR: Industry standard (https://no-color.org/)
+    # Any value (or even empty string) means disable color
+    if "NO_COLOR" in os.environ:
         use_color = False
 
     # Create formatter with color settings
