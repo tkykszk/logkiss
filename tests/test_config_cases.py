@@ -31,7 +31,7 @@ def test_config_color_test1(tmp_config, caplog):
     # TEST DEBUG: show config dict and file contents
     print("[TEST DEBUG] config dict:", config)
     print("[TEST DEBUG] config file contents:\n", config_path.read_text())
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test1")
     # Ensure default KissConsoleHandler on root logger has NOTSET level
     root_logger = logging.getLogger()
@@ -54,7 +54,7 @@ def test_config_color_test2(tmp_config, caplog):
         "root": {"level": "DEBUG"}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test2")
     with caplog.at_level("INFO"):
         logger.info("test datefmt")
@@ -66,7 +66,7 @@ def test_config_color_test2(tmp_config, caplog):
 def test_config_log_level_test(tmp_config, caplog):
     config = {"root": {"level": "WARNING"}}
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test3")
     with caplog.at_level("WARNING"):
         logger.debug("debug message")
@@ -87,7 +87,7 @@ def test_config_log_file_output_test(tmp_config, tmp_path):
         "root": {"level": "INFO", "handlers": ["file"]}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test4")
     logger.info("file output test")
     for h in logger.handlers:
@@ -114,7 +114,7 @@ def test_config_log_format_test(tmp_config, caplog):
         "root": {"level": "INFO", "handlers": ["console"]}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test5")
     with caplog.at_level("INFO"):
         logger.info("format test")
@@ -140,7 +140,7 @@ def test_config_rotation_test(tmp_config, tmp_path):
         "root": {"level": "DEBUG", "handlers": ["rot"]}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test6")
     for i in range(30):
         logger.info(f"rot test {i}")
@@ -167,7 +167,7 @@ def test_config_filter_test(tmp_config, caplog):
         "root": {"level": "DEBUG", "handlers": ["console"]}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test7")
     with caplog.at_level("INFO"):
         logger.info("should appear")
@@ -183,7 +183,7 @@ def test_config_default_value_test(tmp_path, caplog):
     config_path = tmp_path / "config.yaml"
     config_path.write_text("", encoding="utf-8")
     try:
-        logkiss.setup_from_yaml(config_path)
+        logkiss.yaml_config(config_path)
         logger = logkiss.getLogger("test8")
         with caplog.at_level("INFO"):
             logger.info("default level test")
@@ -196,14 +196,14 @@ def test_config_invalid_value_test(tmp_config):
     config = {"root": {"level": "NO_SUCH_LEVEL"}}
     config_path = tmp_config(config)
     with pytest.raises(Exception):
-        logkiss.setup_from_yaml(config_path)
+        logkiss.yaml_config(config_path)
 
 # TC010: 環境変数による設定上書きテスト
 def test_config_env_override_test(tmp_config, caplog, monkeypatch):
     config = {"root": {"level": "INFO"}}
     config_path = tmp_config(config)
     monkeypatch.setenv("LOGKISS_LEVEL", "ERROR")
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test10")
     with caplog.at_level("ERROR"):
         logger.info("should not appear")
@@ -225,7 +225,7 @@ def test_config_multiple_handler_test(tmp_config, tmp_path, caplog):
         "root": {"level": "INFO", "handlers": ["console", "file"]}
     }
     config_path = tmp_config(config)
-    logkiss.setup_from_yaml(config_path)
+    logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test11")
     with caplog.at_level("INFO"):
         logger.info("multi handler test")
@@ -246,4 +246,4 @@ def test_config_yaml_syntax_error_test(tmp_path):
     config_path = tmp_path / "bad.yaml"
     config_path.write_text("levels: [bad yaml", encoding="utf-8")
     with pytest.raises(Exception):
-        logkiss.setup_from_yaml(config_path)
+        logkiss.yaml_config(config_path)
