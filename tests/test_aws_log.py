@@ -13,8 +13,14 @@ import hashlib
 import pytest
 import subprocess
 from datetime import datetime
-import boto3
 from dotenv import load_dotenv
+
+# boto3の依存関係を管理
+try:
+    import boto3
+    HAS_BOTO3 = True
+except ImportError:
+    HAS_BOTO3 = False
 
 # .envファイルから環境変数を読み込む
 load_dotenv()
@@ -32,6 +38,8 @@ def generate_test_log_group_name():
     return f"logkiss-test-{timestamp}-{unique_id}"
 
 
+@pytest.mark.requires_boto3
+@pytest.mark.skipif(not HAS_BOTO3, reason="boto3モジュールがインストールされていません")
 def check_aws_auth():
     """AWSの認証状態を確認し、テスト用のログエントリを書き込めるか検証する"""
     print("\n認証状態の確認を開始します...")
@@ -132,6 +140,8 @@ def generate_unique_log_name():
 @pytest.mark.e2e
 @pytest.mark.aws
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
+@pytest.mark.requires_boto3
+@pytest.mark.skipif(not HAS_BOTO3, reason="boto3モジュールがインストールされていません")
 def test_aws_cloudwatch_logs_e2e():
     """AWS CloudWatch Logsへの実際のログ送信をテスト"""
     # 事前に認証状態を確認
@@ -235,6 +245,8 @@ def test_aws_cloudwatch_logs_e2e():
 @pytest.mark.e2e
 @pytest.mark.aws
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
+@pytest.mark.requires_boto3
+@pytest.mark.skipif(not HAS_BOTO3, reason="boto3モジュールがインストールされていません")
 def test_aws_cloudwatch_logs_handler_e2e():
     """AWSCloudWatchHandlerを使用したE2Eテスト"""
     # 事前に認証状態を確認

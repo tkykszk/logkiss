@@ -15,6 +15,11 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "e2e: mark test as end-to-end test requiring cloud credentials")
     config.addinivalue_line("markers", "aws: mark test as requiring AWS credentials")
     config.addinivalue_line("markers", "gcp: mark test as requiring GCP credentials")
+    
+    # モジュール依存関係のマーカー
+    config.addinivalue_line("markers", "requires_logging_tree: logging_treeモジュールが必要なテスト")
+    config.addinivalue_line("markers", "requires_boto3: boto3モジュールが必要なテスト")
+    config.addinivalue_line("markers", "requires_gcp_logging: Google Cloud Loggingモジュールが必要なテスト")
 
 
 def is_ci_environment():

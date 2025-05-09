@@ -13,8 +13,14 @@ import hashlib
 import pytest
 import subprocess
 from datetime import datetime
-from google.cloud import logging as google_logging
 from dotenv import load_dotenv
+
+# Google Cloud Loggingの依存関係を管理
+try:
+    from google.cloud import logging as google_logging
+    HAS_GCP_LOGGING = True
+except ImportError:
+    HAS_GCP_LOGGING = False
 
 # .envファイルから環境変数を読み込む
 load_dotenv()
@@ -23,6 +29,8 @@ load_dotenv()
 CLEAN_UP = True
 
 
+@pytest.mark.requires_gcp_logging
+@pytest.mark.skipif(not HAS_GCP_LOGGING, reason="Google Cloud Loggingモジュールがインストールされていません")
 def check_gcp_auth():
     """GCPの認証状態を確認し、テスト用のログエントリを書き込めるか検証する"""
     print("\n認証状態の確認を開始します...")
@@ -99,6 +107,8 @@ def generate_test_log_name():
 @pytest.mark.e2e
 @pytest.mark.gcp
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
+@pytest.mark.requires_gcp_logging
+@pytest.mark.skipif(not HAS_GCP_LOGGING, reason="Google Cloud Loggingモジュールがインストールされていません")
 def test_gcp_cloud_logging_e2e():
     """GCP Cloud Loggingへの実際のログ送信をテスト"""
     # 事前に認証状態を確認
@@ -194,6 +204,8 @@ def test_gcp_cloud_logging_e2e():
 @pytest.mark.e2e
 @pytest.mark.gcp
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
+@pytest.mark.requires_gcp_logging
+@pytest.mark.skipif(not HAS_GCP_LOGGING, reason="Google Cloud Loggingモジュールがインストールされていません")
 def test_gcp_cloud_logging_handler_e2e():
     """GCPCloudLoggingHandlerを使用したE2Eテスト"""
     # 事前に認証状態を確認
