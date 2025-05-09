@@ -25,10 +25,10 @@ from .logkiss import (
     KissLogger,
     KissConsoleHandler,
     ColoredFormatter,
-    setup_from_yaml,
-    setup_from_env,
-    setup,
 )
+
+# Import config module
+from .config import dictConfig, fileConfig, yaml_config
 
 # Import base handler only
 from .handlers import BaseHandler
@@ -197,8 +197,9 @@ __all__ = [
     "QtTextEditHandler",
     "QT_AVAILABLE",
     # 設定
-    "setup_from_yaml",
-    "setup_from_env",
+    "dictConfig",
+    "fileConfig",
+    "yaml_config",
 ]
 
 # グローバル設定
@@ -289,7 +290,7 @@ def use_console_handler(logger: Optional[logging.Logger] = None) -> None:
 
 
 # Version information
-__version__ = "2.2.4"
+__version__ = "2.3.1"
 
 # --- logkiss default handler initialization ---
 # --- logkiss default handler initialization ---

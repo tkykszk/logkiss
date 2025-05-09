@@ -46,9 +46,9 @@ def test_logkiss_specific_apis():
         "KissLogger",
         "KissConsoleHandler",
         "ColoredFormatter",
-        "setup_from_yaml",
-        "setup_from_env",
-        "setup",
+        "yaml_config",
+        "dictConfig",
+        "fileConfig",
     ]
     
     for api in logkiss_specific_apis:

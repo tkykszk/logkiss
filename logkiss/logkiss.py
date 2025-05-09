@@ -601,12 +601,11 @@ class KissLogger(logging.Logger):
         """Reload configuration from the original source.
 
         This method reloads the logger configuration from the original YAML file
-        if it was configured using setup_from_yaml, or from environment variables
-        if it was configured using setup_from_env.
+        if it was configured using yaml_config, or from environment variables
+        if it was configured using dictConfig with environment variables.
 
         Raises:
-            ValueError: If the logger was not configured using setup_from_yaml
-                      or setup_from_env.
+            ValueError: If the logger was not configured with a config_path attribute.
         """
         # Check if config path is available
         if hasattr(self, "config_path"):
@@ -615,10 +614,12 @@ class KissLogger(logging.Logger):
                 self.removeHandler(handler)
 
             # Reload from YAML
-            setup_from_yaml(self.config_path)
+            from logkiss import yaml_config
+            yaml_config(self.config_path)
         else:
             # Reload from environment variables
-            setup_from_env()
+            from logkiss.config import _auto_config_from_env
+            _auto_config_from_env()
 
 
 # Helper function to use a standard ConsoleHandler

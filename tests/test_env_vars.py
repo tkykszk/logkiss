@@ -5,14 +5,15 @@
 """
 
 import os
-import pytest
+import sys
+import logging
 from unittest import mock
 import importlib
 import tempfile
-import logging
 
+import pytest
 import logkiss
-from logkiss.logkiss import ColoredFormatter, KissConsoleHandler
+from logkiss.logkiss import ColoredFormatter
 
 
 @pytest.mark.env_vars
@@ -114,7 +115,32 @@ def test_logkiss_disable_color():
     try:
         # デフォルト値のテスト（カラー有効）
         with mock.patch.dict(os.environ, {}, clear=True):
-            logger = logkiss.setup_from_env()
+            # dictConfig用の設定辞書を作成
+            config = {
+                "version": 1,
+                "formatters": {
+                    "colored": {
+                        "class": "logkiss.ColoredFormatter",
+                        "format": "%(asctime)s [%(levelname)s] %(message)s"
+                    }
+                },
+                "handlers": {
+                    "console": {
+                        "class": "logkiss.KissConsoleHandler",
+                        "level": "DEBUG",
+                        "formatter": "colored"
+                    }
+                },
+                "loggers": {
+                    "": {
+                        "handlers": ["console"],
+                        "level": "DEBUG"
+                    }
+                }
+            }
+            
+            logkiss.dictConfig(config)
+            logger = logging.getLogger()
             assert logger.handlers
             formatter = logger.handlers[0].formatter
             assert hasattr(formatter, 'use_color')
@@ -127,7 +153,32 @@ def test_logkiss_disable_color():
 
         # カラー無効のテスト
         with mock.patch.dict(os.environ, {"LOGKISS_DISABLE_COLOR": "true"}, clear=True):
-            logger = logkiss.setup_from_env()
+            # dictConfig用の設定辞書を作成
+            config = {
+                "version": 1,
+                "formatters": {
+                    "colored": {
+                        "class": "logkiss.ColoredFormatter",
+                        "format": "%(asctime)s [%(levelname)s] %(message)s"
+                    }
+                },
+                "handlers": {
+                    "console": {
+                        "class": "logkiss.KissConsoleHandler",
+                        "level": "DEBUG",
+                        "formatter": "colored"
+                    }
+                },
+                "loggers": {
+                    "": {
+                        "handlers": ["console"],
+                        "level": "DEBUG"
+                    }
+                }
+            }
+            
+            logkiss.dictConfig(config)
+            logger = logging.getLogger()
             assert logger.handlers
             formatter = logger.handlers[0].formatter
             assert hasattr(formatter, 'use_color')
@@ -140,7 +191,32 @@ def test_logkiss_disable_color():
 
         # 無効な値のテスト（カラー有効のまま）
         with mock.patch.dict(os.environ, {"LOGKISS_DISABLE_COLOR": "invalid"}, clear=True):
-            logger = logkiss.setup_from_env()
+            # dictConfig用の設定辞書を作成
+            config = {
+                "version": 1,
+                "formatters": {
+                    "colored": {
+                        "class": "logkiss.ColoredFormatter",
+                        "format": "%(asctime)s [%(levelname)s] %(message)s"
+                    }
+                },
+                "handlers": {
+                    "console": {
+                        "class": "logkiss.KissConsoleHandler",
+                        "level": "DEBUG",
+                        "formatter": "colored"
+                    }
+                },
+                "loggers": {
+                    "": {
+                        "handlers": ["console"],
+                        "level": "DEBUG"
+                    }
+                }
+            }
+            
+            logkiss.dictConfig(config)
+            logger = logging.getLogger()
             assert logger.handlers
             formatter = logger.handlers[0].formatter
             assert hasattr(formatter, 'use_color')

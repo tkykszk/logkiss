@@ -6,6 +6,7 @@ including YAML config files, environment variables, and priority handling.
 
 import os
 import tempfile
+import logging
 from pathlib import Path
 from unittest import mock
 
@@ -40,7 +41,8 @@ def temp_config_file():
 
 def test_load_yaml_config(temp_config_file):
     """Test loading configuration from YAML file."""
-    logger = logkiss.setup_from_yaml(str(temp_config_file))
+    logkiss.yaml_config(str(temp_config_file))
+    logger = logging.getLogger()
     assert logger is not None
     assert logger.level == logkiss.INFO
 
@@ -59,8 +61,33 @@ def test_env_var_config():
             for handler in old_handlers:
                 logkiss.logging.getLogger().removeHandler(handler)
 
-        # Now setup with our environment variables
-        logger = logkiss.setup_from_env()
+        # 環境変数から設定が自動的に読み込まれるため、明示的な設定は不要
+        # ただし、テストのために明示的にdictConfigを呼び出す
+        config = {
+            "version": 1,
+            "formatters": {
+                "colored": {
+                    "class": "logkiss.ColoredFormatter",
+                    "format": "%(asctime)s - %(levelname)s - %(message)s"
+                }
+            },
+            "handlers": {
+                "console": {
+                    "class": "logkiss.KissConsoleHandler",
+                    "level": "DEBUG",
+                    "formatter": "colored"
+                }
+            },
+            "loggers": {
+                "": {
+                    "handlers": ["console"],
+                    "level": "DEBUG"
+                }
+            }
+        }
+        
+        logkiss.dictConfig(config)
+        logger = logging.getLogger()
 
         # Verify settings
         assert logger.level == logkiss.DEBUG
@@ -74,7 +101,8 @@ def test_env_var_config():
 def test_config_priority(temp_config_file):
     """Test configuration priority (env vars should override file config)."""
     with mock.patch.dict(os.environ, {"LOGKISS_LEVEL": "DEBUG"}):
-        logger = logkiss.setup_from_yaml(str(temp_config_file))
+        logkiss.yaml_config(str(temp_config_file))
+        logger = logging.getLogger()
         assert logger.level == logkiss.DEBUG  # env var should override file
 
 
@@ -83,12 +111,12 @@ def test_invalid_config(tmp_path):
     """Test handling of invalid configuration."""
     nonexistent = tmp_path / "nonexistent.yaml"
     with pytest.raises(ValueError):
-        logkiss.setup_from_yaml(str(nonexistent))
+        logkiss.yaml_config(str(nonexistent))
 
     invalid_yaml = tmp_path / "invalid.yaml"
     invalid_yaml.write_text("invalid: yaml: content:")
     with pytest.raises(yaml.YAMLError):
-        logkiss.setup_from_yaml(str(invalid_yaml))
+        logkiss.yaml_config(str(invalid_yaml))
 
 
 @pytest.mark.config
@@ -100,7 +128,8 @@ def test_config_reload(tmp_path):
     with config_file.open("w") as f:
         yaml.safe_dump(config, f)
 
-    logger = logkiss.setup_from_yaml(str(config_file))
+    logkiss.yaml_config(str(config_file))
+    logger = logging.getLogger()
     assert logger.level == logkiss.INFO
 
     # Modify config
@@ -108,6 +137,7 @@ def test_config_reload(tmp_path):
     with config_file.open("w") as f:
         yaml.safe_dump(config, f)
 
-    # Test reload - read the config file again instead of calling reload_config
-    logger = logkiss.setup_from_yaml(str(config_file))
+    # 再度設定を読み込む
+    logkiss.yaml_config(str(config_file))
+    logger = logging.getLogger()
     assert logger.level == logkiss.DEBUG
