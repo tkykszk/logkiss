@@ -116,3 +116,46 @@ def test_formatter():
     assert formatter._fmt is not None
     assert "%(levelname)" in formatter._fmt
     assert "%(message)" in formatter._fmt
+
+
+@with_fresh_logkiss
+def test_basicconfig_default():
+    """Test basicConfigメソッドをパラメータなしで呼んだ時の状態が標準loggingモジュールと同じであることを確認"""
+    # 標準loggingモジュールの状態を取得
+    import logging as std_logging
+    std_logging.basicConfig()
+    std_root = std_logging.getLogger()
+    std_handlers = std_root.handlers
+    std_level = std_root.level
+    std_formatter = std_handlers[0].formatter if std_handlers else None
+    
+    # クリーンアップ
+    cleanup_logkiss_modules()
+    
+    # logkissモジュールの状態を取得
+    logkiss.basicConfig()
+    kiss_root = logging.getLogger()
+    kiss_handlers = kiss_root.handlers
+    kiss_level = kiss_root.level
+    kiss_formatter = kiss_handlers[0].formatter if kiss_handlers else None
+    
+    # ハンドラーの数が同じであることを確認
+    assert len(std_handlers) == len(kiss_handlers), \
+        f"Handler count mismatch: std={len(std_handlers)}, kiss={len(kiss_handlers)}"
+    
+    # ロガーレベルが同じであることを確認
+    assert std_level == kiss_level, \
+        f"Logger level mismatch: std={std_level}, kiss={kiss_level}"
+    
+    # ハンドラーのタイプが同じであることを確認
+    if std_handlers and kiss_handlers:
+        assert type(std_handlers[0]) == type(kiss_handlers[0]), \
+            f"Handler type mismatch: std={type(std_handlers[0])}, kiss={type(kiss_handlers[0])}"
+    
+    # フォーマッターの存在確認
+    if std_formatter and kiss_formatter:
+        # フォーマット文字列の基本要素が含まれていることを確認
+        assert "%(levelname)" in std_formatter._fmt and "%(levelname)" in kiss_formatter._fmt, \
+            "levelname format mismatch"
+        assert "%(message)" in std_formatter._fmt and "%(message)" in kiss_formatter._fmt, \
+            "message format mismatch"
