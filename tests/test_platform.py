@@ -7,6 +7,8 @@ cross-platform compatibility.
 import os
 import sys
 import logging
+import platform
+import tempfile
 from pathlib import Path  # Path is needed for type annotation
 from unittest import mock
 
@@ -90,8 +92,34 @@ def test_macos_console():
         for h in root_logger.handlers.copy():
             root_logger.removeHandler(h)
 
-        # setup_from_envメソッドを使ってカラー設定を適用
-        logger = logkiss.setup_from_env()
+        # dictConfigを使ってカラー設定を適用
+        # dictConfig用の設定辞書を作成
+        config = {
+            "version": 1,
+            "formatters": {
+                "colored": {
+                    "class": "logkiss.ColoredFormatter",
+                    "format": "%(asctime)s [%(levelname)s] %(message)s",
+                    "use_color": False
+                }
+            },
+            "handlers": {
+                "console": {
+                    "class": "logkiss.KissConsoleHandler",
+                    "level": "DEBUG",
+                    "formatter": "colored"
+                }
+            },
+            "loggers": {
+                "": {
+                    "handlers": ["console"],
+                    "level": "DEBUG"
+                }
+            }
+        }
+        
+        logkiss.dictConfig(config)
+        logger = logging.getLogger()
 
         # ハンドラーが存在しない場合は明示的に追加
         if len(logger.handlers) == 0:
@@ -188,10 +216,14 @@ def test_config_paths(tmp_path):
         yaml.safe_dump(config, f)
 
     # Both should work regardless of platform
-    logger1 = logkiss.setup_from_yaml(str(config1))
+    logkiss.yaml_config(str(config1))
+    logger1 = logging.getLogger()
+    assert logger1 is not None
     assert logger1.level == logkiss.INFO
 
     # Use os.path.normpath to handle path separators in a platform-independent way
-    config2_path = os.path.normpath(str(config2))
-    logger2 = logkiss.setup_from_yaml(config2_path)
+    config2_path = str(config2).replace("/", "\\")
+    logkiss.yaml_config(config2_path)
+    logger2 = logging.getLogger()
+    assert logger2 is not None
     assert logger2.level == logkiss.INFO

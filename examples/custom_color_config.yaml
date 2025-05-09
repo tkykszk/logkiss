@@ -1,0 +1,36 @@
+levels:
+  DEBUG:
+    fg: blue
+  INFO:
+    fg: white
+  WARNING:
+    fg: black
+    bg: yellow
+  ERROR:
+    fg: black
+    bg: red
+  CRITICAL:
+    fg: black
+    bg: bright_red
+    style: bold
+
+elements:
+  timestamp:
+    fg: white
+  filename:
+    fg: cyan
+  message:
+    DEBUG:
+      fg: blue
+    INFO:
+      fg: white
+    WARNING:
+      fg: black
+      bg: yellow
+    ERROR:
+      fg: black
+      bg: red
+    CRITICAL:
+      fg: black
+      bg: bright_red
+      style: bold

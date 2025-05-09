@@ -176,7 +176,7 @@ levels:
 ログの色付けは以下の環境変数で制御できます：
 
 - `LOGKISS_DISABLE_COLOR`: 色付けを無効にする（値: 1, true, yes）
-- `NO_COLOR`: 業界標準で色付けを無効にする（値: 任意）
+- `NO_COLOR`: 色付けを無効にする（値に関係なく、環境変数が存在するだけで無効化） - **非推奨**: 代わりに `LOGKISS_DISABLE_COLOR` を使用してください
 - `LOGKISS_LEVEL_FORMAT`: ログレベル名の表示長を指定する（値: 数値、デフォルト: 5）
   - 例: `LOGKISS_LEVEL_FORMAT=5` とすると、全てのログレベル名が5文字に調整されます
   - WARNINGは特別に「WARN」に短縮されます

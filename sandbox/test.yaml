@@ -1,0 +1,48 @@
+version: 1
+formatters:
+  colored:
+    "()": "logkiss.ColoredFormatter"
+    format: "【設定1】%(asctime)s [%(levelname)s] %(message)s"
+    colors:
+      levels:
+        DEBUG:
+          fg: blue
+        INFO:
+          fg: white
+        WARNING:
+          fg: black
+          bg: bright_yellow
+        ERROR:
+          fg: black
+          bg: red
+        CRITICAL:
+          fg: black
+          bg: bright_red
+      elements:
+        timestamp:
+          fg: white
+        filename:
+          fg: cyan
+        message:
+          DEBUG:
+            fg: blue
+          INFO:
+            fg: white
+          WARNING:
+            fg: black
+            bg: yellow
+          ERROR:
+            fg: black
+            bg: red
+          CRITICAL:
+            fg: black
+            bg: bright_red
+handlers:
+  console:
+    class: "logkiss.KissConsoleHandler"
+    level: "DEBUG"
+    formatter: "colored"
+loggers:
+  "":
+    handlers: ["console"]
+    level: "DEBUG"

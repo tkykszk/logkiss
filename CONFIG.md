@@ -184,7 +184,7 @@ elements:
 Log coloring and configuration can be controlled using the following environment variables:
 
 - `LOGKISS_DISABLE_COLOR`: Disable coloring (values: 1, true, yes)
-- `NO_COLOR`: Industry standard for disabling colors (any value)
+- `NO_COLOR`: Industry standard for disabling colors (any value) - **DEPRECATED**: Use `LOGKISS_DISABLE_COLOR` instead
 - `LOGKISS_LEVEL_FORMAT`: Specify the display length of log level names (value: number, default: 5)
   - Example: `LOGKISS_LEVEL_FORMAT=5` adjusts all log level names to 5 characters
   - WARNING is specially shortened to "WARN"

@@ -59,7 +59,6 @@ pdm.lock
 # 環境変数
 .env
 .windsurfrules
-.windsurfrules
 # Temp files
 /var/folders/
 /private/var/
