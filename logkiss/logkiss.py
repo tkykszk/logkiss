@@ -216,16 +216,35 @@ class ColorManager:
             config_path: Path to color configuration file
         """
         self.config_path = config_path
-        self.config = self._load_config()
+        self._config = None  # 内部設定を保持するプライベート変数
+        self._external_config = False  # 外部から設定が適用されたかどうか
+        # 初期化時にファイルから設定を読み込む
+        self._config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        """Load color settings from file"""
+    @property
+    def config(self) -> Dict[str, Any]:
+        """色設定を取得する"""
+        if self._config is None:
+            self._config = self._load_default_config()
+        return self._config
+
+    @config.setter
+    def config(self, value: Dict[str, Any]) -> None:
+        """色設定を設定する"""
+        import copy
+        
+        # 完全に置き換えるためにディープコピーを使用
+        self._config = copy.deepcopy(value)
+        self._external_config = True
+        
+    def _load_default_config(self) -> Dict[str, Any]:
+        """デフォルトの色設定を読み込む"""
         # Default color settings
-        default_config = {
+        return {
             "levels": {
                 "DEBUG": {"fg": "blue"},
                 "INFO": {"fg": "white"},
-                "WARNING": {"fg": "yellow"},
+                "WARNING": {"fg": "black", "bg": "yellow"},  # 黄色地に黒字に変更
                 "ERROR": {"fg": "black", "bg": "red"},
                 "CRITICAL": {"fg": "black", "bg": "bright_red", "style": "bold"},
             },
@@ -235,19 +254,30 @@ class ColorManager:
                 "message": {
                     "DEBUG": {"fg": "blue"},
                     "INFO": {"fg": "white"},
-                    "WARNING": {"fg": "yellow"},
+                    "WARNING": {"fg": "black", "bg": "yellow"},  # 黄色地に黒字に変更
                     "ERROR": {"fg": "black", "bg": "red"},
                     "CRITICAL": {"fg": "black", "bg": "bright_red", "style": "bold"},
                 },
             },
         }
+    
+    def _load_config(self) -> Dict[str, Any]:
+        """Load color settings from file"""
+        # 外部から設定が適用されている場合は、その設定を使用
+        if hasattr(self, '_external_config') and self._external_config and self._config is not None:
+            return self._config
+            
+        # デフォルト設定を取得
+        default_config = self._load_default_config()
 
         # Load configuration from file if available
         if self.config_path:
             try:
                 with open(self.config_path, "r", encoding='utf-8') as f:
                     config = safe_load(f)
-                return {**default_config, **config}
+                    if config:
+                        # 設定ファイルの内容を優先して適用（デフォルト設定は使用しない）
+                        return config
             except (FileNotFoundError, YAMLError, TypeError):
                 # ファイルが存在しない、読み込めない、または無効なYAMLの場合
                 return default_config

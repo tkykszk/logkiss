@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-logkiss.config - 設定モジュール
+logkissの設定モジュール
 
-標準ロギングライブラリのdictConfig機能と互換性のある設定機能を提供します。
-環境変数からの自動設定機能も含みます。
+標準のloggingモジュールの設定関数を拡張し、色付きログなどの機能をサポートします。
 """
 
 import logging
@@ -15,78 +14,93 @@ import sys
 from typing import Dict, Any, Optional, Union
 from pathlib import Path
 import yaml
+from yaml import safe_load
+from yaml.error import YAMLError
 
-from .logkiss import ColoredFormatter
+# 循環インポートを避けるために関数内でインポートする
+def _get_colored_formatter():
+    from logkiss.logkiss import ColoredFormatter
+    return ColoredFormatter
 
 
 def dictConfig(config: Dict[str, Any]) -> None:
     """
-    標準ロギングライブラリのlogging.config.dictConfigと互換性のある設定関数
+    Configure logging using a dictionary
 
-    この関数は標準のlogging.config.dictConfigを拡張し、logkissの色設定を
-    辞書形式で行えるようにします。
+    This function is similar to logging.config.dictConfig, but it also handles
+    color settings for ColoredFormatter.
 
     Args:
-        config: 設定辞書。標準のdictConfig形式に加え、formattersセクションに
-               colorsキーを追加して色設定を行えます。
+        config: A dictionary containing logging configuration
 
     Example:
         >>> import logkiss.config
-        >>> config = {
+        >>> logkiss.config.dictConfig({
         ...     "version": 1,
         ...     "formatters": {
         ...         "colored": {
-        ...             "()": "logkiss.ColoredFormatter",
-        ...             "format": "%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s",
+        ...             "format": "%(asctime)s [%(levelname)s] %(message)s",
+        ...             "datefmt": "%Y-%m-%d %H:%M:%S",
+        ...             "class": "logkiss.ColoredFormatter",
         ...             "colors": {
         ...                 "levels": {
-        ...                     "WARNING": {"fg": "black", "bg": "yellow"}
+        ...                     "DEBUG": {"fg": "blue"},
+        ...                     "INFO": {"fg": "white"},
+        ...                     "WARNING": {"fg": "yellow"},
+        ...                     "ERROR": {"fg": "black", "bg": "red"},
+        ...                     "CRITICAL": {"fg": "black", "bg": "bright_red", "style": "bold"}
         ...                 }
         ...             }
         ...         }
         ...     },
         ...     "handlers": {
         ...         "console": {
-        ...             "class": "logkiss.KissConsoleHandler",
+        ...             "class": "logging.StreamHandler",
         ...             "level": "DEBUG",
-        ...             "formatter": "colored"
+        ...             "formatter": "colored",
+        ...             "stream": "ext://sys.stdout"
         ...         }
         ...     },
-        ...     "loggers": {
-        ...         "": {
-        ...             "handlers": ["console"],
-        ...             "level": "DEBUG"
-        ...         }
+        ...     "root": {
+        ...         "level": "DEBUG",
+        ...         "handlers": ["console"]
         ...     }
-        ... }
-        >>> logkiss.config.dictConfig(config)
+        ... })
     """
-    # 設定辞書のコピーを作成
-    config_copy = config.copy()
-
-    # formattersセクションを処理
-    if "formatters" in config_copy:
-        formatters = config_copy["formatters"]
-        for _, formatter_config in formatters.items():
-            # ColoredFormatterの場合、colorsキーを処理
-            if "colors" in formatter_config:
-                color_config = formatter_config.pop("colors")
-                # 後で使用するために色設定を保存
-                formatter_config["_color_config"] = color_config
-
-    # 標準のdictConfigを呼び出して基本設定を適用
-    logging.config.dictConfig(config_copy)
-
-    # 色設定を適用
+    # 色設定を事前に取得
+    color_configs = {}
     if "formatters" in config:
-        formatters = config["formatters"]
-        for _, formatter_config in formatters.items():
+        for formatter_name, formatter_config in config["formatters"].items():
             if "colors" in formatter_config:
-                # 対応するフォーマッタを取得
-                formatter = logging.getLogger("").handlers[0].formatter
-                if isinstance(formatter, ColoredFormatter):
-                    # 色設定を適用
-                    formatter.color_manager.config.update(formatter_config["colors"])
+                # ディープコピーを作成して完全に置き換え
+                import copy
+                color_configs[formatter_name] = copy.deepcopy(formatter_config["colors"])
+    
+    # logging.config.dictConfigを使用して設定を適用
+    logging.config.dictConfig(config)
+    
+    # 色設定を適用
+    if color_configs:
+        # 対応するフォーマッタを取得
+        ColoredFormatter = _get_colored_formatter()
+        
+        # ルートロガーのハンドラーを取得
+        root_logger = logging.getLogger("")
+        if root_logger.handlers:
+            # 全てのハンドラーに対して処理
+            for handler in root_logger.handlers:
+                if hasattr(handler, 'formatter') and isinstance(handler.formatter, ColoredFormatter):
+                    formatter = handler.formatter
+                    
+                    # フォーマッター名を特定
+                    for formatter_name, color_config in color_configs.items():
+                        # 色設定を完全に置き換え
+                        # ColorManagerの設定を更新
+                        if hasattr(formatter, 'color_manager'):
+                            formatter.color_manager.config = color_config
+                        
+                        # 一度適用したら終了
+                        break
 
 
 def fileConfig(fname: Union[str, Path], defaults: Optional[Dict[str, str]] = None, 
@@ -125,13 +139,13 @@ def load_yaml_config(config_path: Union[str, Path]) -> Dict[str, Any]:
         yaml.YAMLError: YAMLの形式が不正な場合
     """
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            try:
-                return yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                raise yaml.YAMLError(f"Invalid YAML format in {config_path}: {e}")
-    except FileNotFoundError:
-        raise ValueError(f"Configuration file not found: {config_path}")
+        with open(config_path, "r", encoding='utf-8') as f:
+            config = safe_load(f)
+    except FileNotFoundError as exc:
+        raise ValueError(f"Configuration file not found: {config_path}") from exc
+    except yaml.YAMLError as exc:
+        raise yaml.YAMLError(f"Invalid YAML format in {config_path}: {exc}")
+    return config
 
 
 def yaml_config(config_path: Union[str, Path]) -> None:
