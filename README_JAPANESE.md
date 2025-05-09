@@ -1,15 +1,17 @@
-![LOGKISS](docs/logkiss-logo-tiny.png)
+# LOGKISS
 
-[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
+![LOGKISS](https://raw.githubusercontent.com/tkykszk/logkiss/main/docs/logkiss-logo-tiny.png)
+
+[![Tests](https://github.com/tkykszk/logkiss/actions/workflows/test.yml/badge.svg)](https://github.com/tkykszk/logkiss/actions/workflows/test.yml) [![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/tkykszk/logkiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tkykszk/logkiss)
 
 LOGKISS (Keep It Simple and Stupid Logger) は、Python向けの使いやすいロギングライブラリです。
-標準のloggingモジュールを活かしつつ、デフォルト設定をすることにより毎回設定を書くことなく使用できます。
+標準のloggingモジュールを基盤として、すぐに使える便利なデフォルト設定を提供します。
 
 ## 特徴
 
 - **デフォルトでカラフル**: LOGKISSは、デフォルトで`KissConsoleHandler`を使用し、ログレベルに応じて異なる色で出力します。
 - **標準ロギングモジュールの代替**: `import logkiss as logging`とすることで、標準の`logging`モジュールの代わりとして使用できます。
-- **柔軟な切り替え**: 必要に応じて、通常の`ConsoleHandler`に切り替えることができます。
+- **柔軟な切り替え**: 必要に応じて標準の`ConsoleHandler`に簡単に戻すことができます。
 
 ## インストール
 
@@ -22,20 +24,38 @@ pip install logkiss
 ### 最小例（標準logging・logkiss互換）
 
 ```python
+# examples/minimal_warning.py
 import logging
-logging.warning("省略メソッドの最小例")
+logging.warning("初心者向けの最小例")
 ```
 
-logkissでも同じ書き方で動作します:
+同じコードがlogkissでも動作します：
 
 ```python
+# examples/minimal_warning.py
 import logkiss as logging
-logging.warning("初学者を惑わせがちな省略メソッド")
+logging.warning("初心者向けの最小例")
 ```
+
+LOGKISSは、ロギング体験を向上させる3つの方法を提供します：
 
 ### 1. カラフルなコンソールロギング
 
-最小限の設定で美しいカラー出力を得るために、LOGKISSを直接使用します：
+LOGKISSを直接使用して、最小限の設定で美しい色付きログ出力を得ることができます：
+
+```python
+# examples/quickstart_1.py
+import logkiss
+
+logger = logkiss.getLogger("example1")
+logger.debug("デバッグメッセージ")
+logger.info("情報メッセージ")
+logger.warning("警告メッセージ")
+logger.error("エラーメッセージ")
+logger.critical("重大エラーメッセージ")
+```
+
+![picture](https://raw.githubusercontent.com/tkykszk/logkiss/main/images/1744211555459.png)
 
 ```python
 import logkiss
@@ -45,7 +65,8 @@ logger.warning("ターミナルにカラフルな出力")
 ```
 
 出力結果：
-```
+
+```text
 2025-04-12 08:06:23,215 WARN  | example.py:4   | ターミナルにカラフルな出力
 ```
 
