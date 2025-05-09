@@ -85,7 +85,7 @@ def test_config_log_file_output_test(tmp_config, tmp_path):
             "simple": {"format": "%(levelname)s %(message)s"}
         },
         "handlers": {
-            "file": {"class": "FileHandler", "filename": str(log_file), "level": "INFO", "formatter": "simple"}
+            "file": {"class": "logging.FileHandler", "filename": str(log_file), "level": "INFO", "formatter": "simple"}
         },
         "root": {"level": "INFO", "handlers": ["file"]}
     }
@@ -113,7 +113,7 @@ def test_config_log_format_test(tmp_config, caplog):
             "custom": {"format": "%(levelname)s::%(message)s"}
         },
         "handlers": {
-            "console": {"class": "StreamHandler", "formatter": "custom"}
+            "console": {"class": "logging.StreamHandler", "formatter": "custom"}
         },
         "root": {"level": "INFO", "handlers": ["console"]}
     }
@@ -134,7 +134,7 @@ def test_config_rotation_test(tmp_config, tmp_path):
         },
         "handlers": {
             "rot": {
-                "class": "RotatingFileHandler",
+                "class": "logging.handlers.RotatingFileHandler",
                 "filename": str(rot_file),
                 "maxBytes": 100,
                 "backupCount": 1,
@@ -168,7 +168,7 @@ def test_config_filter_test(tmp_config, caplog):
             "only_test7": {"logger": "test7"}
         },
         "handlers": {
-            "console": {"class": "StreamHandler", "level": "DEBUG", "filters": ["only_test7"], "formatter": "simple"}
+            "console": {"class": "logging.StreamHandler", "level": "DEBUG", "filters": ["only_test7"], "formatter": "simple"}
         },
         "root": {"level": "DEBUG", "handlers": ["console"]}
     }
@@ -226,8 +226,8 @@ def test_config_multiple_handler_test(tmp_config, tmp_path, caplog):
             "simple": {"format": "%(levelname)s %(message)s"}
         },
         "handlers": {
-            "console": {"class": "StreamHandler", "level": "INFO", "formatter": "simple"},
-            "file": {"class": "FileHandler", "filename": str(log_file), "level": "INFO", "formatter": "simple"}
+            "console": {"class": "logging.StreamHandler", "level": "INFO", "formatter": "simple"},
+            "file": {"class": "logging.FileHandler", "filename": str(log_file), "level": "INFO", "formatter": "simple"}
         },
         "root": {"level": "INFO", "handlers": ["console", "file"]}
     }
