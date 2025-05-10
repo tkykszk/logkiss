@@ -173,34 +173,34 @@ Logkiss modifies the behavior of the Python logging system. This has some implic
 
 ## Configuration
 
-logkissは複数の設定方法をサポートしています。標準のloggingライブラリと互換性のある方法と、logkiss独自の便利な機能を組み合わせることができます。
+LOGKISS supports multiple configuration methods. You can combine methods compatible with the standard logging library and LOGKISS's own convenient features.
 
-### 自動設定
+### Automatic Configuration
 
-logkissをインポートするだけで、自動的に設定が適用されます。
+Just importing LOGKISS automatically applies the configuration.
 
 ```python
 import logkiss
-# 自動的に環境変数や設定ファイルから設定が読み込まれます
+# Configuration is automatically loaded from environment variables and config files
 ```
 
-設定の優先順位は以下の通りです：
+The configuration priority is as follows:
 
-1. 環境変数 `LOGKISS_SKIP_CONFIG=1` が設定されている場合、設定ファイルの読み込みをスキップ
-2. 環境変数 `LOGKISS_CONFIG` で指定された設定ファイル
-3. デフォルトの場所にある設定ファイル（`~/.config/logkiss/config.yaml` など）
-4. 環境変数から設定（`LOGKISS_LEVEL`, `LOGKISS_FORMAT` など）
+1. If the environment variable `LOGKISS_SKIP_CONFIG=1` is set, skip loading the configuration file
+2. Configuration file specified by the environment variable `LOGKISS_CONFIG`
+3. Configuration file in the default location (e.g., `~/.config/logkiss/config.yaml`)
+4. Configuration from environment variables (`LOGKISS_LEVEL`, `LOGKISS_FORMAT`, etc.)
 
-主要な環境変数：
+Main environment variables:
 
-- `LOGKISS_LEVEL`: ログレベルを指定（DEBUG, INFO, WARNING, ERROR, CRITICAL）
-- `LOGKISS_FORMAT`: ログフォーマット文字列
-- `LOGKISS_DISABLE_COLOR`: 色付けを無効にする（値: 1, true, yes）
-- `NO_COLOR`: 色付けを無効にする（値に関係なく、環境変数が存在するだけで無効化） - **非推奨**: 代わりに `LOGKISS_DISABLE_COLOR` を使用してください
+- `LOGKISS_LEVEL`: Specify the log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- `LOGKISS_FORMAT`: Log format string
+- `LOGKISS_DISABLE_COLOR`: Disable coloring (values: 1, true, yes)
+- `NO_COLOR`: Disable coloring (regardless of the value, just the existence of the environment variable disables it) - **DEPRECATED**: Use `LOGKISS_DISABLE_COLOR` instead
 
-### dictConfig による設定
+### Configuration with dictConfig
 
-標準の `logging.config.dictConfig` と互換性のある方法で設定できます。
+You can configure using the standard `logging.config.dictConfig` compatible method.
 
 ```python
 import logkiss
@@ -212,7 +212,7 @@ config = {
         "colored": {
             "()": "logkiss.ColoredFormatter",
             "format": "%(asctime)s %(levelname)s | %(filename)s: %(lineno)d | %(message)s",
-            "colors": {  # logkiss独自の色設定
+            "colors": {  # LOGKISS's unique color settings
                 "levels": {
                     "WARNING": {"fg": "black", "bg": "yellow"}
                 }
@@ -237,9 +237,9 @@ config = {
 dictConfig(config)
 ```
 
-### YAMLファイルによる設定
+### Configuration with YAML Files
 
-YAMLファイルから設定を読み込むこともできます。
+You can also load configuration from a YAML file.
 
 ```python
 import logkiss
@@ -248,7 +248,7 @@ from logkiss import yaml_config
 yaml_config("path/to/config.yaml")
 ```
 
-YAMLファイルの例：
+Example YAML file:
 
 ```yaml
 version: 1
@@ -272,16 +272,16 @@ loggers:
     level: DEBUG
 ```
 
-### 色設定のカスタマイズ
+### Customizing Color Settings
 
-logkissでは、各ログレベルの色をカスタマイズできます。dictConfigまたはYAMLファイルで以下のように設定します：
+In LOGKISS, you can customize the colors for each log level. Configure them in dictConfig or YAML file as follows:
 
 ```python
 "colors": {
     "levels": {
         "DEBUG": {"fg": "blue"},
         "INFO": {"fg": "white"},
-        "WARNING": {"fg": "black", "bg": "yellow"},  # 黄色地に黒字
+        "WARNING": {"fg": "black", "bg": "yellow"},  # Black text on yellow background
         "ERROR": {"fg": "black", "bg": "red"},
         "CRITICAL": {"fg": "black", "bg": "bright_red", "style": "bold"}
     },
@@ -299,13 +299,13 @@ logkissでは、各ログレベルの色をカスタマイズできます。dict
 }
 ```
 
-利用可能な色とスタイル：
+Available colors and styles:
 
-- 前景色（`fg`）: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `bright_black`, `bright_red`, `bright_green`, `bright_yellow`, `bright_blue`, `bright_magenta`, `bright_cyan`, `bright_white`
-- 背景色（`bg`）: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `bright_black`, `bright_red`, `bright_green`, `bright_yellow`, `bright_blue`, `bright_magenta`, `bright_cyan`, `bright_white`
-- スタイル（`style`）: `bold`, `dim`, `italic`, `underline`, `reverse`, `hidden`, `strike`
+- Foreground colors (`fg`): `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `bright_black`, `bright_red`, `bright_green`, `bright_yellow`, `bright_blue`, `bright_magenta`, `bright_cyan`, `bright_white`
+- Background colors (`bg`): `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `bright_black`, `bright_red`, `bright_green`, `bright_yellow`, `bright_blue`, `bright_magenta`, `bright_cyan`, `bright_white`
+- Styles (`style`): `bold`, `dim`, `italic`, `underline`, `reverse`, `hidden`, `strike`
 
-詳細な設定オプションについては、[CONFIG.md](CONFIG.md)を参照してください。
+For detailed configuration options, please refer to [CONFIG.md](CONFIG.md).
 
 ## Acknowledgments
 
