@@ -137,7 +137,7 @@ def test_invalid_structured_data():
     # ロガーを準備
     logger = logging.getLogger("test_invalid")
 
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     for h in logger.handlers.copy():
         logger.removeHandler(h)
 

@@ -27,17 +27,17 @@ def test_windows_console():
     if os.environ.get("GITHUB_ACTIONS") == "true":
         pytest.skip("Skipping Windows console test in GitHub Actions")
 
-    # デフォルトではlogkissがハンドラーを追加しない可能性があるため、明示的にハンドラーを追加
+    # Add handlers explicitly as logkiss might not add handlers by default
     logger = logkiss.getLogger("test_windows")
     handler = logging.StreamHandler()
-    # カラーフォーマッターを適用
+    # Apply color formatter
     formatter = logkiss.ColoredFormatter()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
     # Test with ANSICON environment
     with mock.patch.dict(os.environ, {"ANSICON": "1"}):
-        # ハンドラーが少なくとも1つあることを確認
+        # Ensure there is at least one handler
         assert len(logger.handlers) > 0
         assert logger.handlers[0].formatter.use_color
 
@@ -64,36 +64,36 @@ def test_windows_console():
 @pytest.mark.skipif(sys.platform != "darwin", reason="macOS-specific test")
 def test_macos_console():
     """Test macOS console output handling."""
-    # MacOSのデフォルトターミナルはカラーをサポートしているので、テストを調整
+    # Adjust tests as macOS default terminal supports colors
 
-    # カラーが有劶な状態を確認
+    # Verify that color is enabled
     with mock.patch.dict(os.environ, {}):
-        # 既存のハンドラをクリア
+        # Clear existing handlers
         root_logger = logkiss.logging.getLogger()
         for h in root_logger.handlers.copy():
             root_logger.removeHandler(h)
 
         logger = logkiss.getLogger("test_macos_color")
 
-        # 明示的にハンドラを追加
+        # Add handlers explicitly
         handler = logging.StreamHandler()
         formatter = logkiss.ColoredFormatter()
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-        # 現在の実装ではデフォルトでカラーが有効なので、以下のように期待値を変更
+        # In the current implementation, color is enabled by default, so adjust expectations accordingly
         assert len(logger.handlers) > 0
         assert logger.handlers[0].formatter.use_color
 
-    # 特定の環境変数でカラーを無劶化する
+    # Disable color with specific environment variables
     with mock.patch.dict(os.environ, {"LOGKISS_DISABLE_COLOR": "true"}):
-        # 新しいロガーを取得して設定を適用
+        # Get a new logger and apply settings
         root_logger = logkiss.logging.getLogger()
         for h in root_logger.handlers.copy():
             root_logger.removeHandler(h)
 
-        # dictConfigを使ってカラー設定を適用
-        # dictConfig用の設定辞書を作成
+        # Apply color settings using dictConfig
+        # Create configuration dictionary for dictConfig
         config = {
             "version": 1,
             "formatters": {
@@ -121,7 +121,7 @@ def test_macos_console():
         logkiss.dictConfig(config)
         logger = logging.getLogger()
 
-        # ハンドラーが存在しない場合は明示的に追加
+        # Add handlers explicitly if none exist
         if len(logger.handlers) == 0:
             handler = logging.StreamHandler()
             formatter = logkiss.ColoredFormatter(use_color=False)
@@ -141,7 +141,7 @@ def test_linux_console():
 
     logger = logkiss.getLogger("test_linux")
 
-    # デフォルトではハンドラーがない場合もあるので、ハンドラーを追加
+    # Add handlers as there might not be any by default
     handler = logging.StreamHandler()
     formatter = logkiss.ColoredFormatter()
     handler.setFormatter(formatter)
@@ -155,7 +155,7 @@ def test_linux_console():
     # Test with NO_COLOR environment
     with mock.patch.dict(os.environ, {"NO_COLOR": "1"}):
         logger = logkiss.getLogger("test_linux_no_color")
-        # ハンドラーを追加
+        # Add handlers
         handler = logging.StreamHandler()
         formatter = logkiss.ColoredFormatter()
         handler.setFormatter(formatter)
@@ -171,27 +171,27 @@ def test_file_paths(tmp_path):
     log_dir.mkdir()
     log_file = log_dir / "test.log"
 
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     logger = logkiss.getLogger("test_paths")
     for h in logger.handlers.copy():
         logger.removeHandler(h)
 
-    # ファイルハンドラを設定
+    # Set up file handler
     handler = logging.FileHandler(str(log_file), mode="w")
     formatter = logging.Formatter("%(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-    # テストメッセージを書き込む
+    # Write test message
     test_message = "Test message"
     logger.info(test_message)
 
-    # ハンドラをフラッシュして閉じる
+    # Flush and close the handler
     handler.flush()
     handler.close()
 
-    # ファイルの内容を読み込んで検証
+    # Read and verify file contents
     with open(str(log_file), "r") as f:
         content = f.read()
         assert test_message in content
@@ -200,9 +200,9 @@ def test_file_paths(tmp_path):
 @pytest.mark.config
 def test_config_paths(tmp_path):
     """Test configuration file path handling across platforms."""
-    # テスト前に環境変数をクリアして状態をリセット
+    # Clear environment variables and reset state before testing
     with mock.patch.dict(os.environ, {}, clear=True):
-        # ロガーの状態をリセット
+        # Reset logger state
         root_logger = logging.getLogger()
         for handler in list(root_logger.handlers):
             root_logger.removeHandler(handler)
@@ -222,7 +222,7 @@ def test_config_paths(tmp_path):
         with config2.open("w") as f:
             yaml.safe_dump(config, f)
 
-        # 設定を適用する前にロガーレベルを確認
+        # Check logger level before applying configuration
         print(f"Before config: root logger level = {root_logger.level}")
         
         # Both should work regardless of platform
@@ -232,9 +232,9 @@ def test_config_paths(tmp_path):
         print(f"After config1: root logger level = {logger1.level}, expected = {logkiss.INFO}")
         assert logger1.level == logkiss.INFO
 
-        # Windowsスタイルのパスのテストは、現在のプラットフォームがWindowsの場合のみ実行
+        # Only run Windows-style path tests if the current platform is Windows
         if sys.platform.startswith("win"):
-            # Windowsの場合はバックスラッシュを使用
+            # Use backslashes for Windows
             config2_path = str(config2).replace("/", "\\")
             logkiss.yaml_config(config2_path)
             logger2 = logging.getLogger()
@@ -242,9 +242,9 @@ def test_config_paths(tmp_path):
             print(f"After config2: root logger level = {logger2.level}, expected = {logkiss.INFO}")
             assert logger2.level == logkiss.INFO
         else:
-            # Windows以外の場合は、通常のパスを使用してテストをスキップ
+            # Skip Windows-style path test on non-Windows platforms
             print("Skipping Windows-style path test on non-Windows platform")
-            # 代わりに通常のパスで再度テスト
+            # Test with normal paths instead
             logkiss.yaml_config(str(config2))
             logger2 = logging.getLogger()
             assert logger2 is not None

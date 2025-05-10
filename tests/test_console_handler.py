@@ -16,7 +16,7 @@ from logging import StreamHandler
 
 def test_use_console_handler():
     """use_console_handler 関数のテスト"""
-    # テスト用のロガーを作成
+    # Create a logger for testing
     logger = logging.getLogger("test_console_handler")
     logger.setLevel(logging.DEBUG)
 
@@ -24,21 +24,21 @@ def test_use_console_handler():
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    # 標準エラー出力をキャプチャするための設定
+    # Setup to capture standard error output
     original_stderr = sys.stderr
     captured_stderr = io.StringIO()
     sys.stderr = captured_stderr
 
     try:
-        # console_handler を使用
+        # Use console_handler
         logkiss.use_console_handler(logger)
 
-        # ハンドラーが追加されたことを確認
+        # Verify that the handler was added
         assert len(logger.handlers) == 1
         handler = logger.handlers[0]
         assert isinstance(handler, logging.StreamHandler)
 
-        # フォーマッターが正しく設定されていることを確認
+        # Verify that the formatter is correctly configured
         formatter = handler.formatter
         assert formatter is not None
         assert "%(asctime)s" in formatter._fmt
@@ -47,43 +47,43 @@ def test_use_console_handler():
         assert "%(lineno)" in formatter._fmt
         assert "%(message)s" in formatter._fmt
 
-        # ログ出力のテスト
+        # Test log output
         logger.info("テストメッセージ")
         output = captured_stderr.getvalue()
 
-        # 出力形式の確認
+        # Check output format
         assert "INFO" in output
         assert "test_console_handler.py" in output
         assert "テストメッセージ" in output
 
     finally:
-        # 標準エラー出力を元に戻す
+        # Restore standard error output
         sys.stderr = original_stderr
 
 
 def test_use_console_handler_with_root_logger():
     """ルートロガーに対する use_console_handler 関数のテスト"""
-    # ルートロガーを取得
+    # Get the root logger
     root_logger = logging.getLogger()
     original_level = root_logger.level
 
-    # 既存のハンドラーを保存
+    # Save existing handlers
     original_handlers = root_logger.handlers[:]
 
-    # ハンドラーをクリア
+    # Clear handlers
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
     try:
-        # ルートロガーに console_handler を使用
+        # Use console_handler with the root logger
         logkiss.use_console_handler()
 
-        # ハンドラーが追加されたことを確認
+        # Verify that the handler was added
         assert len(root_logger.handlers) == 1
         handler = root_logger.handlers[0]
         assert isinstance(handler, logging.StreamHandler)
 
-        # フォーマッターが正しく設定されていることを確認
+        # Verify that the formatter is correctly configured
         formatter = handler.formatter
         assert formatter is not None
 
@@ -91,7 +91,7 @@ def test_use_console_handler_with_root_logger():
         # ルートロガーを元の状態に戻す
         root_logger.setLevel(original_level)
 
-        # ハンドラーをクリア
+        # Clear handlers
         for handler in root_logger.handlers[:]:
             root_logger.removeHandler(handler)
 
@@ -102,7 +102,7 @@ def test_use_console_handler_with_root_logger():
 
 def test_use_console_handler_removes_kiss_console_handler():
     """KissConsoleHandler が削除されることを確認するテスト"""
-    # テスト用のロガーを作成
+    # Create a logger for testing
     logger = logging.getLogger("test_remove_kiss_handler")
     logger.setLevel(logging.DEBUG)
 
@@ -115,7 +115,7 @@ def test_use_console_handler_removes_kiss_console_handler():
     kiss_handler = KissConsoleHandler()
     logger.addHandler(kiss_handler)
 
-    # console_handler を使用
+    # Use console_handler
     logkiss.use_console_handler(logger)
 
     # KissConsoleHandler が削除され、新しいハンドラーが追加されたことを確認

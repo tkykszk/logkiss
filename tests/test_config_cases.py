@@ -29,7 +29,7 @@ def test_config_color_test1(tmp_config, caplog):
         mp.delenv("LOGKISS_DATEFMT", raising=False)
         mp.delenv("LOGKISS_DISABLE_COLOR", raising=False)
         
-        # 既存のハンドラをクリア
+        # Clear existing handlers
         root_logger = logging.getLogger()
         for handler in list(root_logger.handlers):
             root_logger.removeHandler(handler)
@@ -188,7 +188,7 @@ def test_config_color_test2(tmp_config, caplog):
         config_content = f.read()
     print("[TEST DEBUG] config file contents:\n", config_content)
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -245,7 +245,7 @@ def test_config_log_level_test(tmp_config, tmp_path):
     config_path = tmp_config(config)
     print(f"\n設定ファイルを作成: {config_path}")
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -329,7 +329,7 @@ def test_config_log_format_test(tmp_config, caplog):
     }
     config_path = tmp_config(config)
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -427,7 +427,7 @@ def test_config_filter_test(tmp_config, tmp_path):
     log_file_test7 = os.path.join(str(tmp_path), "test_filter_test7.txt")
     log_file_test8 = os.path.join(str(tmp_path), "test_filter_test8.txt")
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -436,7 +436,7 @@ def test_config_filter_test(tmp_config, tmp_path):
     logging.shutdown()
     importlib.reload(logging)
     
-    # テスト用のロガーを作成
+    # Create a logger for testing
     logger1 = logkiss.getLogger("test7")  # フィルターにマッチするロガー
     logger2 = logkiss.getLogger("test8")  # フィルターにマッチしないロガー
     
@@ -531,7 +531,7 @@ def test_config_default_value_test(tmp_path):
     for env_var in ["LOGKISS_LEVEL", "LOGKISS_FORMAT", "LOGKISS_DATEFMT", "LOGKISS_CONFIG", "LOGKISS_SKIP_CONFIG"]:
         os.environ.pop(env_var, None)  # delの代わりにpopを使用
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -638,7 +638,7 @@ def test_config_invalid_value_test(tmp_config):
     config = {"version": 1, "root": {"level": "NO_SUCH_LEVEL"}}
     config_path = tmp_config(config)
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -661,7 +661,7 @@ def test_config_env_override_test(tmp_config, caplog, monkeypatch):
     config = {"version": 1, "root": {"level": "INFO"}}
     config_path = tmp_config(config)
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -739,7 +739,7 @@ def test_config_multiple_handler_test(tmp_config, tmp_path, caplog):
     }
     config_path = tmp_config(config)
     
-    # 既存のハンドラをクリア
+    # Clear existing handlers
     root_logger = logging.getLogger()
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)

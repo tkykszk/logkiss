@@ -67,7 +67,7 @@ def dictConfig(config: Dict[str, Any]) -> None:
         ...     }
         ... })
     """
-    # 色設定を事前に取得
+    # Get color settings in advance
     color_configs = {}
     if "formatters" in config:
         for formatter_name, formatter_config in config["formatters"].items():

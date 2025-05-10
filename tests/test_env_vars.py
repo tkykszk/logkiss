@@ -19,7 +19,6 @@ import logkiss
 # ColoredFormatterをインポート（パッケージ構造に合わせて）
 from logkiss.logkiss import ColoredFormatter
 
-
 @pytest.fixture(autouse=True)
 def reset_logkiss():
     """各テストの前後でlogkissモジュールの状態をリセットする"""
@@ -31,7 +30,7 @@ def reset_logkiss():
     yield
     
     # テスト後の処理
-    # ハンドラーをクリア
+    # Clear handlers
     old_handlers = logging.getLogger().handlers.copy()
     for handler in old_handlers:
         logging.getLogger().removeHandler(handler)

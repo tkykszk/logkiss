@@ -41,10 +41,21 @@ def temp_config_file():
 
 def test_load_yaml_config(temp_config_file):
     """Test loading configuration from YAML file."""
-    logkiss.yaml_config(str(temp_config_file))
-    logger = logging.getLogger()
-    assert logger is not None
-    assert logger.level == logkiss.INFO
+    # Clear environment variables and reset state before testing
+    with mock.patch.dict(os.environ, {}, clear=True):
+        # Reset logger state
+        root_logger = logging.getLogger()
+        for handler in list(root_logger.handlers):
+            root_logger.removeHandler(handler)
+        
+        # Check logger level before applying configuration
+        print(f"Before config: root logger level = {root_logger.level}")
+        
+        logkiss.yaml_config(str(temp_config_file))
+        logger = logging.getLogger()
+        assert logger is not None
+        print(f"After config: root logger level = {logger.level}, expected = {logkiss.INFO}")
+        assert logger.level == logkiss.INFO
 
 
 @pytest.mark.config
@@ -61,8 +72,8 @@ def test_env_var_config():
             for handler in old_handlers:
                 logkiss.logging.getLogger().removeHandler(handler)
 
-        # 環境変数から設定が自動的に読み込まれるため、明示的な設定は不要
-        # ただし、テストのために明示的にdictConfigを呼び出す
+        # No need for explicit configuration as settings are automatically loaded from environment variables
+        # However, explicitly call dictConfig for testing purposes
         config = {
             "version": 1,
             "formatters": {
@@ -122,22 +133,34 @@ def test_invalid_config(tmp_path):
 @pytest.mark.config
 def test_config_reload(tmp_path):
     """Test configuration reload functionality."""
-    config = {"version": 1, "root": {"level": "INFO"}}
+    # Clear environment variables and reset state before testing
+    with mock.patch.dict(os.environ, {}, clear=True):
+        # Reset logger state
+        root_logger = logging.getLogger()
+        for handler in list(root_logger.handlers):
+            root_logger.removeHandler(handler)
+        
+        config = {"version": 1, "root": {"level": "INFO"}}
 
-    config_file = tmp_path / "config.yaml"
-    with config_file.open("w") as f:
-        yaml.safe_dump(config, f)
+        config_file = tmp_path / "config.yaml"
+        with config_file.open("w") as f:
+            yaml.safe_dump(config, f)
 
-    logkiss.yaml_config(str(config_file))
-    logger = logging.getLogger()
-    assert logger.level == logkiss.INFO
+        # Check logger level before applying configuration
+        print(f"Before config: root logger level = {root_logger.level}")
+        
+        logkiss.yaml_config(str(config_file))
+        logger = logging.getLogger()
+        print(f"After first config: root logger level = {logger.level}, expected = {logkiss.INFO}")
+        assert logger.level == logkiss.INFO
 
-    # Modify config
-    config["root"]["level"] = "DEBUG"
-    with config_file.open("w") as f:
-        yaml.safe_dump(config, f)
+        # Modify config
+        config["root"]["level"] = "DEBUG"
+        with config_file.open("w") as f:
+            yaml.safe_dump(config, f)
 
-    # 再度設定を読み込む
-    logkiss.yaml_config(str(config_file))
-    logger = logging.getLogger()
-    assert logger.level == logkiss.DEBUG
+        # Reload configuration
+        logkiss.yaml_config(str(config_file))
+        logger = logging.getLogger()
+        print(f"After config reload: root logger level = {logger.level}, expected = {logkiss.DEBUG}")
+        assert logger.level == logkiss.DEBUG
