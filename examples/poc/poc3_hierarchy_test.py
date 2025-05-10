@@ -55,10 +55,17 @@ db_logger.warning("Database: [2] Database logger still works too")
 api_logger.warning("API: [2] API logger works fine")
 logkiss_logger.warning("Logkiss: [2] This is from logkiss logger")
 
-# logkissをルートロガーを置き換えるモードで初期化
-# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
-print("\n3. logkissでルートロガーを置き換える場合(階層は自動的に保持):")
-logkiss.init_logging(replace_root=True)  # 非推奨関数
+# ルートロガーの設定を変更
+print("\n3. ルートロガーの設定を変更する場合(階層は自動的に保持):")
+# ルートロガーのハンドラーをカスタマイズ
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:  # 既存のハンドラーを削除
+    root_logger.removeHandler(handler)
+# 新しいハンドラーを追加
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root_logger.addHandler(handler)
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
@@ -68,10 +75,14 @@ db_logger.warning("Database: [3] After replacing root logger")
 api_logger.warning("API: [3] After replacing root logger")
 logkiss_logger.warning("Logkiss: [3] After replacing root logger")
 
-# 元の状態に戻すテスト
-# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
-print("\n4. init_logging(restore_original=True)で元に戻した後:")
-logkiss.init_logging(restore_original=True)  # 非推奨関数
+# ロガーの設定をリセット
+print("\n4. ロガーの設定をリセットした後:")
+# ルートロガーのハンドラーをリセット
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:  # 既存のハンドラーを削除
+    root_logger.removeHandler(handler)
+# 新しいデフォルトハンドラーを設定
+logging.basicConfig(level=logging.WARNING, format='%(name)s - %(levelname)s - %(message)s')
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 

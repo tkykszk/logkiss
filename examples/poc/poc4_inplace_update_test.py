@@ -54,10 +54,17 @@ db_logger.warning("DATABASE: 階層も保持されている")
 kiss_logger = logkiss.getLogger("kiss_app")
 kiss_logger.warning("KISS: logkissロガーからのメッセージ")
 
-# 3. ルートロガーをインプレース更新
-# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
-print("\n3. init_logging(replace_root=True)を呼び出した後:")
-logkiss.init_logging(replace_root=True)  # 非推奨関数
+# 3. ルートロガーの設定を変更
+print("\n3. ルートロガーの設定を変更した後:")
+# ルートロガーのハンドラーをカスタマイズ
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:  # 既存のハンドラーを削除
+    root_logger.removeHandler(handler)
+# 新しいハンドラーを追加
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root_logger.addHandler(handler)
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
@@ -72,10 +79,14 @@ try:
 except Exception:
     app_logger.exception("APP: 例外が発生")
 
-# 4. 元の状態に復元
-# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
-print("\n4. init_logging(restore_original=True)で元に戻した後:")
-logkiss.init_logging(restore_original=True)  # 非推奨関数
+# 4. ロガーの設定をリセット
+print("\n4. ロガーの設定をリセットした後:")
+# ルートロガーのハンドラーをリセット
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:  # 既存のハンドラーを削除
+    root_logger.removeHandler(handler)
+# 新しいデフォルトハンドラーを設定
+logging.basicConfig(level=logging.WARNING, format='%(name)s - %(levelname)s - %(message)s')
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
