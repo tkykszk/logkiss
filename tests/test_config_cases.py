@@ -121,11 +121,13 @@ def test_config_color_test1(tmp_config, caplog):
         # レベルはDEBUG(10)に設定されているはず
         assert kiss_handler.level == logging.DEBUG
         
-        # 一時ファイルにログを出力するハンドラを追加
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8") as tmp_log:
+        # Windows環境ではファイルが開いたままアクセスできないため、一時ディレクトリとファイル名を使用
+        temp_dir = tempfile.gettempdir()
+        log_file = os.path.join(temp_dir, f"logkiss_color_test_{os.getpid()}.log")
+        
+        try:
             # 一時的にファイルハンドラを追加
-            file_handler = logging.FileHandler(tmp_log.name)
+            file_handler = logging.FileHandler(log_file)
             file_formatter = logging.Formatter("%(levelname)s - %(message)s")
             file_handler.setFormatter(file_formatter)
             file_handler.setLevel(logging.INFO)
@@ -137,23 +139,38 @@ def test_config_color_test1(tmp_config, caplog):
             logger.info("info message")
             logger.error("error message")
             
-            # ファイルハンドラをフラッシュして閉じる
+            # ファイルハンドラをフラッシュ
             file_handler.flush()
+            # Windowsではファイルの書き込みが即座に反映されない場合があるため、確実にフラッシュ
+            try:
+                if hasattr(file_handler.stream, 'fileno'):
+                    os.fsync(file_handler.stream.fileno())
+            except (OSError, ValueError):
+                # ファイルディスクリプタが無効な場合は無視
+                pass
             
-            # ファイルの内容を読み込む
-            tmp_log.flush()
-            tmp_log.seek(0)
-            log_content = tmp_log.read()
-            
-            # ログ出力を確認
+            # ログファイルの内容を確認
+            with open(log_file, "r", encoding="utf-8") as f:
+                log_content = f.read()
+            # 改行コードを正規化
+            log_content = log_content.replace("\r\n", "\n")
             print(f"Log file content: {log_content}")
-            
             # エラーメッセージが含まれていることを確認
             assert "info message" in log_content
             assert "error message" in log_content
-            
-            # ロガーからファイルハンドラを削除
+        finally:
+            # クリーンアップ
             logger.removeHandler(file_handler)
+            file_handler.close()
+            # ファイルが存在する場合は削除
+            if os.path.exists(log_file):
+                try:
+                    os.remove(log_file)
+                except (OSError, PermissionError):
+                    # Windowsではファイルが使用中の場合があるため、エラーを無視
+                    pass
+            
+            # ロガーからファイルハンドラを削除はすでにfinallyブロックで行われている
 
 # TC002: 日付書式テスト（hh:mm:ss）
 def test_config_color_test2(tmp_config, caplog):
