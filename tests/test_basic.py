@@ -69,9 +69,21 @@ def test_logger_creation():
 @with_fresh_logkiss
 def test_log_levels():
     """Test log levels"""
+    # ルートロガーのレベルを明示的にリセット
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.WARNING)  # 標準のデフォルトレベル
+    
+    # テスト対象のロガーを取得
     logger = logkiss.getLogger("test_levels")
-    assert logger.getEffectiveLevel() == logging.WARNING  # Default level
+    
+    # 有効なレベルを確認（ルートロガーから継承されるはず）
+    assert logger.getEffectiveLevel() == logging.WARNING, \
+        f"Expected WARNING level, got {logger.getEffectiveLevel()} ({logging.getLevelName(logger.getEffectiveLevel())})" 
 
+    # ロガーに明示的にレベルを設定
+    logger.setLevel(logging.INFO)
+    assert logger.getEffectiveLevel() == logging.INFO
+    
     # Verify each log level is set correctly
     assert logkiss.DEBUG == logging.DEBUG
     assert logkiss.INFO == logging.INFO
