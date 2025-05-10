@@ -1,35 +1,31 @@
 """
-環境変数のテストモジュール
+Environment variables test module
 
-このモジュールは、LOGKISSが使用するすべての環境変数の動作を検証します。
+This module verifies the behavior of all environment variables used by LOGKISS.
 """
 
 import os
-import sys
 import logging
 from unittest import mock
-import importlib
 import tempfile
 from pathlib import Path
 
 import pytest
 
-# logkissモジュールをインポート
-import logkiss
-# ColoredFormatterをインポート（パッケージ構造に合わせて）
+# Import ColoredFormatter (according to package structure)
 from logkiss.logkiss import ColoredFormatter
 
 @pytest.fixture(autouse=True)
 def reset_logkiss():
-    """各テストの前後でlogkissモジュールの状態をリセットする"""
-    # テスト前の処理
+    """Reset the state of logkiss module before and after each test"""
+    # Processing before test
     old_handlers = logging.getLogger().handlers.copy()
     for handler in old_handlers:
         logging.getLogger().removeHandler(handler)
     
     yield
     
-    # テスト後の処理
+    # Processing after test
     # Clear handlers
     old_handlers = logging.getLogger().handlers.copy()
     for handler in old_handlers:
@@ -38,124 +34,128 @@ def reset_logkiss():
 
 @pytest.mark.env_vars
 def test_logkiss_level_format():
-    """LOGKISS_LEVEL_FORMAT環境変数のテスト"""
-    # デフォルト値のテスト
+    """Test for LOGKISS_LEVEL_FORMAT environment variable"""
+    # Test default value
     with mock.patch.dict(os.environ, {}, clear=True):
-        # 環境変数が設定されていない場合はデフォルト値の5が使われる
+        # When environment variable is not set, default value 5 is used
         level_format = int(os.environ.get("LOGKISS_LEVEL_FORMAT", "5"))
-        assert level_format == 5  # デフォルト値
+        assert level_format == 5  # Default value
 
-    # カスタム値のテスト
+    # Test custom value
     with mock.patch.dict(os.environ, {"LOGKISS_LEVEL_FORMAT": "10"}, clear=True):
-        # 環境変数が設定されている場合はその値が使われる
+        # When environment variable is set, that value is used
         level_format = int(os.environ.get("LOGKISS_LEVEL_FORMAT", "5"))
         assert level_format == 10
 
-    # 無効な値のテスト（デフォルト値を使用するはず）
+    # Test invalid value (should use default value)
     with mock.patch.dict(os.environ, {"LOGKISS_LEVEL_FORMAT": "invalid"}, clear=True):
-        # 無効な値の場合、エラーが発生するのでデフォルト値が使われる
+        # For invalid values, an error occurs so default value is used
         try:
             level_format = int(os.environ.get("LOGKISS_LEVEL_FORMAT", "5"))
         except ValueError:
             level_format = 5
-        assert level_format == 5  # デフォルト値
+        assert level_format == 5  # Default value
 
 
 @pytest.mark.env_vars
 def test_logkiss_path_shorten():
-    """LOGKISS_PATH_SHORTEN環境変数のテスト"""
-    # デフォルト値のテスト
+    """Test for LOGKISS_PATH_SHORTEN environment variable"""
+    # Test default value
     with mock.patch.dict(os.environ, {}, clear=True):
-        # 環境変数が設定されていない場合はデフォルト値の0が使われる
+        # When environment variable is not set, default value 0 is used
         try:
             path_shorten = int(os.environ.get("LOGKISS_PATH_SHORTEN", "0"))
         except ValueError:
             path_shorten = 0
-        assert path_shorten == 0  # デフォルト値
+        assert path_shorten == 0  # Default value
 
-    # カスタム値のテスト
+    # Test custom value
     with mock.patch.dict(os.environ, {"LOGKISS_PATH_SHORTEN": "3"}, clear=True):
-        # 環境変数が設定されている場合はその値が使われる
+        # When environment variable is set, that value is used
         path_shorten = int(os.environ.get("LOGKISS_PATH_SHORTEN", "0"))
         assert path_shorten == 3
 
-    # 無効な値のテスト（デフォルト値を使用するはず）
+    # Test invalid value (should use default value)
     with mock.patch.dict(os.environ, {"LOGKISS_PATH_SHORTEN": "invalid"}, clear=True):
-        # 無効な値の場合、エラーが発生するのでデフォルト値が使われる
+        # For invalid values, an error occurs so default value is used
         try:
             path_shorten = int(os.environ.get("LOGKISS_PATH_SHORTEN", "0"))
         except ValueError:
             path_shorten = 0
-        assert path_shorten == 0  # デフォルト値
+        assert path_shorten == 0  # Default value
 
 
 @pytest.mark.env_vars
 def test_logkiss_skip_config():
-    """LOGKISS_SKIP_CONFIG環境変数のテスト"""
-    # デフォルト値のテスト（スキップしない）
+    """Test for LOGKISS_SKIP_CONFIG environment variable"""
+    # Test default value (don't skip)
     with mock.patch.dict(os.environ, {}, clear=True):
-        # 環境変数が設定されていない場合はスキップしない
+        # When environment variable is not set, don't skip
         assert os.environ.get("LOGKISS_SKIP_CONFIG", "").lower() not in ("1", "true", "yes")
 
-    # スキップを有効にしたテスト
+    # Test with skip enabled
     for value in ["1", "true", "yes"]:
         with mock.patch.dict(os.environ, {"LOGKISS_SKIP_CONFIG": value}, clear=True):
-            # 環境変数が設定されている場合はスキップする
+            # When environment variable is set, skip
             assert os.environ.get("LOGKISS_SKIP_CONFIG", "").lower() in ("1", "true", "yes")
 
-    # 無効な値のテスト（スキップしないはず）
+    # Test invalid value (should not skip)
     with mock.patch.dict(os.environ, {"LOGKISS_SKIP_CONFIG": "invalid"}, clear=True):
         assert os.environ.get("LOGKISS_SKIP_CONFIG", "").lower() not in ("1", "true", "yes")
 
 
 @pytest.mark.env_vars
 def test_logkiss_config():
-    """LOGKISS_CONFIG環境変数のテスト"""
-    # 一時設定ファイルを作成
+    """Test for LOGKISS_CONFIG environment variable"""
+    # Create temporary configuration file
     with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as temp_file:
         temp_path = temp_file.name
         temp_file.write(b"version: 1\nroot:\n  level: INFO\n")
         temp_file.flush()
         
         try:
-            # LOGKISS_CONFIGが設定されている場合のテスト
+            # Test when LOGKISS_CONFIG is set
             with mock.patch.dict(os.environ, {"LOGKISS_CONFIG": temp_path}, clear=True):
-                # configモジュールをインポート
+                # Import config module
                 from logkiss import config
                 config_path = config.find_config_file()
                 assert config_path is not None
                 assert str(config_path) == temp_path
 
-            # LOGKISS_CONFIGが設定されていない場合のテスト
+            # Test when LOGKISS_CONFIG is not set
             with mock.patch.dict(os.environ, {}, clear=True):
-                # configモジュールをインポート
+                # Import config module
                 from logkiss import config
-                # デフォルトの場所に設定ファイルが存在する場合は結果が異なるため、
-                # 厳密な結果ではなく、関数が正常に動作することだけを確認
+                # Since results may differ if a config file exists in the default location,
+                # we only check that the function operates normally, not the exact result
                 try:
                     config.find_config_file()
+                except FileNotFoundError:
+                    # This is an expected exception when no config file exists
+                    pass
                 except Exception as e:
-                    pytest.fail(f"find_config_file関数が例外を発生させました: {e}")
+                    pytest.fail(f"find_config_file function raised an exception: {e}")
         finally:
-            # 一時ファイルを削除
+            # Delete temporary file
             try:
                 Path(temp_path).unlink()
             except (OSError, FileNotFoundError):
-                pass  # エラーが発生しないことを確認
+                pass  # Ensure no errors occur
 
 
 @pytest.mark.env_vars
 def test_logkiss_disable_color():
-    """LOGKISS_DISABLE_COLOR環境変数のテスト"""
-    # 既存のハンドラーをクリア
+    """Test for LOGKISS_DISABLE_COLOR environment variable"""
+    # Clear existing handlers
     root_logger = logging.getLogger()
     handlers = root_logger.handlers.copy()
     for handler in handlers:
         root_logger.removeHandler(handler)
     
     try:
-        # dictConfig用の基本設定辞書
-        base_config = {
+        # Basic configuration dictionary for dictConfig
+        # Note: This configuration is for reference only and not directly used in the test
+        _ = {
             "version": 1,
             "formatters": {
                 "colored": {
@@ -178,31 +178,31 @@ def test_logkiss_disable_color():
             }
         }
         
-        # デフォルト値のテスト（カラー有効）
+        # Test default value (color enabled)
         with mock.patch.dict(os.environ, {}, clear=True):
-            # 新しいフォーマッタを直接作成してテスト
+            # Create a new formatter directly for testing
             formatter = ColoredFormatter()
             assert hasattr(formatter, 'use_color')
-            # 環境変数が設定されていない場合、デフォルトではカラーが有効
+            # When environment variable is not set, color is enabled by default
             assert formatter.use_color
 
-        # カラー無効のテスト
+        # Test with color disabled
         with mock.patch.dict(os.environ, {"LOGKISS_DISABLE_COLOR": "true"}, clear=True):
-            # 新しいフォーマッタを直接作成してテスト
+            # Create a new formatter directly for testing
             formatter = ColoredFormatter()
             assert hasattr(formatter, 'use_color')
-            # LOGKISS_DISABLE_COLOR=trueの場合、カラーが無効
+            # When LOGKISS_DISABLE_COLOR=true, color is disabled
             assert not formatter.use_color
 
-        # 無効な値のテスト（カラー有効のまま）
+        # Test invalid value (color remains enabled)
         with mock.patch.dict(os.environ, {"LOGKISS_DISABLE_COLOR": "invalid"}, clear=True):
-            # 新しいフォーマッタを直接作成してテスト
+            # Create a new formatter directly for testing
             formatter = ColoredFormatter()
             assert hasattr(formatter, 'use_color')
-            # 無効な値の場合、デフォルトではカラーが有効
+            # For invalid values, color is enabled by default
             assert formatter.use_color
     finally:
-        # テスト後にハンドラーを元に戻す
+        # Restore handlers after test
         handlers = root_logger.handlers.copy()
         for handler in handlers:
             root_logger.removeHandler(handler)
@@ -210,30 +210,30 @@ def test_logkiss_disable_color():
 
 @pytest.mark.env_vars
 def test_no_color():
-    """NO_COLOR環境変数のテスト（業界標準）"""
-    # 既存のハンドラーをクリア
+    """Test for NO_COLOR environment variable (industry standard)"""
+    # Clear existing handlers
     root_logger = logging.getLogger()
     handlers = root_logger.handlers.copy()
     for handler in handlers:
         root_logger.removeHandler(handler)
     
     try:
-        # デフォルト値のテスト（カラー有効）
+        # Test default value (color enabled)
         with mock.patch.dict(os.environ, {}, clear=True):
             formatter = ColoredFormatter()
-            assert formatter.use_color  # デフォルトではカラーが有効
+            assert formatter.use_color  # Color is enabled by default
 
-        # NO_COLOR設定時のテスト（値は何でもよい）
+        # Test with NO_COLOR set (value can be anything)
         with mock.patch.dict(os.environ, {"NO_COLOR": "anything"}, clear=True):
             formatter = ColoredFormatter()
-            assert not formatter.use_color  # カラーが無効
+            assert not formatter.use_color  # Color is disabled
             
-        # 空の値でもテスト
+        # Test with empty value
         with mock.patch.dict(os.environ, {"NO_COLOR": ""}, clear=True):
             formatter = ColoredFormatter()
-            assert not formatter.use_color  # カラーが無効
+            assert not formatter.use_color  # Color is disabled
     finally:
-        # テスト後にハンドラーを元に戻す
+        # Restore handlers after test
         handlers = root_logger.handlers.copy()
         for handler in handlers:
             root_logger.removeHandler(handler)

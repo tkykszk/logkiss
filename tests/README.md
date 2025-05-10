@@ -18,9 +18,20 @@ Tests are organized into two main categories:
 
 ### Running All Unit Tests (No Cloud Services)
 
+There are several ways to run tests while excluding cloud-related tests:
+
 ```bash
-# Run all tests except those marked with e2e, aws, or gcp
-pytest tests/ -v
+# Method 1: Run all tests except those marked with e2e, aws, or gcp
+pytest tests/ -v -k "not aws and not gcp and not e2e"
+
+# Method 2: Exclude specific test files
+pytest tests/ --ignore=tests/test_aws_log.py --ignore=tests/test_gcp_logging.py --ignore=tests/test_structured_log.py -v
+
+# Method 3: Run specific test files only
+pytest tests/test_basic.py tests/test_config.py tests/test_console_handler.py -v
+
+# Method 4: Simulate CI environment to automatically skip cloud tests
+GITHUB_ACTIONS=true pytest tests/ -v
 ```
 
 ### Configuring Cloud Credentials
@@ -106,6 +117,27 @@ In CI environments (GitHub Actions), tests with the above markers are automatica
 
 This ensures that CI builds don't fail due to missing credentials while still allowing thorough testing in development environments.
 
+### How Cloud Tests Are Skipped in CI
+
+The automatic skipping of cloud tests in CI environments is implemented in `conftest.py`. Here's how it works:
+
+1. The `is_ci_environment()` function checks if the `GITHUB_ACTIONS` environment variable is set to `"true"`.
+
+2. The `pytest_collection_modifyitems()` function adds skip markers to tests with `aws`, `gcp`, or `e2e` markers when running in a CI environment, unless the corresponding environment variables (`RUN_AWS_TESTS`, `RUN_GCP_TESTS`, or `RUN_E2E_TESTS`) are explicitly set.
+
+3. In the GitHub Actions workflow (`.github/workflows/test.yml`), the `GITHUB_ACTIONS` environment variable is automatically set to `"true"`, which triggers this skipping mechanism.
+
+### Simulating CI Environment Locally
+
+You can simulate the CI environment locally to automatically skip cloud tests:
+
+```bash
+# Set GITHUB_ACTIONS environment variable to skip cloud tests
+GITHUB_ACTIONS=true pytest tests/ -v
+```
+
+This will run the tests as if they were running in GitHub Actions, automatically skipping all cloud-related tests.
+
 ## テスト実行方法 (日本語)
 
 ### テスト構成
@@ -144,6 +176,12 @@ export GCP_PROJECT_ID=プロジェクトID
 ```bash
 # モックテストのみ実行（認証情報不要）
 pytest tests/test_aws_handler_mock.py tests/test_gcp_handler_mock.py -v
+
+# クラウドテストを除外して実行
+pytest tests/ -v -k "not aws and not gcp and not e2e"
+
+# CI環境をシミュレートしてクラウドテストを自動スキップ
+GITHUB_ACTIONS=true pytest tests/ -v
 
 # AWSのE2Eテスト実行（認証情報必要）
 pytest tests/test_aws_log.py -v

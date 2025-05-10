@@ -1,81 +1,81 @@
 # CHANGELOG
 
-## 2.3.1 (2025-05-09)
+## 2.3.2 (2025-05-10)
 
-### 主な機能追加
+### Major Features Added
 
-- `dictConfig`関数の追加：標準のlogging.config.dictConfigと互換性のある設定機能
-- `yaml_config`関数の追加：YAMLファイルから設定を読み込む機能
-- `fileConfig`関数の追加：標準のlogging.config.fileConfigと互換性のある設定機能
-- 色設定の柔軟性向上：dictConfig形式で色設定を行える機能
-- 環境変数の自動読み込み機能：モジュール読み込み時に自動的に設定を適用
+- Added `dictConfig` function: Configuration feature compatible with standard logging.config.dictConfig
+- Added `yaml_config` function: Feature to load configuration from YAML files
+- Added `fileConfig` function: Configuration feature compatible with standard logging.config.fileConfig
+- Improved color setting flexibility: Feature to configure colors in dictConfig format
+- Automatic environment variable loading: Automatically applies settings when the module is loaded
 
-### 改善点
+### Improvements
 
-- 標準ロギングライブラリとの互換性強化：設定方法の統一
-- 既存の色設定方法との後方互換性維持
+- Enhanced compatibility with standard logging library: Unified configuration methods
+- Maintained backward compatibility with existing color setting methods
 
-### 非推奨機能
+### Deprecated Features
 
-- `NO_COLOR`環境変数を非推奨に変更：代わりに`LOGKISS_DISABLE_COLOR`を使用するよう推奨
+- Changed `NO_COLOR` environment variable to deprecated: Recommended to use `LOGKISS_DISABLE_COLOR` instead
 
-### 削除された機能
+### Removed Features
 
-- `setup`関数の削除：標準のloggingライブラリとの互換性向上のため
-- `setup_from_yaml`関数の削除：`yaml_config`関数に置き換え
-- `setup_from_env`関数の削除：環境変数の自動読み込み機能に置き換え
+- Removed `setup` function: To improve compatibility with standard logging library
+- Removed `setup_from_yaml` function: Replaced with `yaml_config` function
+- Removed `setup_from_env` function: Replaced with automatic environment variable loading feature
 
 ## 2.3.0 (2025-04-30)
 
-### 主な機能追加
+### Major Features Added
 
-- `basicConfig`関数の修正：標準のloggingモジュールとの互換性を確保
-- `setup`関数の公開：設定ファイルの自動検出と適用を簡素化
-- モジュールAPIテストの追加：標準loggingモジュールとの互換性を確認
-- `NO_COLOR`環境変数のサポート追加：業界標準の環境変数として対応
+- Modified `basicConfig` function: Ensured compatibility with standard logging module
+- Published `setup` function: Simplified automatic detection and application of configuration files
+- Added module API tests: Verified compatibility with standard logging module
+- Added support for `NO_COLOR` environment variable: Implemented as an industry standard environment variable
 
-### 改善点
+### Improvements
 
-- コードの品質改善：未使用インポートの削除、例外処理の改善
-- ファイルオープン時のエンコーディング指定追加
-- 組み込み名のオーバーライド修正
-- テスト環境の整備：環境変数テストの追加
+- Improved code quality: Removed unused imports, enhanced exception handling
+- Added encoding specification when opening files
+- Fixed built-in name overrides
+- Enhanced test environment: Added environment variable tests
 
-### 2.2.6の変更点
+### Changes in 2.2.6
 
-- `basicConfig`関数の修正：標準のloggingモジュールとの互換性を確保
-- `setup`関数の公開：設定ファイルの自動検出と適用を簡素化
-- モジュールAPIテストの追加：標準loggingモジュールとの互換性を確認
+- Modified `basicConfig` function: Ensured compatibility with standard logging module
+- Published `setup` function: Simplified automatic detection and application of configuration files
+- Added module API tests: Verified compatibility with standard logging module
 
 ## 2.2.5 (2025-04-30)
 
-### 改善点
+### Improvements
 
-- `NO_COLOR`環境変数のサポートを追加
-  - 業界標準の環境変数として、値に関係なく存在するだけでカラー出力を無効化
-- 環境変数のテストを完全に実装
-- コードの品質改善：
-  - 未使用インポートの削除
-  - ファイルオープン時のエンコーディング指定追加
-  - 一般的な例外キャッチを具体的な例外に変更
-  - 組み込み名のオーバーライド修正
+- Added support for `NO_COLOR` environment variable
+  - As an industry standard environment variable, disables color output just by existing regardless of value
+- Fully implemented environment variable tests
+- Improved code quality:
+  - Removed unused imports
+  - Added encoding specification when opening files
+  - Changed general exception catches to specific exceptions
+  - Fixed built-in name overrides
 
 ## 2.2.4 (2025-04-15)
 
-### 改善点
+### Improvements
 
-- カラー設定ファイルのサポート強化
-- ログレベルのカスタマイズ機能の追加
-- パフォーマンス最適化
+- Enhanced support for color configuration files
+- Added log level customization feature
+- Optimized performance
 
 ## 2.2.3 (2025-04-01)
 
-### バグ修正
+### Bug Fixes
 
-- Windows環境でのカラー表示の問題を修正
-- 複数ロガー使用時の競合問題を解決
+- Fixed color display issues in Windows environments
+- Resolved conflict issues when using multiple loggers
 
-### 改善点
+### Improvements
 
-- ドキュメントの多言語対応を強化
-- 設定ファイルの検索パスを拡張
+- Enhanced multilingual support for documentation
+- Extended search paths for configuration files

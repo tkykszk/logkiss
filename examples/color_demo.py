@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-logkissの各ログレベルの色を表示するデモスクリプト
-スクリーンショット撮影用
+Demo script to display colors for each log level in logkiss
+For screenshot capture
 """
 
 import logging
@@ -11,12 +11,12 @@ import logkiss
 import os
 
 def main():
-    """各ログレベルの色を表示するメイン関数"""
+    """Main function to display colors for each log level"""
     # ロガーの初期化をリセット
     logging.root.handlers = []
     
-    # logkissのセットアップ
-    # dictConfig用の設定辞書を作成
+    # Setup logkiss
+    # Create configuration dictionary for dictConfig
     config = {
         "version": 1,
         "formatters": {
@@ -43,28 +43,28 @@ def main():
     logkiss.dictConfig(config)
     logger = logging.getLogger()
     
-    # すべてのログレベルを表示するために、DEBUGレベルに設定
+    # Set to DEBUG level to display all log levels
     logger.setLevel(logging.DEBUG)
     
-    # 各ログレベルでメッセージを出力
-    logger.debug("これはDEBUGレベルのメッセージです (青色)")
-    logger.info("これはINFOレベルのメッセージです (白色)")
-    logger.warning("これはWARNINGレベルのメッセージです (黄色)")
-    logger.error("これはERRORレベルのメッセージです (黒字に赤背景)")
-    logger.critical("これはCRITICALレベルのメッセージです (黒字に明るい赤背景、太字)")
+    # Output messages at each log level
+    logger.debug("This is a DEBUG level message (blue)")
+    logger.info("This is an INFO level message (white)")
+    logger.warning("This is a WARNING level message (yellow)")
+    logger.error("This is an ERROR level message (black text on red background)")
+    logger.critical("This is a CRITICAL level message (black text on bright red background, bold)")
     
-    # 区切り線
+    # Separator line
     print("\n" + "-" * 80 + "\n")
     
-    # 環境変数NO_COLORを設定して色を無効化するデモ
-    print("NO_COLOR環境変数を設定して色を無効化するデモ:")
+    # Demo to disable colors by setting the NO_COLOR environment variable
+    print("Demo to disable colors by setting the NO_COLOR environment variable:")
     os.environ["NO_COLOR"] = "1"
     
     # ロガーの初期化をリセット
     logging.root.handlers = []
     
-    # 新しいロガーを作成（NO_COLOR環境変数が反映される）
-    # dictConfig用の設定辞書を作成
+    # Create a new logger (NO_COLOR environment variable will be reflected)
+    # Create configuration dictionary for dictConfig
     config = {
         "version": 1,
         "formatters": {
@@ -92,12 +92,12 @@ def main():
     no_color_logger = logging.getLogger()
     no_color_logger.setLevel(logging.DEBUG)
     
-    # 各ログレベルでメッセージを出力（色なし）
-    no_color_logger.debug("これはDEBUGレベルのメッセージです (色なし)")
-    no_color_logger.info("これはINFOレベルのメッセージです (色なし)")
-    no_color_logger.warning("これはWARNINGレベルのメッセージです (色なし)")
-    no_color_logger.error("これはERRORレベルのメッセージです (色なし)")
-    no_color_logger.critical("これはCRITICALレベルのメッセージです (色なし)")
+    # Output messages at each log level (without colors)
+    no_color_logger.debug("This is a DEBUG level message (no color)")
+    no_color_logger.info("This is an INFO level message (no color)")
+    no_color_logger.warning("This is a WARNING level message (no color)")
+    no_color_logger.error("This is an ERROR level message (no color)")
+    no_color_logger.critical("This is a CRITICAL level message (no color)")
 
 if __name__ == "__main__":
     main()

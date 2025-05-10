@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-WARNINGレベルを黄色地に黒字で表示するサンプルコード
+Sample code to display WARNING level with black text on yellow background
 """
 
 import logging
@@ -10,23 +10,23 @@ import os
 from logkiss.logkiss import setup
 
 def main():
-    """WARNINGレベルを黄色地に黒字で表示するデモ"""
-    # ロガーの初期化をリセット
+    """Demo to display WARNING level with black text on yellow background"""
+    # Reset logger initialization
     logging.root.handlers = []
     
-    # 設定ファイルを指定してlogkissをセットアップ
+    # Setup logkiss with specified configuration file
     config_path = os.path.join(os.path.dirname(__file__), "custom_color_config.yaml")
     logger = setup(config_path)
     
-    # すべてのログレベルを表示するために、DEBUGレベルに設定
+    # Set to DEBUG level to display all log levels
     logger.setLevel(logging.DEBUG)
     
-    # 各ログレベルでメッセージを出力
-    logger.debug("これはDEBUGレベルのメッセージです (青色)")
-    logger.info("これはINFOレベルのメッセージです (白色)")
-    logger.warning("これはWARNINGレベルのメッセージです (黄色地に黒字)")
-    logger.error("これはERRORレベルのメッセージです (赤地に黒字)")
-    logger.critical("これはCRITICALレベルのメッセージです (明るい赤地に黒字、太字)")
+    # Output messages at each log level
+    logger.debug("This is a DEBUG level message (blue)")
+    logger.info("This is an INFO level message (white)")
+    logger.warning("This is a WARNING level message (black text on yellow background)")
+    logger.error("This is an ERROR level message (black text on red background)")
+    logger.critical("This is a CRITICAL level message (black text on bright red background, bold)")
 
 if __name__ == "__main__":
     main()

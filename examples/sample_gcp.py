@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Google Cloud Logging サンプル
+Google Cloud Logging Sample
 
-このサンプルでは、logkiss を使用して Google Cloud Logging にログを送信する方法を示します。
+This sample demonstrates how to send logs to Google Cloud Logging using logkiss.
 
 Copyright (c) 2025 Taka Suzuki
 SPDX-License-Identifier: MIT
@@ -15,86 +15,86 @@ import logging
 import hashlib
 from google.cloud import logging as google_logging
 
-# 環境変数から GCP の設定を取得
+# Get GCP settings from environment variables
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 
-# logkiss をインポート
+# Import logkiss
 import logkiss
 from logkiss.handler_gcp import GCloudLoggingHandler
 
 
-# ユニークなログ名を生成（テスト用）
+# Generate unique log name (for testing)
 def generate_test_log_name():
-    """テスト用の一意のログ名を生成（短いハッシュ値を使用）"""
+    """Generate a unique log name for testing (using short hash value)"""
     timestamp = datetime.now().strftime("%Y%m%d")
     unique_id = hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()[:12]
     return f"logkiss_test_{timestamp}_{unique_id}"
 
 
-# クリーンアップフラグ（テスト後にリソースを削除するかどうか）
+# Cleanup flag (whether to delete resources after testing)
 CLEAN_UP = False  # True
 
 
 def main():
-    """メイン関数"""
-    # 必要なモジュールをインポート
+    """Main function"""
+    # Import necessary modules
     import time
     import logging
     from logkiss import getLogger
 
-    # ログ名を設定
+    # Set log name
     log_name = generate_test_log_name()
-    print(f"ログ名: {log_name}")
+    print(f"Log name: {log_name}")
 
-    # ロガーの設定
+    # Configure logger
     logger = getLogger("gcp_sample")
     logger.setLevel(logging.DEBUG)
 
-    # 既存のハンドラーをクリア（重複出力を避けるため）
+    # Clear existing handlers (to avoid duplicate output)
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    # コンソールハンドラーを追加
+    # Add console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # GCloudLoggingHandler を追加
+    # Add GCloudLoggingHandler
     try:
         gcp_handler = GCloudLoggingHandler(
             project_id=GCP_PROJECT_ID,
             log_name=log_name,
         )
         logger.addHandler(gcp_handler)
-        print("Google Cloud Logging ハンドラーを追加しました")
+        print("Added Google Cloud Logging handler")
     except ImportError as e:
-        print(f"エラー: {e}")
-        print("google-cloud-logging パッケージをインストールしてください: pip install 'logkiss[cloud]'")
+        print(f"Error: {e}")
+        print("Please install the google-cloud-logging package: pip install 'logkiss[cloud]'")
         return
 
-    # ログを出力
-    print("\n=== ログ出力を開始します ===")
-    logger.info("Google Cloud Logging サンプルを開始します")
-    logger.debug("これはデバッグメッセージです")
+    # Output logs
+    print("\n=== Starting log output ===")
+    logger.info("Starting Google Cloud Logging sample")
+    logger.debug("This is a debug message")
 
-    # 構造化ログを出力
+    # Output structured log
     logger.warning(
-        "ユーザーがログインに失敗しました", extra={"user_id": 12345, "ip_address": "192.168.1.100", "attempts": 3, "timestamp": time.time()}
+        "User failed to login", extra={"user_id": 12345, "ip_address": "192.168.1.100", "attempts": 3, "timestamp": time.time()}
     )
 
-    # エラーログを出力
+    # Output error log
     try:
         result = 10 / 0
     except Exception as e:
         logger.error(
-            f"エラーが発生しました: {str(e)}",
+            f"An error occurred: {str(e)}",
             extra={
                 "error_type": type(e).__name__,
                 "error_message": str(e),
                 "timestamp": time.time(),
-                "test_field": "これはテストフィールドです",
+                "test_field": "This is a test field",
                 "numeric_value": 42,
             },
         )

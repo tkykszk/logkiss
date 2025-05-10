@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-AWS CloudWatch Logs サンプル
+AWS CloudWatch Logs Sample
 
-このサンプルでは、logkiss を使用して AWS CloudWatch Logs にログを送信する方法を示します。
+This sample demonstrates how to send logs to AWS CloudWatch Logs using logkiss.
 
 Copyright (c) 2025 Taka Suzuki
 SPDX-License-Identifier: MIT
@@ -18,135 +18,135 @@ from datetime import datetime
 
 import boto3
 
-# 環境変数から AWS の設定を取得
+# Get AWS settings from environment variables
 AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "ap-northeast-1")
 
-# logkiss をインポート
+# Import logkiss
 import logkiss
 from logkiss.handlers import AWSCloudWatchHandler
 
 
-# ユニークなロググループ名を生成（テスト用）
+# Generate unique log group name (for testing)
 def generate_test_log_group_name():
-    """テスト用の一意のロググループ名を生成（短いハッシュ値を使用）"""
+    """Generate a unique log group name for testing (using short hash value)"""
     timestamp = datetime.now().strftime("%Y%m%d")
     unique_id = hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()[:12]
     return f"logkiss-test-{timestamp}-{unique_id}"
 
 
-# クリーンアップフラグ（テスト後にリソースを削除するかどうか）
+# Cleanup flag (whether to delete resources after testing)
 CLEAN_UP = True
 
 
 def main():
-    """メイン関数"""
-    # 必要なモジュールをインポート
+    """Main function"""
+    # Import necessary modules
     import time
     import logging
     from logkiss import getLogger
     from logkiss.handlers import AWSCloudWatchHandler
 
-    # ロググループとストリームの名前を設定
+    # Set log group and stream names
     log_group_name = generate_test_log_group_name()
     log_stream_name = f"sample-{datetime.now().strftime('%H%M%S')}"
-    print(f"ロググループ名: {log_group_name}")
-    print(f"ログストリーム名: {log_stream_name}")
+    print(f"Log group name: {log_group_name}")
+    print(f"Log stream name: {log_stream_name}")
 
-    # ロガーの設定
+    # Configure logger
     logger = getLogger("aws_sample")
     logger.setLevel(logging.DEBUG)
 
-    # 既存のハンドラーをクリア（重複出力を避けるため）
+    # Clear existing handlers (to avoid duplicate output)
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    # コンソールハンドラーを追加
+    # Add console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # AWSCloudWatchHandler を追加
+    # Add AWSCloudWatchHandler
     try:
         aws_handler = AWSCloudWatchHandler(
             log_group_name=log_group_name,
             log_stream_name=log_stream_name,
             region_name=AWS_REGION,
-            batch_size=10,  # 小さいバッチサイズを設定（サンプル用）
-            flush_interval=2.0,  # 短いフラッシュ間隔を設定（サンプル用）
+            batch_size=10,  # Set small batch size (for sample)
+            flush_interval=2.0,  # Set short flush interval (for sample)
         )
         logger.addHandler(aws_handler)
-        print("AWS CloudWatch Logs ハンドラーを追加しました")
+        print("Added AWS CloudWatch Logs handler")
     except ImportError as e:
-        print(f"エラー: {e}")
-        print("boto3 パッケージをインストールしてください: pip install 'logkiss[cloud]'")
+        print(f"Error: {e}")
+        print("Please install the boto3 package: pip install 'logkiss[cloud]'")
         return
 
-    # ログを出力
-    print("\n=== ログ出力を開始します ===")
-    logger.info("AWS CloudWatch Logs サンプルを開始します")
-    logger.debug("これはデバッグメッセージです")
+    # Output logs
+    print("\n=== Starting log output ===")
+    logger.info("Starting AWS CloudWatch Logs sample")
+    logger.debug("This is a debug message")
 
-    # 構造化ログを出力
+    # Output structured log
     logger.warning(
-        "ユーザーがログインに失敗しました", extra={"user_id": 12345, "ip_address": "192.168.1.100", "attempts": 3, "timestamp": time.time()}
+        "User failed to login", extra={"user_id": 12345, "ip_address": "192.168.1.100", "attempts": 3, "timestamp": time.time()}
     )
 
-    # エラーログを出力
+    # Output error log
     try:
         result = 10 / 0
     except Exception as e:
-        logger.error(f"エラーが発生しました: {str(e)}", extra={"error_type": type(e).__name__, "timestamp": time.time()})
+        logger.error(f"An error occurred: {str(e)}", extra={"error_type": type(e).__name__, "timestamp": time.time()})
 
-    # バッチがフラッシュされるのを待つ
-    print("ログをCloudWatch Logsに送信中...")
+    # Wait for the batch to be flushed
+    print("Sending logs to CloudWatch Logs...")
     time.sleep(3)
 
-    # ハンドラーを明示的にクローズ
-    print("ハンドラーをクローズしています...")
+    # Explicitly close the handler
+    print("Closing handler...")
     aws_handler.close()
 
-    # ログの確認方法を表示
-    print("\n=== ログの確認方法 ===")
-    print(f"1. AWS マネジメントコンソールを開く: https://console.aws.amazon.com/cloudwatch/")
-    print(f"2. 左側のメニューから「ロググループ」を選択")
-    print(f"3. ロググループ「{log_group_name}」を検索")
-    print(f"4. ログストリーム「{log_stream_name}」をクリック")
-    print("\nまたは、以下の AWS CLI コマンドを実行:")
+    # Display how to check logs
+    print("\n=== How to check logs ===")
+    print(f"1. Open AWS Management Console: https://console.aws.amazon.com/cloudwatch/")
+    print(f"2. Select 'Log groups' from the left menu")
+    print(f"3. Search for log group '{log_group_name}'")
+    print(f"4. Click on log stream '{log_stream_name}'")
+    print("\nOr run the following AWS CLI command:")
     print(f"aws logs get-log-events --log-group-name {log_group_name} " f"--log-stream-name {log_stream_name} --region {AWS_REGION}")
 
-    # クリーンアップ（テスト用リソースの削除）
+    # Cleanup (delete test resources)
     if CLEAN_UP:
-        print("\n=== クリーンアップ ===")
-        print(f"ロググループ「{log_group_name}」を削除します...")
+        print("\n=== Cleanup ===")
+        print(f"Deleting log group '{log_group_name}'...")
         try:
             import boto3
 
             logs_client = boto3.client("logs", region_name=AWS_REGION)
 
-            # CloudWatch Logsコンソールを開く
+            # Open CloudWatch Logs console
             import webbrowser
 
             region = logs_client.meta.region_name
-            # 特定のロググループに直接アクセスするURL
+            # URL to directly access the specific log group
             console_url = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups/log-group/{log_group_name}"
-            print(f"CloudWatch Logsコンソールを開きます: {console_url}")
+            print(f"Opening CloudWatch Logs console: {console_url}")
             webbrowser.open(console_url)
 
-            # 少し待ってからロググループを削除（ブラウザが開くのを待つ）
+            # Wait a bit before deleting the log group (wait for browser to open)
             import time
 
             time.sleep(2)
 
-            # ロググループを削除
+            # Delete log group
             logs_client.delete_log_group(logGroupName=log_group_name)
-            print("ロググループを削除しました")
+            print("Log group deleted")
         except Exception as e:
-            print(f"クリーンアップ中にエラーが発生しました: {e}")
+            print(f"Error occurred during cleanup: {e}")
     else:
-        print("\n=== クリーンアップはスキップされました ===")
-        print("CLEAN_UP = False に設定されているため、リソースは削除されません")
+        print("\n=== Cleanup was skipped ===")
+        print("Resources will not be deleted because CLEAN_UP = False")
 
 
 if __name__ == "__main__":

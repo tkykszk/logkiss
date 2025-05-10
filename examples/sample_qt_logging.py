@@ -57,23 +57,23 @@ class LoggingDemo(QMainWindow):
 
         # Create buttons for different log levels
         self.debug_button = QPushButton("Log DEBUG")
-        self.debug_button.clicked.connect(lambda: self.logger.debug("これはDEBUGメッセージです"))
+        self.debug_button.clicked.connect(lambda: self.logger.debug("This is a DEBUG message"))
         layout.addWidget(self.debug_button)
 
         self.info_button = QPushButton("Log INFO")
-        self.info_button.clicked.connect(lambda: self.logger.info("これはINFOメッセージです"))
+        self.info_button.clicked.connect(lambda: self.logger.info("This is an INFO message"))
         layout.addWidget(self.info_button)
 
         self.warning_button = QPushButton("Log WARNING")
-        self.warning_button.clicked.connect(lambda: self.logger.warning("これはWARNINGメッセージです"))
+        self.warning_button.clicked.connect(lambda: self.logger.warning("This is a WARNING message"))
         layout.addWidget(self.warning_button)
 
         self.error_button = QPushButton("Log ERROR")
-        self.error_button.clicked.connect(lambda: self.logger.error("これはERRORメッセージです"))
+        self.error_button.clicked.connect(lambda: self.logger.error("This is an ERROR message"))
         layout.addWidget(self.error_button)
 
         self.critical_button = QPushButton("Log CRITICAL")
-        self.critical_button.clicked.connect(lambda: self.logger.critical("これはCRITICALメッセージです"))
+        self.critical_button.clicked.connect(lambda: self.logger.critical("This is a CRITICAL message"))
         layout.addWidget(self.critical_button)
 
         # Create button for structured logging
@@ -104,7 +104,7 @@ class LoggingDemo(QMainWindow):
         self.logger.addHandler(self.qt_handler)
 
         # Log initial message
-        self.logger.info("ロギングが初期化されました。ボタンをクリックしてログを生成してください。")
+        self.logger.info("Logging initialized. Click buttons to generate logs.")
 
     def toggle_theme(self):
         """Toggle between light and dark themes"""
@@ -122,12 +122,12 @@ class LoggingDemo(QMainWindow):
         self.log_text_edit.clear()
 
         # Log theme change message
-        self.logger.info(f"テーマを {self.current_theme} に変更しました")
+        self.logger.info(f"Theme changed to {self.current_theme}")
 
     def log_structured_data(self):
         """Log a message with structured data."""
         self.logger.info(
-            "構造化データを含むログメッセージ",
+            "Log message with structured data",
             extra={"json_fields": {"user_id": "1234", "action": "button_click", "timestamp": "2025-04-07T09:25:38+09:00"}},
         )
 

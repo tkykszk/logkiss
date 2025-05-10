@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
-ANSIエスケープシーケンスを直接使用して、WARNINGレベルを黄色地に黒字で表示するサンプル
+Sample using ANSI escape sequences directly to display WARNING level with black text on yellow background
 """
 
 import logging
 import os
 import sys
 
-# ANSIエスケープシーケンスの定義
+# Definition of ANSI escape sequences
 class Colors:
     RESET = "\033[0m"
     BOLD = "\033[1m"
     
-    # 前景色（文字色）
+    # Foreground colors (text colors)
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -24,7 +24,7 @@ class Colors:
     CYAN = "\033[36m"
     WHITE = "\033[37m"
     
-    # 背景色
+    # Background colors
     BG_BLACK = "\033[40m"
     BG_RED = "\033[41m"
     BG_GREEN = "\033[42m"
@@ -34,7 +34,7 @@ class Colors:
     BG_CYAN = "\033[46m"
     BG_WHITE = "\033[47m"
     
-    # 明るい色（前景色）
+    # Bright colors (foreground)
     BRIGHT_BLACK = "\033[90m"
     BRIGHT_RED = "\033[91m"
     BRIGHT_GREEN = "\033[92m"
@@ -44,7 +44,7 @@ class Colors:
     BRIGHT_CYAN = "\033[96m"
     BRIGHT_WHITE = "\033[97m"
     
-    # 明るい色（背景色）
+    # Bright colors (background)
     BG_BRIGHT_BLACK = "\033[100m"
     BG_BRIGHT_RED = "\033[101m"
     BG_BRIGHT_GREEN = "\033[102m"
@@ -72,25 +72,25 @@ class CustomColorFormatter(logging.Formatter):
         return formatter.format(record)
 
 def main():
-    """各ログレベルの色を表示するメイン関数"""
-    # ロガーの初期化
+    """Main function to display colors for each log level"""
+    # Initialize logger
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     
-    # 既存のハンドラーをクリア
+    # Clear existing handlers
     logger.handlers = []
     
-    # カスタムフォーマッターを使用したハンドラーを追加
+    # Add handler with custom formatter
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(CustomColorFormatter())
     logger.addHandler(handler)
     
-    # 各ログレベルでメッセージを出力
-    logger.debug("これはDEBUGレベルのメッセージです (青色)")
-    logger.info("これはINFOレベルのメッセージです (白色)")
-    logger.warning("これはWARNINGレベルのメッセージです (黄色地に黒字)")
-    logger.error("これはERRORレベルのメッセージです (赤地に黒字)")
-    logger.critical("これはCRITICALレベルのメッセージです (明るい赤地に黒字、太字)")
+    # Output messages at each log level
+    logger.debug("This is a DEBUG level message (blue)")
+    logger.info("This is an INFO level message (white)")
+    logger.warning("This is a WARNING level message (black text on yellow background)")
+    logger.error("This is an ERROR level message (black text on red background)")
+    logger.critical("This is a CRITICAL level message (black text on bright red background, bold)")
 
 if __name__ == "__main__":
     main()
