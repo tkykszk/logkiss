@@ -13,7 +13,8 @@ from logkiss import KissConsoleHandler
 @pytest.fixture
 def tmp_config(tmp_path):
     def _make_config(data):
-        config_path = tmp_path / "config.yaml"
+        # Windows互換性のためにパスを文字列として扱う
+        config_path = os.path.join(str(tmp_path), "config.yaml")
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(data, f, allow_unicode=True)
         return config_path
@@ -372,14 +373,13 @@ def test_config_rotation_test(tmp_config, tmp_path):
 
 # TC007: フィルタ設定の反映テスト
 def test_config_filter_test(tmp_config, tmp_path):
-    # 環境変数をクリア
+    # 環境変数をクリア - Windows互換性のためにpopを使用
     for env_var in ["LOGKISS_LEVEL", "LOGKISS_FORMAT", "LOGKISS_DATEFMT", "LOGKISS_CONFIG", "LOGKISS_SKIP_CONFIG"]:
-        if env_var in os.environ:
-            del os.environ[env_var]
+        os.environ.pop(env_var, None)  # delの代わりにpopを使用
     
-    # 一時的なログファイルを作成
-    log_file_test7 = tmp_path / "test_filter_test7.txt"
-    log_file_test8 = tmp_path / "test_filter_test8.txt"
+    # 一時的なログファイルを作成 - Windows互換性のためにos.path.joinを使用
+    log_file_test7 = os.path.join(str(tmp_path), "test_filter_test7.txt")
+    log_file_test8 = os.path.join(str(tmp_path), "test_filter_test8.txt")
     
     # 既存のハンドラをクリア
     root_logger = logging.getLogger()
@@ -436,13 +436,26 @@ def test_config_filter_test(tmp_config, tmp_path):
     handler1.flush()
     handler2.flush()
     
+    # Windowsではファイルの書き込みが即座に反映されない場合があるため、確実にフラッシュ
+    try:
+        if hasattr(handler1.stream, 'fileno'):
+            os.fsync(handler1.stream.fileno())
+        if hasattr(handler2.stream, 'fileno'):
+            os.fsync(handler2.stream.fileno())
+    except (OSError, ValueError):
+        # ファイルディスクリプタが無効な場合は無視
+        pass
+    
     # ログファイルの内容を確認
-    print(f"test7のログファイルの存在確認: {log_file_test7.exists()}")
-    print(f"test8のログファイルの存在確認: {log_file_test8.exists()}")
+    print(f"test7のログファイルの存在確認: {os.path.exists(log_file_test7)}")
+    print(f"test8のログファイルの存在確認: {os.path.exists(log_file_test8)}")
     
     # test7のログファイルを確認
-    if log_file_test7.exists():
-        log_content = log_file_test7.read_text(encoding="utf-8")
+    if os.path.exists(log_file_test7):
+        with open(log_file_test7, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
         print(f"test7のログファイルの内容: {log_content}")
         assert "This message should be logged from test7" in log_content, "test7からのメッセージがログに含まれていません"
         assert "This message should NOT be logged from root" not in log_content, "rootからのメッセージがログに含まれています"
@@ -450,19 +463,27 @@ def test_config_filter_test(tmp_config, tmp_path):
         pytest.fail("test7のログファイルが作成されませんでした")
     
     # test8のログファイルを確認
-    if log_file_test8.exists():
-        log_content = log_file_test8.read_text(encoding="utf-8")
+    if os.path.exists(log_file_test8):
+        with open(log_file_test8, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
         print(f"test8のログファイルの内容: {log_content}")
         assert "This message should be logged from test8" in log_content, "test8からのメッセージがログに含まれていません"
     else:
         pytest.fail("test8のログファイルが作成されませんでした")
+    
+    # ハンドラーをクローズしてリソースを解放
+    handler1.close()
+    handler2.close()
+    logger1.removeHandler(handler1)
+    logger2.removeHandler(handler2)
 
 # TC008: デフォルト値テスト
 def test_config_default_value_test(tmp_path):
-    # 環境変数をクリア
+    # 環境変数をクリア - Windows互換性のためにpopを使用
     for env_var in ["LOGKISS_LEVEL", "LOGKISS_FORMAT", "LOGKISS_DATEFMT", "LOGKISS_CONFIG", "LOGKISS_SKIP_CONFIG"]:
-        if env_var in os.environ:
-            del os.environ[env_var]
+        os.environ.pop(env_var, None)  # delの代わりにpopを使用
     
     # 既存のハンドラをクリア
     root_logger = logging.getLogger()
@@ -473,11 +494,15 @@ def test_config_default_value_test(tmp_path):
     logging.shutdown()
     importlib.reload(logging)
     
-    # ログファイルのパス
-    log_file = tmp_path / "test_log.txt"
+    # ログファイルのパス - Windows互換性のためにos.path.joinを使用
+    log_file_path = os.path.join(str(tmp_path), "test_log.txt")
     
     # 最小限の設定を持つ設定ファイルを作成
-    config_path = tmp_path / "config.yaml"
+    config_path = os.path.join(str(tmp_path), "config.yaml")
+    
+    # YAML内のパスは常にフォワードスラッシュを使用
+    yaml_log_path = log_file_path.replace("\\", "/")
+    
     minimal_config = """
     version: 1
     formatters:
@@ -492,9 +517,11 @@ def test_config_default_value_test(tmp_path):
     root:
       level: INFO
       handlers: [file]
-    """.format(str(log_file))
+    """.format(yaml_log_path)
     
-    config_path.write_text(minimal_config, encoding="utf-8")
+    with open(config_path, "w", encoding="utf-8") as f:
+        f.write(minimal_config)
+    
     print(f"\n最小限の設定ファイルを作成: {config_path}")
     print(f"設定内容:\n{minimal_config}")
     
@@ -520,25 +547,43 @@ def test_config_default_value_test(tmp_path):
     # ログファイルの内容を確認する前に、ロガーをフラッシュ
     for handler in logging.getLogger().handlers + logger.handlers:
         handler.flush()
+        # Windowsではファイルハンドラのフラッシュが即座に反映されない場合があるため、少し待機
+        if hasattr(handler, 'stream') and hasattr(handler.stream, 'fileno'):
+            try:
+                os.fsync(handler.stream.fileno())
+            except (OSError, ValueError):
+                # ファイルディスクリプタが無効な場合は無視
+                pass
     
     # ログファイルの内容を確認
-    print(f"ログファイルの存在確認: {log_file.exists()}")
-    if log_file.exists():
-        log_content = log_file.read_text(encoding="utf-8")
+    print(f"ログファイルの存在確認: {os.path.exists(log_file_path)}")
+    if os.path.exists(log_file_path):
+        with open(log_file_path, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
         print(f"ログファイルの内容: {log_content}")
         assert "default level test" in log_content, "ログファイルに期待されるメッセージが含まれていません"
     else:
         # ログファイルが存在しない場合は、手動でログを書き込む
         print("ログファイルが存在しないため、手動で作成します")
-        file_handler = logging.FileHandler(log_file)
+        file_handler = logging.FileHandler(log_file_path)
         file_handler.setFormatter(logging.Formatter("%(message)s"))
         logger.addHandler(file_handler)
         logger.info("default level test")
         file_handler.flush()
-        file_handler.close()
+        try:
+            os.fsync(file_handler.stream.fileno())
+        except (OSError, ValueError):
+            pass
+        file_handler.close()  # 確実にクローズ
+        logger.removeHandler(file_handler)  # ロガーからも削除
         
         # 手動で作成したログファイルの内容を確認
-        log_content = log_file.read_text(encoding="utf-8")
+        with open(log_file_path, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
         print(f"手動で作成したログファイルの内容: {log_content}")
         assert "default level test" in log_content, "手動で作成したログファイルに期待されるメッセージが含まれていません"
 
