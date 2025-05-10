@@ -55,8 +55,9 @@ kiss_logger = logkiss.getLogger("kiss_app")
 kiss_logger.warning("KISS: logkissロガーからのメッセージ")
 
 # 3. ルートロガーをインプレース更新
+# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
 print("\n3. init_logging(replace_root=True)を呼び出した後:")
-logkiss.init_logging(replace_root=True)
+logkiss.init_logging(replace_root=True)  # 非推奨関数
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
@@ -72,8 +73,9 @@ except Exception:
     app_logger.exception("APP: 例外が発生")
 
 # 4. 元の状態に復元
+# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
 print("\n4. init_logging(restore_original=True)で元に戻した後:")
-logkiss.init_logging(restore_original=True)
+logkiss.init_logging(restore_original=True)  # 非推奨関数
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 

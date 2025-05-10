@@ -56,8 +56,9 @@ api_logger.warning("API: [2] API logger works fine")
 logkiss_logger.warning("Logkiss: [2] This is from logkiss logger")
 
 # logkissをルートロガーを置き換えるモードで初期化
+# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
 print("\n3. logkissでルートロガーを置き換える場合(階層は自動的に保持):")
-logkiss.init_logging(replace_root=True)
+logkiss.init_logging(replace_root=True)  # 非推奨関数
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
@@ -68,8 +69,9 @@ api_logger.warning("API: [3] After replacing root logger")
 logkiss_logger.warning("Logkiss: [3] After replacing root logger")
 
 # 元の状態に戻すテスト
+# 注意: init_logging()は非推奨です。標準のlogging.basicConfigまたはlogging.getLoggerを使用してください。
 print("\n4. init_logging(restore_original=True)で元に戻した後:")
-logkiss.init_logging(restore_original=True)
+logkiss.init_logging(restore_original=True)  # 非推奨関数
 if HAS_LOGGING_TREE:
     logging_tree.printout()
 
