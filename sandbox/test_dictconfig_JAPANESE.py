@@ -129,7 +129,10 @@ loggers:
     assert True
     
     # テスト後にYAMLファイルを削除
-    os.remove(yaml_path)
+    try:
+        os.remove(yaml_path)
+    except FileNotFoundError:
+        print(f"Warning: Could not find file {yaml_path} to remove")
 
 
 if __name__ == "__main__":
