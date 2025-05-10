@@ -139,6 +139,7 @@ class TestGCloudLoggingHandler:
             assert False, f"Emit関数の呼び出しに失敗しました: {e}"
 
 
+@pytest.mark.aws
 class TestAWSCloudWatchHandler:
     """AWSCloudWatchHandlerのテストケース"""
 
