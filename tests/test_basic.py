@@ -119,43 +119,92 @@ def test_formatter():
 
 
 @with_fresh_logkiss
-def test_basicconfig_default():
-    """Test basicConfigメソッドをパラメータなしで呼んだ時の状態が標準loggingモジュールと同じであることを確認"""
-    # 標準loggingモジュールの状態を取得
+def test_logkiss_uses_kiss_console_handler():
+    """logkissモジュールをインポートした時点でKissConsoleHandlerが使用されていることを確認"""
+    # logkissモジュールのデフォルト状態を取得
+    # インポート時に独自のハンドラーが設定される
+    root_logger = logging.getLogger()
+    
+    # ハンドラーが存在することを確認
+    assert len(root_logger.handlers) > 0, "Logkiss should have at least one handler"
+    
+    # ハンドラーがKissConsoleHandlerであることを確認
+    handler = root_logger.handlers[0]
+    handler_class_name = handler.__class__.__name__
+    assert handler_class_name == "KissConsoleHandler", \
+        f"Handler should be KissConsoleHandler, got {handler_class_name}"
+    
+    # フォーマッターがColoredFormatterであることを確認
+    formatter = handler.formatter
+    formatter_class_name = formatter.__class__.__name__
+    assert formatter_class_name == "ColoredFormatter", \
+        f"Formatter should be ColoredFormatter, got {formatter_class_name}"
+    
+    # シンプルなログ出力が動作することを確認
+    # エラーが発生しないことを確認するのみ
+    logkiss.warning("Test warning message")
+
+
+def test_default_handlers_difference():
+    """logkissモジュールのデフォルトハンドラーと標準loggingモジュールのハンドラーの違いを確認"""
+    # クリーンアップして新しい状態からスタート
+    cleanup_logkiss_modules()
+    
+    # 標準loggingモジュールのデフォルト状態を取得
     import logging as std_logging
-    std_logging.basicConfig()
+    
+    # 標準loggingのロガーをリセット
     std_root = std_logging.getLogger()
+    for handler in std_root.handlers[:]:
+        std_root.removeHandler(handler)
+    
+    # 標準loggingのデフォルト設定を適用
+    std_logging.basicConfig()
     std_handlers = std_root.handlers
-    std_level = std_root.level
-    std_formatter = std_handlers[0].formatter if std_handlers else None
+    std_handler_class = std_handlers[0].__class__.__name__
+    std_formatter = std_handlers[0].formatter
+    std_formatter_class = std_formatter.__class__.__name__
+    
+    # 標準は通常StreamHandler
+    assert std_handler_class == "StreamHandler", \
+        f"Standard handler should be StreamHandler, got {std_handler_class}"
+    
+    # 標準loggingの状態をクリーンアップ
+    for handler in std_root.handlers[:]:
+        std_root.removeHandler(handler)
+    
+    # logkissをインポートしてデフォルト状態を取得
+    import logkiss
+    
+    # logkissモジュールのデフォルト状態を取得
+    kiss_root = std_logging.getLogger()  # 同じロガーを使用
+    kiss_handlers = kiss_root.handlers
+    
+    # ハンドラーが存在することを確認
+    assert len(kiss_handlers) > 0, "Logkiss should have at least one handler"
+    
+    # ハンドラーのクラス名を確認
+    kiss_handler_class = kiss_handlers[0].__class__.__name__
+    
+    # クラス名が異なることを確認
+    assert std_handler_class != kiss_handler_class, \
+        f"Handler class names should be different: std={std_handler_class}, kiss={kiss_handler_class}"
+    
+    # logkissは独自のKissConsoleHandler
+    assert kiss_handler_class == "KissConsoleHandler", \
+        f"Logkiss handler should be KissConsoleHandler, got {kiss_handler_class}"
+    
+    # フォーマッターの確認
+    kiss_formatter = kiss_handlers[0].formatter
+    kiss_formatter_class = kiss_formatter.__class__.__name__
+    
+    # フォーマッターのクラス名が異なることを確認
+    assert std_formatter_class != kiss_formatter_class, \
+        f"Formatter class names should be different: std={std_formatter_class}, kiss={kiss_formatter_class}"
+    
+    # logkissはカラーフォーマッターを使用
+    assert kiss_formatter_class == "ColoredFormatter", \
+        f"Logkiss formatter should be ColoredFormatter, got {kiss_formatter_class}"
     
     # クリーンアップ
     cleanup_logkiss_modules()
-    
-    # logkissモジュールの状態を取得
-    logkiss.basicConfig()
-    kiss_root = logging.getLogger()
-    kiss_handlers = kiss_root.handlers
-    kiss_level = kiss_root.level
-    kiss_formatter = kiss_handlers[0].formatter if kiss_handlers else None
-    
-    # ハンドラーの数が同じであることを確認
-    assert len(std_handlers) == len(kiss_handlers), \
-        f"Handler count mismatch: std={len(std_handlers)}, kiss={len(kiss_handlers)}"
-    
-    # ロガーレベルが同じであることを確認
-    assert std_level == kiss_level, \
-        f"Logger level mismatch: std={std_level}, kiss={kiss_level}"
-    
-    # ハンドラーのタイプが同じであることを確認
-    if std_handlers and kiss_handlers:
-        assert type(std_handlers[0]) == type(kiss_handlers[0]), \
-            f"Handler type mismatch: std={type(std_handlers[0])}, kiss={type(kiss_handlers[0])}"
-    
-    # フォーマッターの存在確認
-    if std_formatter and kiss_formatter:
-        # フォーマット文字列の基本要素が含まれていることを確認
-        assert "%(levelname)" in std_formatter._fmt and "%(levelname)" in kiss_formatter._fmt, \
-            "levelname format mismatch"
-        assert "%(message)" in std_formatter._fmt and "%(message)" in kiss_formatter._fmt, \
-            "message format mismatch"
