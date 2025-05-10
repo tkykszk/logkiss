@@ -15,11 +15,14 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "e2e: mark test as end-to-end test requiring cloud credentials")
     config.addinivalue_line("markers", "aws: mark test as requiring AWS credentials")
     config.addinivalue_line("markers", "gcp: mark test as requiring GCP credentials")
+    config.addinivalue_line("markers", "timeout: mark test with timeout in seconds")
     
     # モジュール依存関係のマーカー
     config.addinivalue_line("markers", "requires_logging_tree: logging_treeモジュールが必要なテスト")
     config.addinivalue_line("markers", "requires_boto3: boto3モジュールが必要なテスト")
     config.addinivalue_line("markers", "requires_gcp_logging: Google Cloud Loggingモジュールが必要なテスト")
+    config.addinivalue_line("markers", "env_vars: 環境変数のテスト")
+    config.addinivalue_line("markers", "config: 設定ファイルのテスト")
 
 
 def is_ci_environment():

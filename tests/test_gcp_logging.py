@@ -41,12 +41,12 @@ def check_gcp_auth():
     try:
         # 認証情報の確認
         cmd = ["gcloud", "auth", "list"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         print(f"認証済みアカウント:\n{result.stdout}")
 
         # アクティブなプロジェクトの確認
         cmd = ["gcloud", "config", "get-value", "project"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         current_project = result.stdout.strip()
         print(f"現在のプロジェクト: {current_project}")
 
@@ -79,7 +79,7 @@ def check_gcp_auth():
             "--project",
             project_id,
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
 
         if result.returncode == 0 and result.stdout.strip():
             print("認証成功: テスト用ログエントリが正常に書き込まれました")
@@ -89,6 +89,12 @@ def check_gcp_auth():
             print(f"stderr: {result.stderr}")
             return False, None, None
 
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        print(f"エラー: gcloudコマンドの実行中にエラーが発生しました: {str(e)}")
+        return False, None, None
+    except ImportError as e:
+        print(f"エラー: Google Cloudモジュールのインポートに失敗しました: {str(e)}")
+        return False, None, None
     except Exception as e:
         print(f"エラー: 認証確認中に例外が発生しました: {str(e)}")
         import traceback
@@ -109,6 +115,10 @@ def generate_test_log_name():
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 @pytest.mark.requires_gcp_logging
 @pytest.mark.skipif(not HAS_GCP_LOGGING, reason="Google Cloud Loggingモジュールがインストールされていません")
+@pytest.mark.skipif(
+    not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and not os.environ.get("GCP_PROJECT_ID"),
+    reason="GCP認証情報が設定されていません"
+)
 def test_gcp_cloud_logging_e2e():
     """GCP Cloud Loggingへの実際のログ送信をテスト"""
     # 事前に認証状態を確認
@@ -157,7 +167,7 @@ def test_gcp_cloud_logging_e2e():
             "json",
         ]
         print(f"DEBUG: Running command: {' '.join(search_cmd)}")
-        search_result = subprocess.run(search_cmd, capture_output=True, text=True)
+        search_result = subprocess.run(search_cmd, capture_output=True, text=True, check=False)
         print(f"DEBUG: Search command exit code: {search_result.returncode}")
         print(f"DEBUG: Search command stdout: {search_result.stdout}")
         print(f"DEBUG: Search command stderr: {search_result.stderr}")
@@ -206,6 +216,10 @@ def test_gcp_cloud_logging_e2e():
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 @pytest.mark.requires_gcp_logging
 @pytest.mark.skipif(not HAS_GCP_LOGGING, reason="Google Cloud Loggingモジュールがインストールされていません")
+@pytest.mark.skipif(
+    not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and not os.environ.get("GCP_PROJECT_ID"),
+    reason="GCP認証情報が設定されていません"
+)
 def test_gcp_cloud_logging_handler_e2e():
     """GCPCloudLoggingHandlerを使用したE2Eテスト"""
     # 事前に認証状態を確認
@@ -264,7 +278,7 @@ def test_gcp_cloud_logging_handler_e2e():
             "json",
         ]
         print(f"DEBUG: Running command: {' '.join(search_cmd)}")
-        search_result = subprocess.run(search_cmd, capture_output=True, text=True)
+        search_result = subprocess.run(search_cmd, capture_output=True, text=True, check=False)
         print(f"DEBUG: Search command exit code: {search_result.returncode}")
         print(f"DEBUG: Search command stdout: {search_result.stdout}")
         print(f"DEBUG: Search command stderr: {search_result.stderr}")

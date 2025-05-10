@@ -145,6 +145,11 @@ def load_yaml_config(config_path: Union[str, Path]) -> Dict[str, Any]:
         raise ValueError(f"Configuration file not found: {config_path}") from exc
     except yaml.YAMLError as exc:
         raise yaml.YAMLError(f"Invalid YAML format in {config_path}: {exc}")
+    
+    # 空の設定ファイルの場合はデフォルト設定を返す
+    if config is None:
+        return {"version": 1}
+    
     return config
 
 
@@ -163,6 +168,34 @@ def yaml_config(config_path: Union[str, Path]) -> None:
     """
     # YAMLファイルから設定を読み込む
     config = load_yaml_config(config_path)
+    
+    # 最小限の設定が含まれていることを確認
+    if "version" not in config:
+        config["version"] = 1
+    
+    # 基本的なロギング設定がない場合は追加
+    if "handlers" not in config:
+        config["handlers"] = {
+            "console": {
+                "class": "logkiss.KissConsoleHandler",
+                "level": "WARNING",
+                "formatter": "colored"
+            }
+        }
+    
+    if "formatters" not in config:
+        config["formatters"] = {
+            "colored": {
+                "class": "logkiss.ColoredFormatter",
+                "format": "%(asctime)s [%(levelname)s] %(message)s"
+            }
+        }
+    
+    if "root" not in config:
+        config["root"] = {
+            "level": "WARNING",
+            "handlers": ["console"]
+        }
     
     # 環境変数から設定を取得
     level_env = os.environ.get("LOGKISS_LEVEL")

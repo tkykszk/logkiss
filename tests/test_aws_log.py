@@ -142,6 +142,10 @@ def generate_unique_log_name():
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 @pytest.mark.requires_boto3
 @pytest.mark.skipif(not HAS_BOTO3, reason="boto3モジュールがインストールされていません")
+@pytest.mark.skipif(
+    not os.environ.get("AWS_PROFILE") and not os.environ.get("AWS_ACCESS_KEY_ID"),
+    reason="AWS認証情報が設定されていません"
+)
 def test_aws_cloudwatch_logs_e2e():
     """AWS CloudWatch Logsへの実際のログ送信をテスト"""
     # 事前に認証状態を確認
@@ -247,6 +251,10 @@ def test_aws_cloudwatch_logs_e2e():
 @pytest.mark.timeout(120)  # 120秒でタイムアウト
 @pytest.mark.requires_boto3
 @pytest.mark.skipif(not HAS_BOTO3, reason="boto3モジュールがインストールされていません")
+@pytest.mark.skipif(
+    not os.environ.get("AWS_PROFILE") and not os.environ.get("AWS_ACCESS_KEY_ID"),
+    reason="AWS認証情報が設定されていません"
+)
 def test_aws_cloudwatch_logs_handler_e2e():
     """AWSCloudWatchHandlerを使用したE2Eテスト"""
     # 事前に認証状態を確認
