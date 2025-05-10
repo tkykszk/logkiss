@@ -9,10 +9,13 @@ See LICENSE for details.
 """
 
 import sys
-import logging
-import importlib
+import os
 import tempfile
+import importlib
+import logging
 import functools
+
+import logkiss
 
 
 def cleanup_logkiss_modules():
@@ -108,14 +111,29 @@ def test_handler_creation():
 def test_file_handler():
     """Test file handler"""
     logger = logkiss.getLogger("test_file")
-    # 一時ファイルを使用してテスト
-    with tempfile.NamedTemporaryFile(suffix=".log") as tmp:
-        handler = logkiss.FileHandler(tmp.name)
+    # Windows環境ではファイルが開いたままアクセスできないため、一時ディレクトリとファイル名を使用
+    temp_dir = tempfile.gettempdir()
+    log_file = os.path.join(temp_dir, f"logkiss_test_{os.getpid()}.log")
+    
+    try:
+        handler = logkiss.FileHandler(log_file)
         logger.addHandler(handler)
-
-        # FileHandler should be added correctly
-        handlers = [h for h in logger.handlers if isinstance(h, logkiss.FileHandler)]
-        assert len(handlers) > 0
+        logger.setLevel(logging.INFO)
+        logger.info("Test message")
+        handler.flush()
+        # テストが成功したことを確認
+        assert os.path.exists(log_file), "ログファイルが作成されませんでした"
+    finally:
+        # クリーンアップ
+        logger.removeHandler(handler)
+        handler.close()
+        # ファイルが存在する場合は削除
+        if os.path.exists(log_file):
+            try:
+                os.remove(log_file)
+            except (OSError, PermissionError):
+                # Windowsではファイルが使用中の場合があるため、エラーを無視
+                pass
 
 
 @with_fresh_logkiss

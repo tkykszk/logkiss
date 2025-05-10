@@ -72,7 +72,10 @@ def test_config_color_test1(tmp_config, caplog):
         config_path = tmp_config(config)
         # TEST DEBUG: show config dict and file contents
         print("[TEST DEBUG] config dict:", config)
-        print("[TEST DEBUG] config file contents:\n", config_path.read_text())
+        # Windows互換性のためにファイル読み込み方法を変更
+        with open(config_path, "r", encoding="utf-8") as f:
+            config_content = f.read()
+        print("[TEST DEBUG] config file contents:\n", config_content)
         
         # 設定を適用
         logkiss.yaml_config(config_path)
@@ -163,7 +166,10 @@ def test_config_color_test2(tmp_config, caplog):
     config_path = tmp_config(config)
     # テスト用の設定を表示
     print("[TEST DEBUG] config dict:", config)
-    print("[TEST DEBUG] config file contents:\n", config_path.read_text())
+    # Windows互換性のためにファイル読み込み方法を変更
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_content = f.read()
+    print("[TEST DEBUG] config file contents:\n", config_content)
     
     # 既存のハンドラをクリア
     root_logger = logging.getLogger()
@@ -314,27 +320,50 @@ def test_config_log_format_test(tmp_config, caplog):
     logkiss.yaml_config(config_path)
     logger = logkiss.getLogger("test5")
     
-    # 一時ファイルにログを出力して確認
-    with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8") as tmp_log:
+    # Windows環境ではファイルが開いたままアクセスできないため、一時ディレクトリとファイル名を使用
+    temp_dir = tempfile.gettempdir()
+    log_file = os.path.join(temp_dir, f"logkiss_format_test_{os.getpid()}.log")
+    
+    try:
         # 一時的にファイルハンドラを追加
-        file_handler = logging.FileHandler(tmp_log.name)
+        file_handler = logging.FileHandler(log_file)
         file_formatter = logging.Formatter("%(levelname)s::%(message)s")
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
         
         # ログを出力
         logger.info("format test")
+        
+        # ファイルハンドラをフラッシュ
         file_handler.flush()
+        # Windowsではファイルの書き込みが即座に反映されない場合があるため、確実にフラッシュ
+        try:
+            if hasattr(file_handler.stream, 'fileno'):
+                os.fsync(file_handler.stream.fileno())
+        except (OSError, ValueError):
+            # ファイルディスクリプタが無効な場合は無視
+            pass
         
-        # ファイルの内容を確認
-        tmp_log.flush()
-        tmp_log.seek(0)
-        log_content = tmp_log.read()
-        print("Log file content:", repr(log_content))
+        # ログファイルの内容を確認
+        with open(log_file, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
+        print(f"ログファイルの内容: {log_content}")
         
-        # テストのアサーション
-        assert "INFO::format test" in log_content
-        
+        # カスタムフォーマットが適用されているか確認
+        assert "INFO::format test" in log_content, "カスタムフォーマットが適用されていません"
+    finally:
+        # クリーンアップ
+        logger.removeHandler(file_handler)
+        file_handler.close()
+        # ファイルが存在する場合は削除
+        if os.path.exists(log_file):
+            try:
+                os.remove(log_file)
+            except (OSError, PermissionError):
+                # Windowsではファイルが使用中の場合があるため、エラーを無視
+                pass       
         # ハンドラを削除
         logger.removeHandler(file_handler)
 
@@ -624,34 +653,56 @@ def test_config_env_override_test(tmp_config, caplog, monkeypatch):
     monkeypatch.setenv("LOGKISS_LEVEL", "ERROR")
     logkiss.yaml_config(config_path)
     
-    # 一時ファイルにログを出力して確認
-    with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8") as tmp_log:
+    # Windows環境ではファイルが開いたままアクセスできないため、一時ディレクトリとファイル名を使用
+    temp_dir = tempfile.gettempdir()
+    log_file = os.path.join(temp_dir, f"logkiss_env_test_{os.getpid()}.log")
+    
+    # ロガーを取得
+    logger = logkiss.getLogger("test10")
+    
+    try:
         # 一時的にファイルハンドラを追加
-        file_handler = logging.FileHandler(tmp_log.name)
-        file_formatter = logging.Formatter("%(levelname)s %(message)s")
-        file_handler.setFormatter(file_formatter)
-        
-        logger = logkiss.getLogger("test10")
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
         logger.addHandler(file_handler)
         
-        # INFOレベルは出力されないはず
-        logger.info("should not appear")
-        # ERRORレベルは出力されるはず
-        logger.error("should appear")
+        # INFOレベルのログは環境変数によってレベルがERRORに設定されているため、出力されないはず
+        logger.info("This should NOT be logged")
+        # ERRORレベルのログは出力されるはず
+        logger.error("This should be logged")
         
-        # ファイルに書き込み
+        # ファイルハンドラをフラッシュ
         file_handler.flush()
+        # Windowsではファイルの書き込みが即座に反映されない場合があるため、確実にフラッシュ
+        try:
+            if hasattr(file_handler.stream, 'fileno'):
+                os.fsync(file_handler.stream.fileno())
+        except (OSError, ValueError):
+            # ファイルディスクリプタが無効な場合は無視
+            pass
         
-        # ファイルの内容を確認
-        tmp_log.flush()
-        tmp_log.seek(0)
-        log_content = tmp_log.read()
-        print("Log file content:", repr(log_content))
+        # ログファイルの内容を確認
+        with open(log_file, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        # 改行コードを正規化
+        log_content = log_content.replace("\r\n", "\n")
+        print(f"ログファイルの内容: {log_content}")
         
-        # テストのアサーション
-        assert "should appear" in log_content
-        assert "should not appear" not in log_content
-        
+        # INFOレベルのログが出力されていないことを確認
+        assert "This should NOT be logged" not in log_content, "INFOレベルのログが出力されています"
+        # ERRORレベルのログが出力されていることを確認
+        assert "This should be logged" in log_content, "ERRORレベルのログが出力されていません"
+    finally:
+        # クリーンアップ
+        logger.removeHandler(file_handler)
+        file_handler.close()
+        # ファイルが存在する場合は削除
+        if os.path.exists(log_file):
+            try:
+                os.remove(log_file)
+            except (OSError, PermissionError):
+                # Windowsではファイルが使用中の場合があるため、エラーを無視
+                pass       
         # ハンドラを削除
         logger.removeHandler(file_handler)
 
