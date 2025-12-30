@@ -68,6 +68,8 @@ git checkout -b feature/your-feature-name
 
 2. 変更を加え、コミットします：
 
+**注意: コミットメッセージは必ず英語で記述してください。**
+
 ```bash
 git add .
 git commit -m "Add your feature description"
