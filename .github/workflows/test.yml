@@ -1,7 +1,7 @@
 name: Test
 
-# Python 3.7は最新のUbuntu 24.04ではサポートされていないため、
-# 明示的にubuntu-22.04を指定しています
+# Python 3.7は最新のUbuntu 24.04およびmacOS-14ではサポートされていないため、
+# 明示的にubuntu-22.04を指定し、macOSではPython 3.7を除外しています
 on:
   push:
     branches: [ "main", "newgcplogging", "override2" ]
@@ -10,28 +10,35 @@ on:
   workflow_dispatch:  # 手動実行用のトリガーを追加
 
 jobs:
+  # ユニットテスト: Windows, macOS, Linux
   test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # 一つのジョブが失敗しても他のジョブは継続する
       matrix:
-        os: [ubuntu-22.04, windows-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          # Python 3.7はubuntu-22.04とwindows-latestでのみテスト
+          - os: ubuntu-22.04
+            python-version: "3.7"
+          - os: windows-latest
+            python-version: "3.7"
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pytest pytest-cov pyyaml boto3 google-cloud-logging python-dotenv
         pip install -e .
-        
+
     - name: Run tests
       env:
         PYTHONPATH: ${{ github.workspace }}
@@ -39,7 +46,7 @@ jobs:
       run: |
         # E2E、AWS、GCPテストをスキップ (conftest.pyでマーカーベースのスキップが設定済み)
         pytest tests/ -v --cov=logkiss --cov-report=xml
-        
+
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
